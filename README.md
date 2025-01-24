@@ -1,4 +1,4 @@
-# Get2Class
+# CPEN 321 Project: Get2Class
 
 ## Group Members
 - Lucas Beitel
