@@ -8,7 +8,7 @@
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
-
+![Get2Class Use-Case Diagram](./images/CPEN321_Use_Case_Diagram_Image.webp)
 
 ### **3.2. Actors Description**
 1. **[WRITE_NAME_HERE]**: ...
