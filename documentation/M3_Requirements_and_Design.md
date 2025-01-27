@@ -39,7 +39,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 2. **Import and View Schedule**
     - **Overview**:
         1. Create Schedule: The system must allow the user to generate a blank schedule
-        2. Update Schedule: The system must allow the user to import their schedule from Workday
+        2. Import Schedule: The system must allow the user to import their schedule from Workday
         3. View Schedule: The system must allow the user to view their schedule in a clear and understandable format
         4. Delete Schedule: The system must allow the user to delete an existing schedule
     
@@ -62,7 +62,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 2c1. An error message is displayed telling the user that the schedule name does not meet the criteria of the schedule naming convention
                     - 2c2. The app prompts the user to enter a valid schedule name
 
-        2. **Update Schedule**:
+        2. **Import Schedule**:
             - **Description**: The user can import their own schdule from Workday onto a blank existing schedule the user has created
             - **Primary actor(s)**: User (Student/Professor) and Workday API
             - **Main success scenario**:
@@ -193,7 +193,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 
 
 ### **3.4. Screen Mockups**
-
+N/A
 
 ### **3.5. Non-Functional Requirements**
 <a name="nfr1"></a>
