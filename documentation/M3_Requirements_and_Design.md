@@ -27,7 +27,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
             - **Description**: The user will utilize an external authentication API such as Google Sign In API to log themselves into the app with their credentials as a user.
             - **Primary actor(s)**: User (Student/Professor) 
             - **Main success scenario**:
-                1. Use will click on the Google Sign In button
+                1. User will click on the Google Sign In button
                 2. A popup/rerouting of the page will occur providing the user a screen to enter their Google credentials into a box
                 3. Once the user hits the Login button they will then be routed to the home page of the application
             - **Failure scenario(s)**:
