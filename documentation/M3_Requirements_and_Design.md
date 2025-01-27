@@ -192,10 +192,15 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 ### **3.5. Non-Functional Requirements**
 <a name="nfr1"></a>
 
-1. **[WRITE_NAME_HERE]**
-    - **Description**: ...
-    - **Justification**: ...
-2. ...
+1. **[Schedule Usability]**
+    - **Description**: The schedule shoud be displayed on the screen within 3 seconds of selection
+    - **Justification**: Quick schedule display avoids user dissatisfaction and saves time for busy professors and students
+2. **[Location Accuracy]**
+    - **Description**: The user's location should be track within a radius of 100 meters from the actual location
+    - **Justification**: Accurate location tracking helps provide the optimal rout, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points.
+2. **[Friend List Synchronization]**
+    - **Description**: Updates of a Friend List should be reflected to the Friend List of all affected users within 5 seconds
+    - **Justification**: Quick synchronization ensures consistency across different users and avoids user dissatisfection
 
 
 ## 4. Designs Specification
