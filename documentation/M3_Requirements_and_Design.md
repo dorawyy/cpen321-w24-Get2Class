@@ -20,8 +20,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 
 1. **User Login and Authentication** 
     - **Overview**:
-        1. Sign In to Account: System must allow user to utilize external authentication to login to the app 
-    
+        1. Sign In to Account: System must allow user to utilize external authentication to login to the app     
     - **Detailed Flow for Each Independent Scenario**: 
         1. **Sign In to Account**:
             - **Description**: The user will utilize an external authentication API such as Google Sign In API to log themselves into the app with their credentials as a user.
@@ -42,7 +41,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
         2. Import Schedule: The system must allow the user to import their schedule from Workday
         3. View Schedule: The system must allow the user to view their schedule in a clear and understandable format
         4. Delete Schedule: The system must allow the user to delete an existing schedule
-    
     - **Detailed Flow for Each Independent Scenario**:
         1. **Create Schedule**:
             - **Description**: The user can create a blank schedule with a name
@@ -61,7 +59,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 - 2c. The user enters illegal characters into the schedule name
                     - 2c1. An error message is displayed telling the user that the schedule name does not meet the criteria of the schedule naming convention
                     - 2c2. The app prompts the user to enter a valid schedule name
-
         2. **Import Schedule**:
             - **Description**: The user can import their own schdule from Workday onto a blank existing schedule the user has created
             - **Primary actor(s)**: User (Student/Professor) and Workday API
@@ -74,7 +71,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 - 3a. The user uploads a non-valid or non .csv file
                     - 3a1. An error message is displayed telling the user that the uploaded file is not valid
                     - 3a2. The app will prompt the user to import a valid schedule again
-
         3. **View Schedule**:
             - **Description**: The user can view their schedules and a particular schedule
             - **Primary actor(s)**: User (Student/Professor) 
@@ -83,7 +79,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 2. The app opens up the schedule for the user to view
             - **Failure scenario(s)**:
                 - N/A
-
         4. **Delete Schedule**:
             - **Description**: The user can delete their existing schedules
             - **Primary actor(s)**: User (Student/Professor) 
@@ -99,7 +94,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 3. **Display Route to Class**
     - **Overview**:
         1. View Route: The system must display to the user a route to their next class
-    
     - **Detailed Flow for Each Independent Scenario**:
         1. **View Route**:
             - **Description**: The user can view the optimal route to the next class based on their schedule and the current location
@@ -119,7 +113,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
     - **Overview**:
         1. View Profile and Settings: The system must allow the user to view their profile and settings
         2. Update Notifications: The system must allow the user to manage their notification settings
-
     - **Detailed Flow for Each Independent Scenario**:
         1. **View Profile and Settings**:
             - **Description**: The user can view their profile and accumulated points
@@ -129,7 +122,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 2. The app routes them to their profile page
             - **Failure scenario(s)**:
                 - N/A
-
         2. **Update Notifications**:
             - **Description**: The user can change whether they want to turn on or off the notifications
             - **Primary Actor(s)**: User (Student/Professor)
@@ -149,7 +141,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
         1. View Friends: The system must allow the user to view the friends they have added 
         2. Add Friends: The system must allow the user to add friends
         3. Delete Friends: The system must allow the user to delete friends
-    
     - **Detailed Flow for Each Independent Scenario**:
         1. **View Friends**:
             - **Description**: The user can see their friends with their points
@@ -160,7 +151,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
             - **Failure scenario(s)**:
                 - 2a. The user has no friends
                     - 2a1. The app display a message to encourage the user to add more friends and compete with them
-
         2. **Add Friends**:
             - **Description**: The user can add new friends to their Friend List
             - **Primary Actor(s)**: User (Student/Professor)
@@ -178,7 +168,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 - 2c. The user enters illegal characters in the add friend box
                     - 2c1. An error message is displayed telling the user that the username does not meet the criteria of the username naming convention
                     - 2c2. The app prompts the user to enter a valid username
-
         3. **Delete Friends**:
             - **Description**: The user can delete their friends from the Friend List
             - **Primary Actor(s)**: User (Student/Professor)
@@ -218,7 +207,6 @@ N/A
             - **Purpose**: ...
         2. routeToSettings
         3. ...
-
 2. **Schedule**
     - **Purpose**: ...
     - **Interfaces**:
@@ -227,7 +215,6 @@ N/A
         2. routeToMap
         3. getSpecificSchedule
         4. retrieveWorkdaySchedule
-
 3. **Map**
     - **Purpose**: ...
     - **Interfaces**:
@@ -239,7 +226,6 @@ N/A
         4. displayUserLocation
         5. displayRoute
         6. updatePoints
- 
 4. **Settings**
     - **Purpose**: ...
     - **Interfaces**:
@@ -251,23 +237,18 @@ N/A
 ### **4.2. Databases**
 1. **Get2ClassDB.users Collection**
     - **Purpose**: ...
-
 2. **Get2ClassDB.schedules Collection**
     - **Purpose**: ...
-
 3. **Get2ClassDB.points Collection**
     - **Purpose**: ...
-
 4. **Get2ClassDB.settings Collection**
     - **Purpose**: ...
 
 ### **4.3. External Modules**
 1. **Google Sign In API** 
     - **Purpose**: ...
-
 2. **Google Maps API**
     - **Purpose**: ...
-
 3. **Workday API**
     - **Purpose**: ...
 
