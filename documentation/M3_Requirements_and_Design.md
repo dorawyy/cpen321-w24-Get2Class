@@ -201,62 +201,82 @@ N/A
 ## 4. Designs Specification
 ### **4.1. Main Components**
 1. **Front End**
-    - **Purpose**: ...
-    - **Interfaces**: ...
-        1. routeToSchedule
-            - **Purpose**: ...
-        2. routeToSettings
-        3. ...
+    - **Purpose**: Front end allows the user to interact with all other components of the app. Also, it presents all data in a meaningful and human-readable way
+    - **Interfaces**:
+        1. void routeToSchedule()
+            - **Purpose**: This routes the user to the Schedule page and allows the user to view their schedules
+        2. void routeToProfileAndSettings()
+            - **Purpose**: This routes the user to the Profile and Settings page and allows the user to view their profile and Karma points, as well as their current notifications settings
+        3. void signIn()
+            - **Purpose**: This is a wrapper function that calls the Google sign in API. It allows the user to sign in with their Google account
+        4. void signOut()
+            - **Purpose**: This is a wrapper function that calls the Google sign in API. It allows the user to log out their account
+        5. void toggleNotifications()
+            - **Purpose**: This is a wraper function that calls updateSettings() in the Settings component. It allows the user to turn their notifications on or off
 2. **Schedule**
-    - **Purpose**: ...
+    - **Purpose**: This stores information about the user's schedules and allows the user to perform different opertions on their schedules, such as create, import, view and delete
     - **Interfaces**:
-        1. showSchedules
-            - **Purpose**: ...
-        2. routeToMap
-        3. getSpecificSchedule
-        4. retrieveWorkdaySchedule
+        1. void showSchedules()
+            - **Purpose**: This displays all the user's schedules in a list view
+        2. void routeToMap(List\<double> classLocation, double classStartingTime)
+            - **Purpose**: This calls displayRoute(getRouteToClass()) in the Map component. This brings the user to the Map screen and displays the optimal route to the selected class based on the location and starting time of it
+        3. void getSpecificSchedule(String id)
+            - **Purpose**: This displays a specific schedule in a calendar view based on a given id
+        4. List\<Schedule> retrieveWorkdaySchedule(String username)
+            - **Purpose**: This calls the Workday API and gets all schedules of the user based on their username
+        5. void addSchedule(String name)
+            - **Purpose**: This creates a blank schedule with a given name
+        6. void removeSchedule(String id)
+            - **Purpose**: This removes a schedule with a given id
 3. **Map**
-    - **Purpose**: ...
+    - **Purpose**: Map displays locations and routes on the screen
     - **Interfaces**:
-        1. getRouteToClass
-            - **Purpose**: ...
-        2. checkUserIsInClass
-            - **Purpose**: ...
-        3. displayDestinationLocation
-        4. displayUserLocation
-        5. displayRoute
-        6. updatePoints
+        1. Route getRouteToClass(List\<double> classLocation, double classStartingTime)
+            - **Purpose**: This calls the Google Maps API and fetches the optimal route to the next class based on the location and starting time of it
+        2. boolean checkUserIsInClass(List\<double> classLocation)
+            - **Purpose**: This checks if the user is in class based on the current location and the class location
+        3. void displayDestinationLocation(List\<double> classLocation)
+            - **Purpose**: This pins the location of the next class on the map
+        4. void displayUserLocation()
+            - **Purpose**: This pins the location of the user
+        5. void displayRoute(Route route)
+            - **Purpose**: This displays a given route on the map
+        6. void updatePoints(String username, List\<double> classLocation, double classStartingTime)
+            - **Purpose**: This increases or decreases the points of a user based on the location and time
 4. **Settings**
-    - **Purpose**: ...
+    - **Purpose**: This stores the points and notifications settings of the user
     - **Interfaces**:
-        1. getSettings
-        2. updateSettings
-        3. getPoints
+        1. boolean getSettings(String username)
+            - **Purpose**: This fetches the notifications settings of a given user
+        2. void updateSettings(String username)
+            - **Purpose**: This turns the user's notifications on or off
+        3. int getPoints(String username)
+            - **Purpose**: This fetches the points of a given user
 
 
 ### **4.2. Databases**
 1. **Get2ClassDB.users Collection**
-    - **Purpose**: ...
+    - **Purpose**: This collection stores the users' names
 2. **Get2ClassDB.schedules Collection**
-    - **Purpose**: ...
+    - **Purpose**: This collection stores all the schedules of the users
 3. **Get2ClassDB.points Collection**
-    - **Purpose**: ...
+    - **Purpose**: This collection stores the points of all the users
 4. **Get2ClassDB.settings Collection**
-    - **Purpose**: ...
+    - **Purpose**: This collection stores the notification settings of all the users
 
 ### **4.3. External Modules**
 1. **Google Sign In API** 
-    - **Purpose**: ...
+    - **Purpose**: This API is utilized to authenticate the users and log the users out
 2. **Google Maps API**
-    - **Purpose**: ...
+    - **Purpose**: This API is used to display the map and determine the best route to the next class
 3. **Workday API**
-    - **Purpose**: ...
+    - **Purpose**: This API is used for importing the schedules from workday
 
 
 ### **4.4. Frameworks**
 1. **Amazon Web Services (AWS) EC2**
-    - **Purpose**: ...
-    - **Reason**: ...
+    - **Purpose**: This is used to process the requests sent from the front end, and exchange data with the database
+    - **Reason**: It is free to used for a certain amount of time, and we learned how to work with it in Milstone 1
 
 2. **Amazon Web Services (AWS) API Gateway**
     - **Purpose**: ...
