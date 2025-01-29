@@ -8,7 +8,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
-![Get2Class Use-Case Diagram](./images/CPEN321_Use_Case_Diagram_Image.webp)
+![Get2Class Use-Case Diagram](./images/CPEN321_Use_Case_Diagram_Image.png)
 
 ### **3.2. Actors Description**
 1. **User**: The User is a student/professor which utilizes the application to help get them to their next class.
@@ -20,7 +20,8 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 
 1. **User Login and Authentication** 
     - **Overview**:
-        1. Sign In to Account: System must allow user to utilize external authentication to login to the app     
+        1. Sign In to Account: System must allow user to utilize external authentication to login to the app
+        2. Log Out of Account: System must allow user to log out of the app (which utilizes the external authentication)     
     - **Detailed Flow for Each Independent Scenario**: 
         1. **Sign In to Account**:
             - **Description**: The user will utilize an external authentication API such as Google Sign In API to log themselves into the app with their credentials as a user.
@@ -34,8 +35,16 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 2a1. The app routes the user back to log in screen
                     - 2a2. An error message is displayed telling the user of the error (e.g. error getting credentials)
                     - 2a3. The app prompts the user to try to log in again
+        2. **Log Out of Account**:
+            - **Description**: The user will utilize the external authentication API such as Google Sign In API to log themselves out of the app
+            - **Primary actor(s)**: User (Student/Professor)
+            - **Main success scenario**:
+                1. User will click on the Log Out button
+                2. A rerouting of the page will occur which brings the user back to the login page of the app
+            - **Failure scenario(s)**:
+                - N/A
     
-2. **Import and View Schedule**
+2. **Manage Schedules**
     - **Overview**:
         1. Create Schedule: The system must allow the user to generate a blank schedule
         2. Import Schedule: The system must allow the user to import their schedule from Workday
@@ -61,7 +70,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 2c2. The app prompts the user to enter a valid schedule name
         2. **Import Schedule**:
             - **Description**: The user can import their own schdule from Workday onto a blank existing schedule the user has created
-            - **Primary actor(s)**: User (Student/Professor) and Workday API
+            - **Primary actor(s)**: User (Student/Professor), Workday API
             - **Main success scenario**:
                 1. The user clicks on a an already existing blank schedule they have created
                 2. The user will then click on the Import Schedule button
@@ -91,13 +100,13 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 3a1. The warning message is dismissed
                     - 3a2. The app routes the user back to the original screen and does not delete the schedule
 
-3. **Display Route to Class**
+3. **View Map/Route**
     - **Overview**:
-        1. View Route: The system must display to the user a route to their next class
+        1. View Map/Route: The system must display to the user a route to their next class
     - **Detailed Flow for Each Independent Scenario**:
         1. **View Route**:
             - **Description**: The user can view the optimal route to the next class based on their schedule and the current location
-            - **Primary actor(s)**: User (Student/Professor) and Google Map API
+            - **Primary actor(s)**: User (Student/Professor), Google Maps API
             - **Main success scenario**:
                 1. The user clicks on View Route
                 2. The app prompts the user to grant location permissions if not already granted
@@ -109,14 +118,14 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 2a2. If the user denies twice, the app shows a dialog to tell the user to enable location permissions in the settings first
                     - 2a3. The app routes the user back to the previous screen
 
-4. **Manage User Profile and Notifications**
+4. **Manage User Settings**
     - **Overview**:
         1. View Profile and Settings: The system must allow the user to view their profile and settings
         2. Update Notifications: The system must allow the user to manage their notification settings
     - **Detailed Flow for Each Independent Scenario**:
         1. **View Profile and Settings**:
             - **Description**: The user can view their profile and accumulated points
-            - **Primary Actor(s)**: User (Student/Professor)
+            - **Primary actor(s)**: User (Student/Professor)
             - **Main success scenario**:
                 1. The user clicks on their profile
                 2. The app routes them to their profile page
@@ -136,50 +145,24 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 3a2. If the user denies twice, the app shows a dialog to tell the user to enable notifications permissions in the settings first
                     - 3a3. The app routes the user back to the previous screen
 
-5. **View and Add Friends**
+5. **Check Attendance**
     - **Overview**:
-        1. View Friends: The system must allow the user to view the friends they have added 
-        2. Add Friends: The system must allow the user to add friends
-        3. Delete Friends: The system must allow the user to delete friends
+        1. Check Attendance: The system must allow the user to check themselves into the class to obtain their points (karma)
     - **Detailed Flow for Each Independent Scenario**:
-        1. **View Friends**:
-            - **Description**: The user can see their friends with their points
-            - **Primary Actor(s)**: User (Student/Professor)
+        1. **Check Attendance**:
+            - **Description**: The user can check themselves in when they arrive at the classroom and the system will provide to the user points (karma)
+            - **Primary actor(s)**: User (Student/Professor), Google Maps API
             - **Main success scenario**:
-                1. The user clicks on their Friend List
-                2. The app displays all friends of the user on the screen together with their points
+                1. User clicks on the Check In button
+                2. System will check that the user is in the right location within the allotted/right time
+                3. System grants user points (karma)
             - **Failure scenario(s)**:
-                - 2a. The user has no friends
-                    - 2a1. The app display a message to encourage the user to add more friends and compete with them
-        2. **Add Friends**:
-            - **Description**: The user can add new friends to their Friend List
-            - **Primary Actor(s)**: User (Student/Professor)
-            - **Main success scenario**:
-                1. The user clicks on the Add Friend button
-                2. The app prompts the user to enter the username of the new friend
-                3. Once the user enters the username and hits the Add button, the new friend will be added to and shown in the Friend List
-            - **Failure scenario(s)**:
-                - 2a. The user enters nothing for the username
-                    - 2a1. An error message is displayed telling the user that the username cannot be empty
-                    - 2a2. The app prompts the user to enter the username again
-                - 2b. The user enters a username that does not exist
-                    - 2b1. An error message is displayed telling the user that the username does not exist
-                    - 2b2. The app prompts the user to check the spelling and re-enter the username
-                - 2c. The user enters illegal characters in the add friend box
-                    - 2c1. An error message is displayed telling the user that the username does not meet the criteria of the username naming convention
-                    - 2c2. The app prompts the user to enter a valid username
-        3. **Delete Friends**:
-            - **Description**: The user can delete their friends from the Friend List
-            - **Primary Actor(s)**: User (Student/Professor)
-            - **Main success scenario**:
-                1. The user selects (e.g. swipe or long press on) one friend
-                2. The app pops up a warning messaage for deleting the selected friend
-                3. If the user hits Confirm, the app removes the friend from the Friend List and the warning is dismissed
-            - **Failure scenario(s)**:
-                - 3a. The user hits Cancel or elsewhere
-                    - 3a1. The warning message is dismissed
-                    - 3a2. The app routes the user back to the original screen and does not delete the friend
-
+                - 2a. User is not in right location but within the allotted time
+                    - 2a1. A popup message will occur notifying the user that they are not in the right location of their class location
+                - 2b. User is in the right location but not within the allotted time
+                    - 2b1. A popup message will occur notifying the user that they are not within the right location neither are they within the allotted time
+                - 2c. User is not in the right location neither are they within the allotted time
+                    - 2c1. A popup message will occur notifying the user that they are not within the right location neither are they within the allotted time
 
 ### **3.4. Screen Mockups**
 N/A
@@ -233,7 +216,7 @@ N/A
     - **Interfaces**:
         1. Route getRouteToClass(List\<double> classLocation, double classStartingTime)
             - **Purpose**: Calls the Google Maps API and fetches the optimal route to the next class based on the location and starting time of it
-        2. boolean checkUserIsInClass(List\<double> classLocation)
+        2. boolean checkAttendance(List\<double> classLocation)
             - **Purpose**: Checks if the user is in class based on the user current location, class location, and the current time of the class and user
         3. void getDestinationLocation(List\<double> classLocation)
             - **Purpose**: Retrieves the location of the next class from the map and creates a pin
