@@ -201,57 +201,55 @@ N/A
 ## 4. Designs Specification
 ### **4.1. Main Components**
 1. **Front End**
-    - **Purpose**: Front end allows the user to interact with all other components of the app. Also, it presents all data in a meaningful and human-readable way
+    - **Purpose**: Front end allows the user to interact with all other back end components of the app. Also, it presents all data in a meaningful and human-readable way
     - **Interfaces**:
         1. void routeToSchedule()
             - **Purpose**: This routes the user to the Schedule page and allows the user to view their schedules
         2. void routeToProfileAndSettings()
-            - **Purpose**: This routes the user to the Profile and Settings page and allows the user to view their profile and Karma points, as well as their current notifications settings
+            - **Purpose**: This routes the user to the Profile and Settings page and allows the user to view their profile and Karma points, as well as their current user settings
         3. void signIn()
-            - **Purpose**: This is a wrapper function that calls the Google sign in API. It allows the user to sign in with their Google account
+            - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to sign in with their Google account
         4. void signOut()
-            - **Purpose**: This is a wrapper function that calls the Google sign in API. It allows the user to log out their account
-        5. void toggleNotifications()
-            - **Purpose**: This is a wraper function that calls updateSettings() in the Settings component. It allows the user to turn their notifications on or off
+            - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to log out their account
 2. **Schedule**
     - **Purpose**: This stores information about the user's schedules and allows the user to perform different opertions on their schedules, such as create, import, view and delete
     - **Interfaces**:
-        1. void showSchedules()
-            - **Purpose**: This displays all the user's schedules in a list view
+        1. List\<Schedule> getAllSchedules()
+            - **Purpose**: Retrieves all the user's schedules as a list
         2. void routeToMap(List\<double> classLocation, double classStartingTime)
-            - **Purpose**: This calls displayRoute(getRouteToClass()) in the Map component. This brings the user to the Map screen and displays the optimal route to the selected class based on the location and starting time of it
-        3. void getSpecificSchedule(String id)
-            - **Purpose**: This displays a specific schedule in a calendar view based on a given id
+            - **Purpose**: Calls getRouteToClass() in the Map component. This brings the user to the Map screen and displays the optimal route to the selected class based on the location and starting time of it
+        3. Schedule getSpecificSchedule(String id)
+            - **Purpose**: Retrieves a specific schedule of the user given the schedule id and returns back a schedule to the user
         4. List\<Schedule> retrieveWorkdaySchedule(String username)
-            - **Purpose**: This calls the Workday API and gets all schedules of the user based on their username
+            - **Purpose**: Calls the Workday API and gets all schedules of the user based on their username
         5. void addSchedule(String name)
-            - **Purpose**: This creates a blank schedule with a given name
+            - **Purpose**: Creates a blank schedule with a given name
         6. void removeSchedule(String id)
-            - **Purpose**: This removes a schedule with a given id
+            - **Purpose**: Removes a schedule with a given id
+        7. void importSchedule()
+            - **Purpose**: Import a Workday schedule onto a newly created blank schedule by the user
 3. **Map**
-    - **Purpose**: Map displays locations and routes on the screen
+    - **Purpose**: Map retrieves location information and walking routes for the user
     - **Interfaces**:
         1. Route getRouteToClass(List\<double> classLocation, double classStartingTime)
-            - **Purpose**: This calls the Google Maps API and fetches the optimal route to the next class based on the location and starting time of it
+            - **Purpose**: Calls the Google Maps API and fetches the optimal route to the next class based on the location and starting time of it
         2. boolean checkUserIsInClass(List\<double> classLocation)
-            - **Purpose**: This checks if the user is in class based on the current location and the class location
-        3. void displayDestinationLocation(List\<double> classLocation)
-            - **Purpose**: This pins the location of the next class on the map
-        4. void displayUserLocation()
-            - **Purpose**: This pins the location of the user
-        5. void displayRoute(Route route)
-            - **Purpose**: This displays a given route on the map
-        6. void updatePoints(String username, List\<double> classLocation, double classStartingTime)
+            - **Purpose**: Checks if the user is in class based on the user current location, class location, and the current time of the class and user
+        3. void getDestinationLocation(List\<double> classLocation)
+            - **Purpose**: Retrieves the location of the next class from the map and creates a pin
+        4. void getUserLocation()
+            - **Purpose**: Retrieves the location of the user from the map and creates a pin
+        5. void updatePoints(String username, List\<double> classLocation, double classStartingTime)
             - **Purpose**: This increases or decreases the points of a user based on the location and time
-4. **Settings**
-    - **Purpose**: This stores the points and notifications settings of the user
+4. **User**
+    - **Purpose**: This stores the points and settings of a particular user
     - **Interfaces**:
         1. boolean getSettings(String username)
-            - **Purpose**: This fetches the notifications settings of a given user
+            - **Purpose**: Fetches the settings of a given user
         2. void updateSettings(String username)
-            - **Purpose**: This turns the user's notifications on or off
+            - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications)
         3. int getPoints(String username)
-            - **Purpose**: This fetches the points of a given user
+            - **Purpose**: Fetches the points of a given user
 
 
 ### **4.2. Databases**
@@ -262,29 +260,29 @@ N/A
 3. **Get2ClassDB.points Collection**
     - **Purpose**: This collection stores the points of all the users
 4. **Get2ClassDB.settings Collection**
-    - **Purpose**: This collection stores the notification settings of all the users
+    - **Purpose**: This collection stores the settings of all the users
 
 ### **4.3. External Modules**
 1. **Google Sign In API** 
-    - **Purpose**: This API is utilized to authenticate the users and log the users out
+    - **Purpose**: This API is utilized to authenticate a user and log a user out
 2. **Google Maps API**
     - **Purpose**: This API is used to display the map and determine the best route to the next class
 3. **Workday API**
-    - **Purpose**: This API is used for importing the schedules from workday
+    - **Purpose**: This API is used for importing the schedules from Workday
 
 
 ### **4.4. Frameworks**
 1. **Amazon Web Services (AWS) EC2**
-    - **Purpose**: This is used to process the requests sent from the front end, and exchange data with the database
-    - **Reason**: It is free to used for a certain amount of time, and we learned how to work with it in Milstone 1
+    - **Purpose**: Used to host the application's server back end so that the front end application can communicate and exchange data with the APIs and database
+    - **Reason**: We need a running EC2 instance (computer) in order to support our client-server architecture 
 
 2. **Amazon Web Services (AWS) API Gateway**
-    - **Purpose**: ...
-    - **Reason**: ...
+    - **Purpose**: Used to link our EC2 server routes to a central API that the client (front end application) can call
+    - **Reason**: AWS API Gateway will help our front end application call the routes on our EC2 through HTTPS rather than HTTP
 
 3. **Docker**
-    - **Purpose**: ...
-    - **Reason**: ...
+    - **Purpose**: Synchronize our back end server and database to launch and connect together simultaneously
+    - **Reason**: Simplifies the CI/CD process of managing our EC2 instance which hosts all of our back end related technology (e.g. Express and MongoDB)
 
 ### **4.5. Dependencies Diagram**
 Refer to Week 4 Lecture 1 Slide 14 for Dependency/Design diagram
