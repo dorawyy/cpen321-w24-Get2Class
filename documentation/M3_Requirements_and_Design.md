@@ -204,7 +204,7 @@ N/A
         2. void updatePoints(String username, List\<double> classLocation, double classStartingTime)
             - **Purpose**: This increases or decreases the points of a user based on the location and time
 3. **User**
-    - **Purpose**: Manages the user settings and provides communication to user database which stores the username, points, and settings of a particular user
+    - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, points, and settings of a particular user
     - **Interfaces**:
         1. NotificationSetting getClassNotification(String username, int semesterId)
             - **Purpose**: Retrieves a specific classes notification setting
@@ -264,7 +264,7 @@ N/A
     - **Reason**: Firebase Cloud Messaging (FCM) already has existing integrations with Android applications, so this will simplify the implementation process for notifications
 
 ### **4.5. Dependencies Diagram**
-Refer to Week 4 Lecture 1 Slide 14 for Dependency/Design diagram
+![Get2Class Dependency Diagram](./images/CPEN321_Dependency_Diagram_Image.webp)
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. [**[WRITE_NAME_HERE]**](#fr1)\
