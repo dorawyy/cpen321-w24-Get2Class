@@ -275,7 +275,7 @@ N/A
 ### **4.7. Non-Functional Requirements Design**
 1. [**Schedule Usability**](#nfr1)
     - **Validation**: We can set up a stopwatch and time how long each operation on the schedule takes. Then we check if the response time is less than 3 seconds.
-2. [**Location Accuracy**](#nfr2)Route Accessibility
+2. [**Location Accuracy**](#nfr2)
     - **Validation**: We can open the app and check the attendance at different distance (e.g. 50m, 80m, 120m, 150m etc.) away from the location of the next class. Then by checking the attendance and Karma points, we know the location accuracy
 3. [**Route Accessibility**](#nfr3)
     - **Validation**: We log in to our app and navigate to an arbitrary screen. Then we can test if we can get the route suggestions in 5 clicks or fewer
