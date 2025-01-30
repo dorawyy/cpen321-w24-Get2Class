@@ -8,12 +8,12 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
-![Get2Class Use-Case Diagram](./images/CPEN321_Use_Case_Diagram_Image.png)
+![Get2Class Use-Case Diagram](./images/CPEN321_Use_Case_Diagram_Image.webp)
 
 ### **3.2. Actors Description**
 1. **User**: The User is a student/professor which utilizes the application to help get them to their next class.
-2. **Workday API**: The Workday API is the actor which will integrate the user's course schedule into the app. Additionally, this API will be utilized by the "Import and View Schedule" use case.
-3. **Google Maps API**: The Google Maps API is the actor which will display locations and routes for the user. Additionally, this API will be utilized by the "Display Route to Class" use case.
+2. **Google Maps API**: The Google Maps API is the actor which will display locations and routes for the user. Additionally, this API will be utilized by the "View Route" and "Check Attendance" use case.
+3. **Google Sign In API**: The Google Sign In API is the actor which authenticates users into the application. Additionally, this API will be utilized by the "User Login and Authentication" use case.
 
 ### **3.3. Functional Requirements**
 <a name="fr1"></a>
@@ -25,7 +25,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
     - **Detailed Flow for Each Independent Scenario**: 
         1. **Sign In to Account**:
             - **Description**: The user will utilize an external authentication API such as Google Sign In API to log themselves into the app with their credentials as a user.
-            - **Primary actor(s)**: User (Student/Professor) 
+            - **Primary actor(s)**: User, Google Sign In API
             - **Main success scenario**:
                 1. User will click on the Google Sign In button
                 2. A popup/rerouting of the page will occur providing the user a screen to enter their Google credentials into a box
@@ -37,7 +37,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 2a3. The app prompts the user to try to log in again
         2. **Log Out of Account**:
             - **Description**: The user will utilize the external authentication API such as Google Sign In API to log themselves out of the app
-            - **Primary actor(s)**: User (Student/Professor)
+            - **Primary actor(s)**: User, Google Sign In API
             - **Main success scenario**:
                 1. User will click on the Log Out button
                 2. A rerouting of the page will occur which brings the user back to the login page of the app
@@ -53,7 +53,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
     - **Detailed Flow for Each Independent Scenario**:
         1. **Create Schedule**:
             - **Description**: The user can create a blank schedule with a name
-            - **Primary actor(s)**: User (Student/Professor)
+            - **Primary actor(s)**: User
             - **Main success scenario**:
                 1. The user clicks on the Add Schedule button
                 2. The app prompts the user to enter a name for the new schedule
@@ -70,7 +70,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 2c2. The app prompts the user to enter a valid schedule name
         2. **Import Schedule**:
             - **Description**: The user can import their own schdule from Workday onto a blank existing schedule the user has created
-            - **Primary actor(s)**: User (Student/Professor), Workday API
+            - **Primary actor(s)**: User
             - **Main success scenario**:
                 1. The user clicks on a an already existing blank schedule they have created
                 2. The user will then click on the Import Schedule button
@@ -82,7 +82,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 3a2. The app will prompt the user to import a valid schedule again
         3. **View Schedule**:
             - **Description**: The user can view their schedules and a particular schedule
-            - **Primary actor(s)**: User (Student/Professor) 
+            - **Primary actor(s)**: User
             - **Main success scenario**:
                 1. The user selects (clicks on) one schedule
                 2. The app opens up the schedule for the user to view
@@ -90,7 +90,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 - N/A
         4. **Delete Schedule**:
             - **Description**: The user can delete their existing schedules
-            - **Primary actor(s)**: User (Student/Professor) 
+            - **Primary actor(s)**: User
             - **Main success scenario**:
                 1. The user selects (e.g. swipe or long press on) one schedule
                 2. The app pops up a warning message for deleting the selected schedule
@@ -102,11 +102,11 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 
 3. **View Map/Route**
     - **Overview**:
-        1. View Map/Route: The system must display to the user a route to their next class
+        1. View Route: The system must display to the user a route to their next class
     - **Detailed Flow for Each Independent Scenario**:
         1. **View Route**:
             - **Description**: The user can view the optimal route to the next class based on their schedule and the current location
-            - **Primary actor(s)**: User (Student/Professor), Google Maps API
+            - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
                 1. The user clicks on View Route
                 2. The app prompts the user to grant location permissions if not already granted
@@ -125,7 +125,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
     - **Detailed Flow for Each Independent Scenario**:
         1. **View Profile and Settings**:
             - **Description**: The user can view their profile and accumulated points
-            - **Primary actor(s)**: User (Student/Professor)
+            - **Primary actor(s)**: User
             - **Main success scenario**:
                 1. The user clicks on their profile
                 2. The app routes them to their profile page
@@ -133,7 +133,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 - N/A
         2. **Update Notifications**:
             - **Description**: The user can change whether they want to turn on or off the notifications
-            - **Primary Actor(s)**: User (Student/Professor)
+            - **Primary Actor(s)**: User
             - **Main success scenario**:
                 1. The user clicks on the notification settings
                 2. The apps routes them to the notification settings screen
@@ -183,8 +183,41 @@ N/A
 
 ## 4. Designs Specification
 ### **4.1. Main Components**
-1. **Front End**
-    - **Purpose**: Front end allows the user to interact with all other back end components of the app. Also, it presents all data in a meaningful and human-readable way
+1. **Schedule**
+    - **Purpose**: Manages schedule data and interacts with the schedule database/collection
+    - **Interfaces**:
+        1. List\<Schedule> getAllSchedules()
+            - **Purpose**: Retrieves all the user's schedules as a list
+        2. Schedule getSpecificSchedule(String id)
+            - **Purpose**: Retrieves a specific schedule of the user given the schedule id and returns back a schedule to the user
+        3. void addSchedule(String name)
+            - **Purpose**: Creates a blank schedule with a given name
+        4. void removeSchedule(String id)
+            - **Purpose**: Removes a schedule with a given id
+        5. void importSchedule()
+            - **Purpose**: Import a Workday schedule onto a newly created blank schedule by the user
+2. **Attendance**
+    - **Purpose**: Manages the attendance of a user and synchronizes communication between schedule data and Google Maps API data
+    - **Interfaces**:
+        1. boolean checkAttendance(List\<double> classLocation)
+            - **Purpose**: Checks if the user is in class based on the user current location, class location, and the current time of the class and user
+        2. void updatePoints(String username, List\<double> classLocation, double classStartingTime)
+            - **Purpose**: This increases or decreases the points of a user based on the location and time
+3. **User**
+    - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, points, and settings of a particular user
+    - **Interfaces**:
+        1. NotificationSetting getClassNotification(String username, int semesterId)
+            - **Purpose**: Retrieves a specific classes notification setting
+        2. void updateSettings(String username)
+            - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications)
+        3. int getPoints(String username)
+            - **Purpose**: Fetches the points of a given user
+        4. void createNewUser()
+            - **Purpose**: Creates a new user entry into the database if a newly logged in user does not exist in the database
+        5. String findExistingUser(String username)
+            - **Purpose**: Checks if a logged in user exists in the database already
+4. **Additional Component (not back end related) For Reference: Front End**
+    - **Purpose**: Manages front end interactions with all other back end components of the app
     - **Interfaces**:
         1. void routeToSchedule()
             - **Purpose**: This routes the user to the Schedule page and allows the user to view their schedules
@@ -194,65 +227,20 @@ N/A
             - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to sign in with their Google account
         4. void signOut()
             - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to log out their account
-2. **Schedule**
-    - **Purpose**: This stores information about the user's schedules and allows the user to perform different opertions on their schedules, such as create, import, view and delete
-    - **Interfaces**:
-        1. List\<Schedule> getAllSchedules()
-            - **Purpose**: Retrieves all the user's schedules as a list
-        2. void routeToMap(List\<double> classLocation, double classStartingTime)
-            - **Purpose**: Calls getRouteToClass() in the Map component. This brings the user to the Map screen and displays the optimal route to the selected class based on the location and starting time of it
-        3. Schedule getSpecificSchedule(String id)
-            - **Purpose**: Retrieves a specific schedule of the user given the schedule id and returns back a schedule to the user
-        4. List\<Schedule> retrieveWorkdaySchedule(String username)
-            - **Purpose**: Calls the Workday API and gets all schedules of the user based on their username
-        5. void addSchedule(String name)
-            - **Purpose**: Creates a blank schedule with a given name
-        6. void removeSchedule(String id)
-            - **Purpose**: Removes a schedule with a given id
-        7. void importSchedule()
-            - **Purpose**: Import a Workday schedule onto a newly created blank schedule by the user
-3. **Map**
-    - **Purpose**: Map retrieves location information and walking routes for the user
-    - **Interfaces**:
-        1. Route getRouteToClass(List\<double> classLocation, double classStartingTime)
-            - **Purpose**: Calls the Google Maps API and fetches the optimal route to the next class based on the location and starting time of it
-        2. boolean checkAttendance(List\<double> classLocation)
-            - **Purpose**: Checks if the user is in class based on the user current location, class location, and the current time of the class and user
-        3. void getDestinationLocation(List\<double> classLocation)
-            - **Purpose**: Retrieves the location of the next class from the map and creates a pin
-        4. void getUserLocation()
-            - **Purpose**: Retrieves the location of the user from the map and creates a pin
-        5. void updatePoints(String username, List\<double> classLocation, double classStartingTime)
-            - **Purpose**: This increases or decreases the points of a user based on the location and time
-4. **User**
-    - **Purpose**: This stores the points and settings of a particular user
-    - **Interfaces**:
-        1. boolean getSettings(String username)
-            - **Purpose**: Fetches the settings of a given user
-        2. void updateSettings(String username)
-            - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications)
-        3. int getPoints(String username)
-            - **Purpose**: Fetches the points of a given user
-
 
 ### **4.2. Databases**
-1. **Get2ClassDB.users Collection**
-    - **Purpose**: This collection stores the users' names
-2. **Get2ClassDB.schedules Collection**
-    - **Purpose**: This collection stores all the schedules of the users
-3. **Get2ClassDB.points Collection**
-    - **Purpose**: This collection stores the points of all the users
-4. **Get2ClassDB.settings Collection**
-    - **Purpose**: This collection stores the settings of all the users
+1. **Schedule**
+    - **Purpose**: Stores the class-specific notifications and schedules of the users
+2. **User**
+    - **Purpose**: Stores all user information (e.g. username, points, and settings)
 
 ### **4.3. External Modules**
 1. **Google Sign In API** 
     - **Purpose**: This API is utilized to authenticate a user and log a user out
 2. **Google Maps API**
     - **Purpose**: This API is used to display the map and determine the best route to the next class
-3. **Workday API**
-    - **Purpose**: This API is used for importing the schedules from Workday
-
+3. **Firebase Cloud Messaging API**
+    - **Purpose**: Provides push notifications within the application for users
 
 ### **4.4. Frameworks**
 1. **Amazon Web Services (AWS) EC2**
@@ -265,10 +253,18 @@ N/A
 
 3. **Docker**
     - **Purpose**: Synchronize our back end server and database to launch and connect together simultaneously
-    - **Reason**: Simplifies the CI/CD process of managing our EC2 instance which hosts all of our back end related technology (e.g. Express and MongoDB)
+    - **Reason**: Simplifies the process of managing our EC2 instance which hosts all of our back end related technology (e.g. Express and MongoDB)
+
+4. **MongoDB**
+    - **Purpose**: Stores our model (persistence) layer related to Schedule and User data
+    - **Reason**: MongoDB was used in Milestone 1 and will be simple to organize our data in a format that we are already familiar with
+
+5. **Firebase Cloud Messaging API**
+    - **Purpose**: Provides push notifications for users for when they should leave for their classes 
+    - **Reason**: Firebase Cloud Messaging (FCM) already has existing integrations with Android applications, so this will simplify the implementation process for notifications
 
 ### **4.5. Dependencies Diagram**
-Refer to Week 4 Lecture 1 Slide 14 for Dependency/Design diagram
+![Get2Class Dependency Diagram](./images/CPEN321_Dependency_Diagram_Image.webp)
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. [**[WRITE_NAME_HERE]**](#fr1)\
