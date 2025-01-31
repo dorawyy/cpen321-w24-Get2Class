@@ -171,14 +171,14 @@ N/A
 <a name="nfr1"></a>
 
 1. **Schedule Usability**
-    - **Description**: The schedule should be displayed on the screen within 3 seconds of selection
-    - **Justification**: Quick schedule display avoids user dissatisfaction and saves time for busy professors and students
+    - **Description**: All schedules operations (create, import, view, delete) should be processed and reflected on the screen within 3 seconds of the user action
+    - **Justification**: Quick schedule display avoids user dissatisfaction and saves time for busy professors and students to check the time and location for their upcoming classes
 2. **Location Accuracy**
     - **Description**: The user's location should be track within a radius of 100 meters from the actual location
-    - **Justification**: Accurate location tracking helps provide the optimal route, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points.
-2. **Friend List Synchronization**
-    - **Description**: Updates of a Friend List should be reflected to the Friend List of all affected users within 5 seconds
-    - **Justification**: Quick synchronization ensures consistency across different users and avoids user dissatisfaction
+    - **Justification**: Accurate location tracking helps provide the optimal route, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points
+2. **Route Accessibility**
+    - **Description**: When logged in, the user can obtain the optimal route to their next class in at most five clicks
+    - **Justification**: Quick route access ensures students and professors get route suggestions with minimal effort and avoids user dissatisfaction. This also help the user to get to class on time
 
 
 ## 4. Designs Specification
@@ -273,9 +273,12 @@ N/A
 
 
 ### **4.7. Non-Functional Requirements Design**
-1. [**[WRITE_NAME_HERE]**](#nfr1)
-    - **Validation**: ...
-2. ...
+1. [**Schedule Usability**](#nfr1)
+    - **Validation**: We can set up a stopwatch and time how long each operation on the schedule takes. Then we check if the response time is less than 3 seconds.
+2. [**Location Accuracy**](#nfr2)
+    - **Validation**: We can open the app and check the attendance at different distance (e.g. 50m, 80m, 120m, 150m etc.) away from the location of the next class. Then by checking the attendance and Karma points, we know the location accuracy
+3. [**Route Accessibility**](#nfr3)
+    - **Validation**: We log in to our app and navigate to an arbitrary screen. Then we can test if we can get the route suggestions in 5 clicks or fewer
 
 
 ### **4.8. Main Project Complexity Design**
