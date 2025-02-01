@@ -198,8 +198,8 @@ N/A
 2. **Attendance**
     - **Purpose**: Manages the attendance of a user and synchronizes communication between schedule data and Google Maps API data
     - **Interfaces**:
-        1. String checkAttendance(String username, List\<double> userCooridnates, double userTime, String id)
-            - **Purpose**: Checks if the user is in class based on the user current location, class location, and the current time of the class and user
+        1. String checkAttendance(String username, List\<double> userCoordinates, double userTime, String id)
+            - **Purpose**: Checks if the user is in class based on the username, user current location, the current time of the class, and the schedule ID that the user is interacting with
 3. **User**
     - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, points (karma), and settings of a particular user
     - **Interfaces**:
@@ -282,7 +282,7 @@ N/A
 ![View Route Sequence Diagram](./images/CPEN321_ViewRoute_Seq_Diagram_Image.webp)
 8. [**View Profile and Settings**](#fr4_1)\
 ![View Profile and Settings Sequence Diagram](./images/CPEN321_ViewProfileAndSettings_Seq_Diagram_Image.webp)
-9. [**Update Notifications**](#fr4_2)\
+9. [**Update Settings**](#fr4_2)\
 ![Update Settings Sequence Diagram](./images/CPEN321_UpdateSettings_Seq_Diagram_Image.webp)
 10. [**Check Attendance**](#fr5_1)\
 ![Check Attendance Sequence Diagram](./images/CPEN321_CheckAttendance_Seq_Diagram_Image.webp)
@@ -325,14 +325,17 @@ N/A
             for i in range(sizeOf(s) - 1):
                 Class c1 = s[i]
                 Class c2 = s[i + 1]
-
+                
                 // It is before or during the first class
                 if (userTime < c1.end):
                     currClass = c1
                 
-                // It is closer to the first class than the second
-                if (abs(userTime - c1.end) < abs(userTime - c2.start + 10)):
-                    currClass = s[sizeOf(s) - 1]
+                // It is between the two classes
+                if (c1.end < userTime < c2.start - 10):
+                    // It is closer to the first class than the second
+                    if (abs(userTime - c1.end) < abs(userTime - c2.start + 10)):
+                        if (!c1.attended):
+                            currClass = c1
             
             // It is closest to the last class
             if (currClass == null):
@@ -349,11 +352,11 @@ N/A
             elif (currClass.start < userTime):
                 int lateness = userTime - currClass.start
                 int classLength = currClass.end - currClass.start
-                int karma = 10 * lateness/classLength
+                int karma = 10 * (1 - lateness/classLength)
                 User.updateKarma(username, karma)
                 return "You were late to class!"
             else:
-                User.updateKarma(username, karma)
+                User.updateKarma(username, 15)
                 return "Welcome to class!"
         ```
 
