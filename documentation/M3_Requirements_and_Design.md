@@ -364,7 +364,15 @@ N/A
 
 
 ## 5. Contributions
-- ...
-- ...
-- ...
-- ...
+- Trevor Dang
+    - Worked on all sections for 3 and all sections for 4. Helped ensure consistency in diagrams, created functional requirements, and ensure main components and interfaces align with scope of project.
+    - Time spent: ~16 hours
+- Yuanyan Hardy Huang
+    - Co-drafted sections 2, 3.3, 3.5, 4.1 ~ 4.3 and M3 reflections
+    - Time spent: ~7 hours
+- Lucas Beitel
+    - Drafted sections 4.1, 4.5, 4.6, 4.8. Helped with planning, finalizing, and proofreading
+    - Time spent: ~11 hours
+- Luke Matson
+    - Drafted sequence diagrams, helped with general problem solving, design decisions, and proof-reading. Created slide deck
+    - Time spent: ~7 hours
