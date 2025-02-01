@@ -47,7 +47,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 2. **Manage Schedules**
     - **Overview**:
         1. Create Schedule: The system must allow the user to generate a blank schedule
-        2. Import Schedule: The system must allow the user to import their schedule from Workday
+        2. Import Schedule: The system must allow the user to import their schedule from Workday as a csv file
         3. View Schedule: The system must allow the user to view their schedule in a clear and understandable format
         4. Delete Schedule: The system must allow the user to delete an existing schedule
     - **Detailed Flow for Each Independent Scenario**:
@@ -57,7 +57,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
             - **Main success scenario**:
                 1. The user clicks on the Add Schedule button
                 2. The app prompts the user to enter a name for the new schedule
-                3. Once the user enters the name, they will hit the Create button, the newly created schdule shows up on the screen
+                3. Once the user enters the name, they will hit the Create button, the newly created schedule shows up on the screen
             - **Failure scenario(s)**:
                 - 2a. The user enters an empty string for the schedule name
                     - 2a1. An error message is displayed telling the user that the schedule name cannot be empty
@@ -69,10 +69,10 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 2c1. An error message is displayed telling the user that the schedule name does not meet the criteria of the schedule naming convention
                     - 2c2. The app prompts the user to enter a valid schedule name
         2. **Import Schedule**<a name="fr2_2"></a>:
-            - **Description**: The user can import their own schdule from Workday onto a blank existing schedule the user has created
+            - **Description**: The user can import their own schedule from Workday as a csv file onto a blank existing schedule the user has created
             - **Primary actor(s)**: User
             - **Main success scenario**:
-                1. The user clicks on a an already existing blank schedule they have created
+                1. The user clicks on an already existing blank schedule they have created
                 2. The user will then click on the Import Schedule button
                 3. A popup or page reroute will occur requesting the user to upload a (valid) .csv file (from Workday)
                 4. Once the user successfully uploads a .csv file of their schedule, the blank schedule will become populated with the users imported schedule 
@@ -151,7 +151,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
     - **Detailed Flow for Each Independent Scenario**:
         1. **Check Attendance**<a name="fr5_1"></a>:
             - **Description**: The user can check themselves in when they arrive at the classroom and the system will provide to the user points (karma)
-            - **Primary actor(s)**: User (Student/Professor), Google Maps API
+            - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
                 1. User clicks on the Check In button
                 2. System will check that the user is in the right location within the allotted/right time
@@ -173,7 +173,7 @@ N/A
     - **Description**: All schedules operations (create, import, view, delete) should be processed and reflected on the screen within 3 seconds of the user action
     - **Justification**: Quick schedule display avoids user dissatisfaction and saves time for busy professors and students to check the time and location for their upcoming classes
 2. **Location Accuracy** <a name="nfr2"></a>
-    - **Description**: The user's location should be track within a radius of 100 meters from the actual location
+    - **Description**: The user's location should be track within a radius of 50 meters from the actual location
     - **Justification**: Accurate location tracking helps provide the optimal route, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points (karma)
 2. **Route Accessibility** <a name="nfr3"></a>
     - **Description**: When logged in, the user can obtain the optimal route to their next class in at most five clicks
@@ -194,27 +194,29 @@ N/A
         4. void removeSchedule(String id)
             - **Purpose**: Removes a schedule with a given id
         5. void importSchedule(File csvFile, String id)
-            - **Purpose**: Import a Workday schedule onto a newly created blank schedule by the user
+            - **Purpose**: Import a Workday schedule as a csv file onto a newly created blank schedule by the user
 2. **Attendance**
     - **Purpose**: Manages the attendance of a user and synchronizes communication between schedule data and Google Maps API data
     - **Interfaces**:
         1. String checkAttendance(String username, List\<double> userCoordinates, double userTime, String id)
             - **Purpose**: Checks if the user is in class based on the username, user current location, the current time of the class, and the schedule ID that the user is interacting with
+        2. void resetAttendance(String username, String id)
+            - **Purpose**: Resets the attendance of all the classes the user has attended so they can recheck in for the next day and calculates the karma to decrease based on number of missed classes for a particular user
 3. **User**
     - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, points (karma), and settings of a particular user
     - **Interfaces**:
-        1. List\<NotificationSetting> getNotificationSettings(String username)
-            - **Purpose**: Retrieves all notifications of a specific user
-        2. void updateSettings(String username, bool toggleNotification, int remindInMins)
-            - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications and setting how much time before a class a user wants to be notified)
+        1. void createNewUser()
+            - **Purpose**: Creates a new user entry into the database if a newly logged in user does not exist in the database
+        2. String findExistingUser(String username)
+            - **Purpose**: Checks if a logged in user exists in the database already
         3. int getKarma(String username)
             - **Purpose**: Fetches the points (karma) of a given user
-        4. void createNewUser()
-            - **Purpose**: Creates a new user entry into the database if a newly logged in user does not exist in the database
-        5. String findExistingUser(String username)
-            - **Purpose**: Checks if a logged in user exists in the database already
-        6. void updateKarma(String username, int karma)
+        4. void updateKarma(String username, int karma)
             - **Purpose**: This increases or decreases the points (karma) of a user based on the location and time
+        5. List\<NotificationSetting> getNotificationSettings(String username)
+            - **Purpose**: Retrieves all notification settings of a specific user
+        6. void updateSettings(String username, bool toggleNotification, int remindInMins)
+            - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications and setting how much time before a class a user wants to be notified)
 4. **Additional Component (not back end related) For Reference: Front End**
     - **Purpose**: Manages front end interactions with all other back end components of the app
     - **Interfaces**:
@@ -225,11 +227,11 @@ N/A
         3. void signIn()
             - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to sign in with their Google account
         4. void signOut()
-            - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to log out their account
+            - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to log out of their account
 
 ### **4.2. Databases**
 1. **Schedule**
-    - **Purpose**: Stores the class-specific notifications and schedules of the users
+    - **Purpose**: Stores the schedules of a user along with each of the schedule's classes
 2. **User**
     - **Purpose**: Stores all user information (e.g. username, points (karma), and settings)
 
@@ -298,11 +300,11 @@ N/A
 
 ### **4.8. Main Project Complexity Design**
 **Check Attendance**
-- **Description**: Check whether a user is in the correct class location at the ccorrect time and manages the karma score of the user accordingly.
+- **Description**: Check whether a user is in the correct class location at the correct time and manages the karma score of the user accordingly.
 - **Why complex?**: This is complex because we have to synchronize all back end components of the app along with the front end Google Maps API. We must utilize the location of the user, the location of the classroom, the time the class starts (obtained from the Schedule DB), the time of the user, and adjust the karma score to give to the user based on several cases.
 - **Design**:
     - **Input**: The client's username, the client's current location as GPS coordinates, the client's current time, and the schedule ID the user is interacting with. 
-    - **Output**: A message will be provided back to the front end for the client. The back end will receive static strings that will be used to design the several cases.
+    - **Output**: A message will be provided back to the front end for the client. The back end will update the karma based on the conditions.
     - **Main computational logic**:
         - Determining the class which the user is checking into: If a class is currently taking place or starting in less than 10 minutes, we will select this as the class that the user wants to check into. Otherwise, we will select whichever class is closest in time.
         - Conditional cases for determining which check in status to provide for the user:
@@ -310,10 +312,10 @@ N/A
             - If it is before the class by more than 10 minutes, they are too early
             - If it is after the class, they are too late
             - If they are more than 50 meters from the class location, they are marked as in the wrong location
-            - If it is mid way through the class, they are late. Mark the class as attended and add less points according to how late they are
-            - Otherwise, they are considered on time for up to 10 minutes and they will be marked as attended and will be awarded the full number of points 
+            - If it is mid way through the class, they are late. Mark the class as attended and add less karma according to how late they are
+            - Otherwise, they are considered on time for up to 10 minutes and they will be marked as attended and will be awarded the full number of karma 
         - Class attendance will reset at the end of every day
-    - **Pseudo-code**: ...
+    - **Pseudo-code**:
         ```
         String checkAttendance(username, userCoordinates, userTime, id):
             Class currClass = null
