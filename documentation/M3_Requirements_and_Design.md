@@ -297,16 +297,64 @@ N/A
 
 
 ### **4.8. Main Project Complexity Design**
-**[WRITE_NAME_HERE]**
-- **Description**: ...
-- **Why complex?**: ...
+**Check Attendance**
+- **Description**: Check whether a user is in the correct class location at the ccorrect time and manages the karma score of the user accordingly.
+- **Why complex?**: This is complex because we have to synchronize all back end components of the app along with the front end Google Maps API. We must utilize the location of the user, the location of the classroom, the time the class starts (obtained from the Schedule DB), the time of the user, and adjust the karma score to give to the user based on several cases.
 - **Design**:
-    - **Input**: ...
-    - **Output**: ...
-    - **Main computational logic**: ...
+    - **Input**: The client's username, the client's current location as GPS coordinates, the client's current time, and the schedule ID the user is interacting with. 
+    - **Output**: A message will be provided back to the front end for the client. The back end will receive static strings that will be used to design the several cases.
+    - **Main computational logic**:
+        - Determining the class which the user is checking into: If a class is currently taking place or starting in less than 10 minutes, we will select this as the class that the user wants to check into. Otherwise, we will select whichever class is closest in time.
+        - Conditional cases for determining which check in status to provide for the user:
+            - If the class has already been marked as attended, notify the user
+            - If it is before the class by more than 10 minutes, they are too early
+            - If it is after the class, they are too late
+            - If they are more than 50 meters from the class location, they are marked as in the wrong location
+            - If it is mid way through the class, they are late. Mark the class as attended and add less points according to how late they are
+            - Otherwise, they are considered on time for up to 10 minutes and they will be marked as attended and will be awarded the full number of points 
+        - Class attendance will reset at the end of every day
     - **Pseudo-code**: ...
         ```
-        
+        String checkAttendance(username, userCoordinates, userTime, id):
+            Class currClass = null
+            Schedule s = Schedule.getSpecificSchedule(id)
+            
+            if (userTime < s[0].start - 10):
+                currClass = s[0]
+            
+            for i in range(sizeOf(s) - 1):
+                Class c1 = s[i]
+                Class c2 = s[i + 1]
+
+                // It is before or during the first class
+                if (userTime < c1.end):
+                    currClass = c1
+                
+                // It is closer to the first class than the second
+                if (abs(userTime - c1.end) < abs(userTime - c2.start + 10)):
+                    currClass = s[sizeOf(s) - 1]
+            
+            // It is closest to the last class
+            if (currClass == null):
+                currClass = s[sizeOf(s) - 1]
+            
+            if (currClass.attended):
+                return "You already signed in to this class today!"
+            elif (userTime < currClass.start - 10):
+                return "You are too early!"
+            elif (currClass.end < userTime):
+                return "You missed class!"
+            elif (50 < abs(userCoordinates - currClass.location)):
+                return "You are not in the correct location!"
+            elif (currClass.start < userTime):
+                int lateness = userTime - currClass.start
+                int classLength = currClass.end - currClass.start
+                int karma = 10 * lateness/classLength
+                User.updateKarma(username, karma)
+                return "You were late to class!"
+            else:
+                User.updateKarma(username, karma)
+                return "Welcome to class!"
         ```
 
 
