@@ -131,8 +131,8 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 2. The app routes them to their profile page
             - **Failure scenario(s)**:
                 - N/A
-        2. **Update Notifications**<a name="fr4_2"></a>:
-            - **Description**: The user can change whether they want to turn on or off the notifications
+        2. **Update Settings**<a name="fr4_2"></a>:
+            - **Description**: The user can change their notification preferences
             - **Primary Actor(s)**: User
             - **Main success scenario**:
                 1. The user clicks on the notification settings
@@ -198,10 +198,8 @@ N/A
 2. **Attendance**
     - **Purpose**: Manages the attendance of a user and synchronizes communication between schedule data and Google Maps API data
     - **Interfaces**:
-        1. String checkAttendance(List\<double> classLocation, double userTime, String id)
+        1. String checkAttendance(String username, List\<double> userCooridnates, double userTime, String id)
             - **Purpose**: Checks if the user is in class based on the user current location, class location, and the current time of the class and user
-        2. void updateKarma(String username, int karma)
-            - **Purpose**: This increases or decreases the points (karma) of a user based on the location and time
 3. **User**
     - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, points (karma), and settings of a particular user
     - **Interfaces**:
@@ -215,6 +213,8 @@ N/A
             - **Purpose**: Creates a new user entry into the database if a newly logged in user does not exist in the database
         5. String findExistingUser(String username)
             - **Purpose**: Checks if a logged in user exists in the database already
+        6. void updateKarma(String username, int karma)
+            - **Purpose**: This increases or decreases the points (karma) of a user based on the location and time
 4. **Additional Component (not back end related) For Reference: Front End**
     - **Purpose**: Manages front end interactions with all other back end components of the app
     - **Interfaces**:
