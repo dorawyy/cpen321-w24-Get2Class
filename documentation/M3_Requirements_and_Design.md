@@ -195,10 +195,6 @@ N/A
             - **Purpose**: Removes a schedule with a given id
         5. void importSchedule(File csvFile, String id)
             - **Purpose**: Import a Workday schedule onto a newly created blank schedule by the user
-        6. List\<Class> getClassesFromSchedule(String username)
-            - **Purpose**: Obtains all the classes (and their notification settings) of a specific schedule
-        7. void setClassesNotificationSettings(String username, List\<Class> classListNotifications)
-            - **Purpose**: Sets the notification settings for the classes of a particular schedule
 2. **Attendance**
     - **Purpose**: Manages the attendance of a user and synchronizes communication between schedule data and Google Maps API data
     - **Interfaces**:
@@ -209,7 +205,7 @@ N/A
 3. **User**
     - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, points (karma), and settings of a particular user
     - **Interfaces**:
-        1. List<NotificationSetting> getNotificationSettings(String username)
+        1. List\<NotificationSetting> getNotificationSettings(String username)
             - **Purpose**: Retrieves all notifications of a specific user
         2. void updateSettings(String username, bool toggleNotification, int remindInMins)
             - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications and setting how much time before a class a user wants to be notified)
