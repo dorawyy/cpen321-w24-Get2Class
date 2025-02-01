@@ -23,7 +23,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
         1. Sign In to Account: System must allow user to utilize external authentication to login to the app
         2. Log Out of Account: System must allow user to log out of the app (which utilizes the external authentication)     
     - **Detailed Flow for Each Independent Scenario**: 
-        1. **Sign In to Account**:
+        1. **Sign In to Account**<a name="fr1_1"></a>:
             - **Description**: The user will utilize an external authentication API such as Google Sign In API to log themselves into the app with their credentials as a user.
             - **Primary actor(s)**: User, Google Sign In API
             - **Main success scenario**:
@@ -35,7 +35,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 2a1. The app routes the user back to log in screen
                     - 2a2. An error message is displayed telling the user of the error (e.g. error getting credentials)
                     - 2a3. The app prompts the user to try to log in again
-        2. **Log Out of Account**:
+        2. **Log Out of Account**<a name="fr1_2"></a>:
             - **Description**: The user will utilize the external authentication API such as Google Sign In API to log themselves out of the app
             - **Primary actor(s)**: User, Google Sign In API
             - **Main success scenario**:
@@ -51,7 +51,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
         3. View Schedule: The system must allow the user to view their schedule in a clear and understandable format
         4. Delete Schedule: The system must allow the user to delete an existing schedule
     - **Detailed Flow for Each Independent Scenario**:
-        1. **Create Schedule**:
+        1. **Create Schedule**<a name="fr2_1"></a>:
             - **Description**: The user can create a blank schedule with a name
             - **Primary actor(s)**: User
             - **Main success scenario**:
@@ -68,7 +68,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 - 2c. The user enters illegal characters into the schedule name
                     - 2c1. An error message is displayed telling the user that the schedule name does not meet the criteria of the schedule naming convention
                     - 2c2. The app prompts the user to enter a valid schedule name
-        2. **Import Schedule**:
+        2. **Import Schedule**<a name="fr2_2"></a>:
             - **Description**: The user can import their own schdule from Workday onto a blank existing schedule the user has created
             - **Primary actor(s)**: User
             - **Main success scenario**:
@@ -80,7 +80,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 - 3a. The user uploads a non-valid or non .csv file
                     - 3a1. An error message is displayed telling the user that the uploaded file is not valid
                     - 3a2. The app will prompt the user to import a valid schedule again
-        3. **View Schedule**:
+        3. **View Schedule**<a name="fr2_3"></a>:
             - **Description**: The user can view their schedules and a particular schedule
             - **Primary actor(s)**: User
             - **Main success scenario**:
@@ -88,7 +88,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 2. The app opens up the schedule for the user to view
             - **Failure scenario(s)**:
                 - N/A
-        4. **Delete Schedule**:
+        4. **Delete Schedule**<a name="fr2_4"></a>:
             - **Description**: The user can delete their existing schedules
             - **Primary actor(s)**: User
             - **Main success scenario**:
@@ -104,7 +104,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
     - **Overview**:
         1. View Route: The system must display to the user a route to their next class
     - **Detailed Flow for Each Independent Scenario**:
-        1. **View Route**:
+        1. **View Route**<a name="fr3_1"></a>:
             - **Description**: The user can view the optimal route to the next class based on their schedule and the current location
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
@@ -123,15 +123,15 @@ Get2Class is a gamified calendar to help students get to class on time. The main
         1. View Profile and Settings: The system must allow the user to view their profile and settings
         2. Update Notifications: The system must allow the user to manage their notification settings
     - **Detailed Flow for Each Independent Scenario**:
-        1. **View Profile and Settings**:
-            - **Description**: The user can view their profile and accumulated points
+        1. **View Profile and Settings**<a name="fr4_1"></a>:
+            - **Description**: The user can view their profile and accumulated points (karma)
             - **Primary actor(s)**: User
             - **Main success scenario**:
                 1. The user clicks on their profile
                 2. The app routes them to their profile page
             - **Failure scenario(s)**:
                 - N/A
-        2. **Update Notifications**:
+        2. **Update Notifications**<a name="fr4_2"></a>:
             - **Description**: The user can change whether they want to turn on or off the notifications
             - **Primary Actor(s)**: User
             - **Main success scenario**:
@@ -149,7 +149,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
     - **Overview**:
         1. Check Attendance: The system must allow the user to check themselves into the class to obtain their points (karma)
     - **Detailed Flow for Each Independent Scenario**:
-        1. **Check Attendance**:
+        1. **Check Attendance**<a name="fr5_1"></a>:
             - **Description**: The user can check themselves in when they arrive at the classroom and the system will provide to the user points (karma)
             - **Primary actor(s)**: User (Student/Professor), Google Maps API
             - **Main success scenario**:
@@ -168,15 +168,14 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 N/A
 
 ### **3.5. Non-Functional Requirements**
-<a name="nfr1"></a>
 
-1. **Schedule Usability**
+1. **Schedule Usability** <a name="nfr1"></a>
     - **Description**: All schedules operations (create, import, view, delete) should be processed and reflected on the screen within 3 seconds of the user action
     - **Justification**: Quick schedule display avoids user dissatisfaction and saves time for busy professors and students to check the time and location for their upcoming classes
-2. **Location Accuracy**
+2. **Location Accuracy** <a name="nfr2"></a>
     - **Description**: The user's location should be track within a radius of 100 meters from the actual location
-    - **Justification**: Accurate location tracking helps provide the optimal route, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points
-2. **Route Accessibility**
+    - **Justification**: Accurate location tracking helps provide the optimal route, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points (karma)
+2. **Route Accessibility** <a name="nfr3"></a>
     - **Description**: When logged in, the user can obtain the optimal route to their next class in at most five clicks
     - **Justification**: Quick route access ensures students and professors get route suggestions with minimal effort and avoids user dissatisfaction. This also help the user to get to class on time
 
@@ -194,24 +193,28 @@ N/A
             - **Purpose**: Creates a blank schedule with a given name
         4. void removeSchedule(String id)
             - **Purpose**: Removes a schedule with a given id
-        5. void importSchedule()
+        5. void importSchedule(File csvFile, String id)
             - **Purpose**: Import a Workday schedule onto a newly created blank schedule by the user
+        6. List\<Class> getClassesFromSchedule(String username)
+            - **Purpose**: Obtains all the classes (and their notification settings) of a specific schedule
+        7. void setClassesNotificationSettings(String username, List\<Class> classListNotifications)
+            - **Purpose**: Sets the notification settings for the classes of a particular schedule
 2. **Attendance**
     - **Purpose**: Manages the attendance of a user and synchronizes communication between schedule data and Google Maps API data
     - **Interfaces**:
-        1. boolean checkAttendance(List\<double> classLocation)
+        1. String checkAttendance(List\<double> classLocation, double userTime, String id)
             - **Purpose**: Checks if the user is in class based on the user current location, class location, and the current time of the class and user
-        2. void updatePoints(String username, List\<double> classLocation, double classStartingTime)
-            - **Purpose**: This increases or decreases the points of a user based on the location and time
+        2. void updateKarma(String username, int karma)
+            - **Purpose**: This increases or decreases the points (karma) of a user based on the location and time
 3. **User**
-    - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, points, and settings of a particular user
+    - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, points (karma), and settings of a particular user
     - **Interfaces**:
-        1. NotificationSetting getClassNotification(String username, int semesterId)
-            - **Purpose**: Retrieves a specific classes notification setting
-        2. void updateSettings(String username)
-            - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications)
-        3. int getPoints(String username)
-            - **Purpose**: Fetches the points of a given user
+        1. List<NotificationSetting> getNotificationSettings(String username)
+            - **Purpose**: Retrieves all notifications of a specific user
+        2. void updateSettings(String username, bool toggleNotification, int remindInMins)
+            - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications and setting how much time before a class a user wants to be notified)
+        3. int getKarma(String username)
+            - **Purpose**: Fetches the points (karma) of a given user
         4. void createNewUser()
             - **Purpose**: Creates a new user entry into the database if a newly logged in user does not exist in the database
         5. String findExistingUser(String username)
@@ -232,7 +235,7 @@ N/A
 1. **Schedule**
     - **Purpose**: Stores the class-specific notifications and schedules of the users
 2. **User**
-    - **Purpose**: Stores all user information (e.g. username, points, and settings)
+    - **Purpose**: Stores all user information (e.g. username, points (karma), and settings)
 
 ### **4.3. External Modules**
 1. **Google Sign In API** 
@@ -267,10 +270,26 @@ N/A
 ![Get2Class Dependency Diagram](./images/CPEN321_Dependency_Diagram_Image.webp)
 
 ### **4.6. Functional Requirements Sequence Diagram**
-1. [**[WRITE_NAME_HERE]**](#fr1)\
-[SEQUENCE_DIAGRAM_HERE]
-2. ...
-
+1. [**Sign In to Account**](#fr1_1)\
+![Sign In Sequence Diagram](./images/CPEN321_SignIn_Seq_Diagram_Image.webp)
+2. [**Log Out of Account**](#fr1_2)\
+![Sign Out Sequence Diagram](./images/CPEN321_SignOut_Seq_Diagram_Image.webp)
+3. [**Create Schedule**](#fr2_1)\
+![Create Schedule Sequence Diagram](./images/CPEN321_CreateSchedule_Seq_Diagram_Image.webp)
+4. [**Import Schedule**](#fr2_2)\
+![Import Schedule Sequence Diagram](./images/CPEN321_ImportSchedule_Seq_Diagram_Image.webp)
+5. [**View Schedule**](#fr2_3)\
+![View Schedule Sequence Diagram](./images/CPEN321_ViewSchedule_Seq_Diagram_Image.webp)
+6. [**Delete Schedule**](#fr2_4)\
+![Delete Schedule Sequence Diagram](./images/CPEN321_DeleteSchedule_Seq_Diagram_Image.webp)
+7. [**View Route**](#fr3_1)\
+![View Route Sequence Diagram](./images/CPEN321_ViewRoute_Seq_Diagram_Image.webp)
+8. [**View Profile and Settings**](#fr4_1)\
+![View Profile and Settings Sequence Diagram](./images/CPEN321_ViewProfileAndSettings_Seq_Diagram_Image.webp)
+9. [**Update Notifications**](#fr4_2)\
+![Update Settings Sequence Diagram](./images/CPEN321_UpdateSettings_Seq_Diagram_Image.webp)
+10. [**Check Attendance**](#fr5_1)\
+![Check Attendance Sequence Diagram](./images/CPEN321_CheckAttendance_Seq_Diagram_Image.webp)
 
 ### **4.7. Non-Functional Requirements Design**
 1. [**Schedule Usability**](#nfr1)
