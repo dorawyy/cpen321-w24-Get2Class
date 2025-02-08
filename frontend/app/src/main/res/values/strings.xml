@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Get2Class</string>
+    <string name="upload_schedule_button_text">Upload Schedule</string>
 </resources>
