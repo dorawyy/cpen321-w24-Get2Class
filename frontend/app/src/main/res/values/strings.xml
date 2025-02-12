@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Get2Class</string>
+    <string name="fall_schedule_button_text">View Fall Schedules</string>
+    <string name="winter_schedule_button_text">View Winter Schedules</string>
+    <string name="summer_schedule_button_text">View Summer Schedules</string>
     <string name="upload_schedule_button_text">Upload Schedule</string>
+    <string name="clear_schedule_button_text">Clear Schedule</string>
 </resources>
