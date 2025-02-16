@@ -37,6 +37,8 @@ android {
         }
         debug {
             buildConfigField("String", "BASE_API_URL", "\"http://10.0.2.2:3000\"")
+
+            // For this BuildConfig field, add your Google Sign In WEB_CLIENT_ID following the tutorial by creating a new project called Get2Class in your Google Cloud Console
             buildConfigField("String", "WEB_CLIENT_ID", "\"\"")
         }
     }
