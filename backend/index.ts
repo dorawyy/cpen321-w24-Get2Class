@@ -20,8 +20,9 @@ app.get('/find_existing_user', async (req: Request, res: Response) => {
     try {
         const query = req.query;
         const username = query["username"];
+
         const data = await client.db("get2class").collection("users").findOne({ "username": username });
-        res.status(200).json({ "data": data });
+        res.status(200).send(data);
     } catch (err) {
         console.error(err);
         res.status(500).json({ "err": err });
@@ -30,8 +31,15 @@ app.get('/find_existing_user', async (req: Request, res: Response) => {
 
 app.post('/create_new_user', async (req: Request, res: Response) => {
     try {
-        const body = req.body;
-        const data = await client.db("get2class").collection("users").insertOne(body);
+        const requestBody = {
+            "username": req.body["username"],
+            "name": req.body["name"],
+            "karma": 0,
+            "notificationTime": 15,
+            "notificationsEnabled": true
+        };
+
+        const data = await client.db("get2class").collection("users").insertOne(requestBody);
         res.status(200).json({ "data": "Successfully registered account" });
     } catch (err) {
         console.error(err);
@@ -39,6 +47,9 @@ app.post('/create_new_user', async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * Mongo and Express connection setup
+ */
 const client = new MongoClient("mongodb://localhost:27017/");
 client.connect().then(() => {
     console.log("MongoDB Client Connected");
