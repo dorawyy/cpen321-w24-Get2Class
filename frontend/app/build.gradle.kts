@@ -21,6 +21,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "BASE_API_URL", "\"${properties.getProperty("BASE_API_URL") ?: ""}\"")
+        buildConfigField("String", "WEB_CLIENT_ID", "\"${properties.getProperty("WEB_CLIENT_ID") ?: ""}\"")
     }
 
     buildTypes {
@@ -30,16 +33,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_API_URL", "\"http://10.0.2.2:3000\"")
-
-            // For this BuildConfig field, add your Google Sign In WEB_CLIENT_ID following the tutorial by creating a new project called Get2Class in your Google Cloud Console
-            buildConfigField("String", "WEB_CLIENT_ID", "\"\"")
-        }
-        debug {
-            buildConfigField("String", "BASE_API_URL", "\"http://10.0.2.2:3000\"")
-
-            // For this BuildConfig field, add your Google Sign In WEB_CLIENT_ID following the tutorial by creating a new project called Get2Class in your Google Cloud Console
-            buildConfigField("String", "WEB_CLIENT_ID", "\"\"")
         }
     }
     compileOptions {
