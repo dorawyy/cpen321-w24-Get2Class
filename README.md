@@ -1,5 +1,10 @@
 # CPEN 321 Project: Get2Class
 
+## Project Setup Instructions:
+1. Visit `backend` directory of project and follow the instructions listed
+2. Visit `frontend` directory of project and follow the instructions listed
+3. Run the `backend` first, then run the `frontend` Android application
+
 ## Group Members
 - Lucas Beitel
 - Luke Matson
