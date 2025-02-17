@@ -19,6 +19,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
@@ -36,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
         private const val TAG = "LoginActivity"
         var GoogleIdTokenCredentialName = ""
         var GoogleIdTokenCredentialEmail = ""
+        var credentialManager: CredentialManager? = null
     }
 
     private val activityScope = CoroutineScope(Dispatchers.Main)
@@ -55,7 +57,10 @@ class LoginActivity : AppCompatActivity() {
 
             Log.d(TAG, "WEB CLIENT ID: ${BuildConfig.WEB_CLIENT_ID}")
 
-            val credentialManager = CredentialManager.create(this)
+            credentialManager = CredentialManager.create(this)
+
+            Log.d(TAG, "LoginActivity credentialManager: ${credentialManager}")
+
             val signInWithGoogleOption: GetSignInWithGoogleOption = GetSignInWithGoogleOption
                 .Builder(BuildConfig.WEB_CLIENT_ID)
                 .setNonce(generatedHashedNonce())
@@ -67,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
 
             activityScope.launch {
                 try {
-                    val result = credentialManager.getCredential(
+                    val result = credentialManager!!.getCredential(
                         request = request,
                         context = this@LoginActivity
                     )
@@ -172,7 +177,9 @@ class LoginActivity : AppCompatActivity() {
 
                             // Route to new page
                             val intent = Intent(this, MainActivity::class.java)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                             startActivity(intent)
+                            finish()
                         }
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
@@ -193,5 +200,10 @@ class LoginActivity : AppCompatActivity() {
     private fun handleFailure(e: GetCredentialException) {
         Log.e(TAG, "Error getting credential", e)
         Toast.makeText(this, "Error getting credential", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activityScope.cancel()
     }
 }
