@@ -27,7 +27,6 @@ import com.google.android.libraries.navigation.RoutingOptions
 import com.google.android.libraries.navigation.SimulationOptions
 import com.google.android.libraries.navigation.Waypoint
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 
@@ -47,7 +46,9 @@ class RouteActivity : AppCompatActivity() {
 
     // for places api
     private lateinit var placesClient: PlacesClient
+    private lateinit var destinationPlaceId: String
 
+    // for testing only
     // find a Place ID that will act as your destination. Ideally this will be not too far from the user location
     // use the Google Maps Platform Place ID Finder utility or obtain a Place ID from a Places API call
     companion object{
@@ -64,7 +65,7 @@ class RouteActivity : AppCompatActivity() {
         navView = findViewById(R.id.navigation_view)
         navView.onCreate(savedInstanceState)
 
-        // ensure the screen stays on during nav
+        // ensure the screen stays on during navigation
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.navigation_view)) { v, insets ->
@@ -74,13 +75,28 @@ class RouteActivity : AppCompatActivity() {
         }
 
         // initialize the Places Client
-//        if (!Places.isInitialized()) {
-//            Places.initialize(applicationContext, com.example.get2class.BuildConfig.MAPS_API_KEY)
-//        }
-//        placesClient = Places.createClient(this)
-//
-//        val acronym = "NYC" // acronym of the bldg
-//        val destination = findPlaceId(acronym)
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, com.example.get2class.BuildConfig.MAPS_API_KEY)
+        }
+        placesClient = Places.createClient(this)
+
+        findPlaceId(intent.getStringExtra("acronym").toString(), placesClient) { placeId ->
+            if (placeId != null) {
+                // get the place id
+                destinationPlaceId = placeId
+            } else {
+                // handle the case where no Place ID was found
+                Log.e(
+                    "RouteActivity",
+                    "findPlaceId: some errors occur ..."
+                )
+                // the default place id will then be life building
+                destinationPlaceId = "ChIJLzhNG7dyhlQRyzvy3GCiuT4"
+                showToast(
+                    "The class location is invalid; directing you to LIFE Building ..."
+                )
+            }
+        }
 
         // retrieve permission status
         val permissions =
@@ -94,7 +110,8 @@ class RouteActivity : AppCompatActivity() {
         if (permissions.any { !checkPermissionGranted(it) }) {
 
             if (permissions.any { shouldShowRequestPermissionRationale(it) }) {
-                // display a dialogue explaining the required permissions.
+                // display a dialogue explaining the required permissions
+                showToast("Location permission is required to show your location")
             }
 
             val permissionsLauncher =
@@ -104,6 +121,8 @@ class RouteActivity : AppCompatActivity() {
                         if (permissionResults.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)) {
                             onLocationPermissionGranted()
                         } else {
+                            // display a message asking the user to grant permissions
+                            showToast("Please grant Location permissions in Settings to view your routes :/")
                             finish()
                         }
                     },
@@ -111,14 +130,14 @@ class RouteActivity : AppCompatActivity() {
 
             permissionsLauncher.launch(permissions)
         } else {
-            Handler(Looper.getMainLooper()).postDelayed({ onLocationPermissionGranted() }, 2000)
+            Handler(Looper.getMainLooper()).postDelayed({ onLocationPermissionGranted() }, 3000)
         }
     }
 
     // use the Place Autocomplete API to search for places based on the acronym
-    private fun findPlaceId(acronym: String) {
+    private fun findPlaceId(acronym: String, placesClient: PlacesClient, callback: (String?) -> Unit) {
         val request = FindAutocompletePredictionsRequest.builder()
-            .setQuery("UBC" + acronym + "Building")
+            .setQuery("UBC " + acronym)
             .build()
 
         placesClient.findAutocompletePredictions(request)
@@ -126,20 +145,14 @@ class RouteActivity : AppCompatActivity() {
                 val predictions = response.autocompletePredictions
                 if (predictions.isNotEmpty()) {
                     val placeId = predictions[0].placeId
+                    callback(placeId)
                 } else {
-                    // handle case where no predictions are found
-                    Log.d(
-                        "RouteActivity",
-                        "findPlaceId: No AutocompletePrediction is found"
-                    )
+                    callback(null) // no predictions found
                 }
             }
             .addOnFailureListener { exception ->
-                // handle the error
-                Log.e(
-                    "RouteActivity",
-                    "findPlaceId: findAutocompletePredictions failed since " + exception.toString()
-                )
+                exception.printStackTrace()
+                callback(null) // error occurred
             }
     }
 
@@ -293,7 +306,7 @@ class RouteActivity : AppCompatActivity() {
                     mNavigator = navigator
 
                     // for testing only
-                    mNavigator?.simulator?.setUserLocation(RouteActivity.startLocation)
+//                    mNavigator?.simulator?.setUserLocation(RouteActivity.startLocation)
 
                     // listen for events en route
                     registerNavigationListeners()
@@ -305,7 +318,8 @@ class RouteActivity : AppCompatActivity() {
 
                     // delay navigation to ensure the navigator has the user location
                     android.os.Handler(Looper.getMainLooper()).postDelayed({
-                        navigateToPlace(RouteActivity.endLocation)
+//                        navigateToPlace(RouteActivity.endLocation)
+                        navigateToPlace(destinationPlaceId)
                     }, 3000) // 3-second delay
                 }
 

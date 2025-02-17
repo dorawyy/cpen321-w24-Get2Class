@@ -19,8 +19,11 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        // test button for View Route
         findViewById<Button>(R.id.view_route_button).setOnClickListener(){
+            val acronym = "LSK"
             val intent = Intent(this, RouteActivity::class.java)
+            intent.putExtra("acronym", acronym)
             startActivity(intent)
         }
     }
