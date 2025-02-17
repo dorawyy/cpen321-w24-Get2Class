@@ -27,6 +27,9 @@ import com.google.android.libraries.navigation.RoutingOptions
 import com.google.android.libraries.navigation.SimulationOptions
 import com.google.android.libraries.navigation.Waypoint
 import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.PlacesClient
 
 class RouteActivity : AppCompatActivity() {
     // reference to NavigationView
@@ -42,10 +45,13 @@ class RouteActivity : AppCompatActivity() {
     var navigatorScope: InitializedNavScope? = null
     var pendingNavActions = mutableListOf<InitializedNavRunnable>()
 
+    // for places api
+    private lateinit var placesClient: PlacesClient
+
     // find a Place ID that will act as your destination. Ideally this will be not too far from the user location
     // use the Google Maps Platform Place ID Finder utility or obtain a Place ID from a Places API call
     companion object{
-        var endLocation = "ChIJhefcLcpyhlQRtr9X4RoR2e4" // geography bldg
+        var endLocation = "ChIJfy-YZfdzhlQRr5pltzcv2Bo" // geography bldg
         var startLocation = LatLng(49.262043, -123.248253) // mcld bldg
     }
 
@@ -66,6 +72,15 @@ class RouteActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        // initialize the Places Client
+//        if (!Places.isInitialized()) {
+//            Places.initialize(applicationContext, com.example.get2class.BuildConfig.MAPS_API_KEY)
+//        }
+//        placesClient = Places.createClient(this)
+//
+//        val acronym = "NYC" // acronym of the bldg
+//        val destination = findPlaceId(acronym)
 
         // retrieve permission status
         val permissions =
@@ -98,6 +113,34 @@ class RouteActivity : AppCompatActivity() {
         } else {
             Handler(Looper.getMainLooper()).postDelayed({ onLocationPermissionGranted() }, 2000)
         }
+    }
+
+    // use the Place Autocomplete API to search for places based on the acronym
+    private fun findPlaceId(acronym: String) {
+        val request = FindAutocompletePredictionsRequest.builder()
+            .setQuery("UBC" + acronym + "Building")
+            .build()
+
+        placesClient.findAutocompletePredictions(request)
+            .addOnSuccessListener { response ->
+                val predictions = response.autocompletePredictions
+                if (predictions.isNotEmpty()) {
+                    val placeId = predictions[0].placeId
+                } else {
+                    // handle case where no predictions are found
+                    Log.d(
+                        "RouteActivity",
+                        "findPlaceId: No AutocompletePrediction is found"
+                    )
+                }
+            }
+            .addOnFailureListener { exception ->
+                // handle the error
+                Log.e(
+                    "RouteActivity",
+                    "findPlaceId: findAutocompletePredictions failed since " + exception.toString()
+                )
+            }
     }
 
     // requests directions from the user's current location to a specific place (provided by the Place ID)
@@ -285,7 +328,6 @@ class RouteActivity : AppCompatActivity() {
                 }
             },
         )
-
     }
 
     // show feedback to the user

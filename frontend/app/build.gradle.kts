@@ -49,8 +49,12 @@ dependencies {
 
     implementation(libs.recyclerview.v7)
 
-    implementation(libs.places)
-
+    // for places api
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    implementation("com.google.android.libraries.places:places:3.5.0") {
+        exclude(group = "com.google.android.gms", module = "play-services-maps")
+    }
+    
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
