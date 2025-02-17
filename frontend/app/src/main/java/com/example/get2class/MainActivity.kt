@@ -1,12 +1,30 @@
 package com.example.get2class
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Button
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.credentials.ClearCredentialStateRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+
+    private val activityScope = CoroutineScope(Dispatchers.Main)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -16,5 +34,57 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        // Override Android back button to perform leaving app logic
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Exit?")
+                    .setMessage("Are you sure you want to leave?")
+                    .setPositiveButton("Yes") { _, _ -> finish() }
+                    .setNegativeButton("No", null)
+                    .show()
+            }
+        })
+
+        findViewById<Button>(R.id.sign_out_button).setOnClickListener() {
+            Log.d(TAG, "Sign out button clicked")
+
+            activityScope.launch {
+                try {
+                    // Log the user's credentialManager information before clearing
+                    Log.d(TAG, "before clear: ${LoginActivity.credentialManager}")
+
+                    // Clear user's credentialManager state
+                    LoginActivity.credentialManager?.clearCredentialState(ClearCredentialStateRequest())
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Logged Out Successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // Log the user's credentialManager information after clearing
+                    Log.d(TAG, "after clear: ${LoginActivity.credentialManager}")
+
+                    // Route back to LoginActivity page
+                    val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    startActivity(intent)
+                    finish()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error clearing credential state", e)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Error clearing credential state",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activityScope.cancel()
     }
 }
