@@ -10,7 +10,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -18,17 +20,28 @@
             android:orientation="horizontal"
             android:padding="16dp">
 
+            <TextView
+                android:id="@+id/schedule_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Schedule:"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
             <Button
                 android:id="@+id/clear_schedule_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/clear_schedule_button_text" />
+                android:layout_width="100dp"
+                android:layout_height="38dp"
+                android:text="@string/clear_schedule_button_text"
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/upload_schedule_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/upload_schedule_button_text" />
+                android:layout_width="100dp"
+                android:layout_height="38dp"
+                android:text="@string/upload_schedule_button_text"
+                android:textSize="14sp" />
 
         </LinearLayout>
 
@@ -37,7 +50,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
-            android:padding="8dp" />
+            android:layout_marginLeft="8dp"
+            android:layout_marginBottom="20dp"/>
 
     </LinearLayout>
 

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -27,15 +28,18 @@ class ViewSchedule : AppCompatActivity() {
                 Log.d(TAG, "Received schedule: $schedule")
 
                 val cells = mutableListOf<Pair<Int, Int>>()  // (dayOfWeek, halfHourIndex)
+                for (day in 0..5) {  // 0 represents the header row, 1-5 are weekdays
+                    cells.add(day to -1) // -1 represents a header cell
+                }
                 // dayOfWeek: 1..5 (Mon=1, Tue=2, etc.)
                 // halfHourIndex: 0..27 (0=8:00, 1=8:30, 2=9:00, etc.)
                 for (index in 0 until 28) {
+                    cells.add(0 to index)
                     for (day in 1..5) {
                         cells.add(day to index)
                     }
                 }
                 Log.d(TAG, "cells: $cells")
-
 
                 val eventsMap = mutableMapOf<Pair<Int, Int>, Course?>()
                 // Initialize all cells to null
@@ -62,8 +66,17 @@ class ViewSchedule : AppCompatActivity() {
 
                 // Create the calendar view
                 val recyclerView = findViewById<RecyclerView>(R.id.calendarRecyclerView)
-                val layoutManager = GridLayoutManager(this, 5, GridLayoutManager.VERTICAL, false)
+                val layoutManager = GridLayoutManager(this, 17, GridLayoutManager.VERTICAL, false)
 
+                layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int {
+                        val (day, index) = cells[position]
+                        return when {
+                            day == 0 -> 2  // Time labels (narrower)
+                            else -> 3  // Regular calendar cells (wider)
+                        }
+                    }
+                }
                 recyclerView.layoutManager = layoutManager
                 recyclerView.setHasFixedSize(true)
                 recyclerView.itemAnimator = null
@@ -88,6 +101,8 @@ class ViewSchedule : AppCompatActivity() {
         }
 
         val term = intent.getStringExtra("term")
+        val scheduleName = findViewById<TextView>(R.id.schedule_name)
+        scheduleName.text = "$term Schedule: "
 
         // Upload Schedule Button
         findViewById<Button>(R.id.upload_schedule_button).setOnClickListener {

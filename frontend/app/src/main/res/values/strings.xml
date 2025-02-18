@@ -3,6 +3,6 @@
     <string name="fall_schedule_button_text">Fall Schedule</string>
     <string name="winter_schedule_button_text">Winter Schedule</string>
     <string name="summer_schedule_button_text">Summer Schedule</string>
-    <string name="upload_schedule_button_text">Upload Schedule</string>
-    <string name="clear_schedule_button_text">Clear Schedule</string>
+    <string name="upload_schedule_button_text">Upload</string>
+    <string name="clear_schedule_button_text">Clear</string>
 </resources>

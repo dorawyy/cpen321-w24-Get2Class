@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.fall_schedule).setOnClickListener {
             Log.d(TAG, "Fall schedule button clicked")
             val intent = Intent(this, ViewSchedule::class.java)
-            intent.putExtra("term", "fall")
+            intent.putExtra("term", "Fall")
             startActivity(intent)
         }
 
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.winter_schedule).setOnClickListener {
             Log.d(TAG, "Winter schedule button clicked")
             val intent = Intent(this, ViewSchedule::class.java)
-            intent.putExtra("term", "winter")
+            intent.putExtra("term", "Winter")
             startActivity(intent)
         }
 
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.summer_schedule).setOnClickListener {
             Log.d(TAG, "Summer schedule button clicked")
             val intent = Intent(this, ViewSchedule::class.java)
-            intent.putExtra("term", "summer")
+            intent.putExtra("term", "Summer")
             startActivity(intent)
         }
     }
