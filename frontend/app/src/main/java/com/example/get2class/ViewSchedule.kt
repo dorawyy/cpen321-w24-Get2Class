@@ -66,6 +66,7 @@ class ViewSchedule : AppCompatActivity() {
 
                 recyclerView.layoutManager = layoutManager
                 recyclerView.setHasFixedSize(true)
+                recyclerView.itemAnimator = null
 
                 // Disable scrolling (may need to use wrap_content or fixed size)
                 //recyclerView.isNestedScrollingEnabled = false

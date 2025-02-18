@@ -1,5 +1,6 @@
 package com.example.get2class
 
+import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +14,13 @@ class CalendarAdapter(
 ) : RecyclerView.Adapter<CalendarCellViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarCellViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.calendar_cell, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.calendar_cell, parent, false)
+        view.layoutParams.height = 30.dpToPx(parent.context) // Enforce a fixed height
         return CalendarCellViewHolder(view)
+    }
+
+    private fun Int.dpToPx(context: Context): Int {
+        return (this * context.resources.displayMetrics.density).toInt()
     }
 
     override fun onBindViewHolder(holder: CalendarCellViewHolder, position: Int) {
@@ -37,7 +42,7 @@ class CalendarAdapter(
                 }
             }
             holder.cellFrame.setBackgroundColor(Color.parseColor("#B2FF59"))
-
+            holder.bottomBorder.visibility = View.GONE
             holder.cellFrame.setOnClickListener {
                 // TODO: handle click, e.g. open detail screen
             }
@@ -60,4 +65,5 @@ class CalendarAdapter(
 class CalendarCellViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val cellText: TextView = itemView.findViewById(R.id.cellTextView)
     val cellFrame: View = itemView.findViewById(R.id.cellFrame) // Added this line
+    val bottomBorder: View = itemView.findViewById(R.id.bottomBorder) // Added border reference
 }

@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         // Summer Schedule Button
         findViewById<Button>(R.id.summer_schedule).setOnClickListener {
             Log.d(TAG, "Summer schedule button clicked")
-            val intent = Intent(this, UploadSchedule::class.java)
+            val intent = Intent(this, ViewSchedule::class.java)
             intent.putExtra("term", "summer")
             startActivity(intent)
         }
