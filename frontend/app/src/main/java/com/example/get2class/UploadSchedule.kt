@@ -20,12 +20,13 @@ import java.util.Locale
 data class Course(
     val name: String,
     val days: List<Boolean>,
-    val startTime: LocalTime,
-    val endTime: LocalTime,
+    val startTime: Pair<Int, Int>,
+    val endTime: Pair<Int, Int>,
     val startDate: LocalDate,
     val endDate: LocalDate,
     val location: String,
-    val credits: Double
+    val credits: Double,
+    val format: String
 ) : Parcelable
 
 @Parcelize
@@ -37,9 +38,10 @@ class UploadSchedule : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE = 100 // Define request code for file selection
-        private const val TAG = "UploadSchedule"
+        private const val TAG = "ScheduleFeature"
         private const val LISTING = 1
         private const val CREDITS = 2
+        private const val FORMAT = 5
         private const val MODE = 6
         private const val PATTERN = 7
         private const val START_DATE = 10
@@ -57,6 +59,8 @@ class UploadSchedule : AppCompatActivity() {
             insets
         }
 
+        Log.d(TAG, "Term: ${intent.getStringExtra("term")}")
+
         // Launch the file picker to select an .xlsx file
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -68,6 +72,13 @@ class UploadSchedule : AppCompatActivity() {
     // Handle the result from the file picker
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        if (data == null || data.data == null) {
+            Log.e(TAG, "No file selected")
+            setResult(RESULT_CANCELED)
+            finish()
+            return
+        }
 
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             data?.data?.let { uri ->
@@ -134,20 +145,32 @@ class UploadSchedule : AppCompatActivity() {
 
                             // Create the start time
                             val times = patternList[2].split("-")
-                            val timeFormatter = DateTimeFormatter.ofPattern(" h:mm a ", Locale.ENGLISH)
-                            val startTime = LocalTime.parse(times[0].replace(".", "").uppercase(), timeFormatter)
+                            val startTimeParts = times[0].split("[ :]".toRegex())
+                            Log.d(TAG, "Start time parts: $startTimeParts")
+                            var startTime = startTimeParts[1].toInt() to startTimeParts[2].toInt()
+                            if (startTime.first != 12 && startTimeParts[3] == "p.m.") {
+                                startTime = startTime.first + 12 to startTime.second
+                            }
                             Log.d(TAG, "Start time: $startTime")
 
                             // Create the end time
-                            val endTime = LocalTime.parse(times[1].replace(".", "").uppercase(), timeFormatter).minusMinutes(10)
+                            val endTimeParts = times[1].split("[ :]".toRegex())
+                            var endTime = endTimeParts[1].toInt() to endTimeParts[2].toInt()
+                            if (endTime.first != 12 && endTimeParts[3] == "p.m.") {
+                                endTime = endTime.first + 12 to endTime.second
+                            }
                             Log.d(TAG, "End time: $endTime")
 
                             // Get the building code
                             val building = patternList[3].substringBefore("-").trim()
                             Log.d(TAG, "Building: $building")
 
+                            // Get the format
+                            val format = row.getCell(FORMAT).toString()
+                            Log.d(TAG, "Format: $format")
+
                             // Make the course object
-                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, building, credits))
+                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, building, credits, format))
                         }
 
                     }
