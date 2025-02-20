@@ -27,65 +27,7 @@ class ViewSchedule : AppCompatActivity() {
             if (schedule != null) {
                 Log.d(TAG, "Received schedule: $schedule")
 
-                val cells = mutableListOf<Pair<Int, Int>>()  // (dayOfWeek, halfHourIndex)
-                for (day in 0..5) {  // 0 represents the header row, 1-5 are weekdays
-                    cells.add(day to -1) // -1 represents a header cell
-                }
-                // dayOfWeek: 1..5 (Mon=1, Tue=2, etc.)
-                // halfHourIndex: 0..27 (0=8:00, 1=8:30, 2=9:00, etc.)
-                for (index in 0 until 28) {
-                    cells.add(0 to index)
-                    for (day in 1..5) {
-                        cells.add(day to index)
-                    }
-                }
-                Log.d(TAG, "cells: $cells")
-
-                val eventsMap = mutableMapOf<Pair<Int, Int>, Course?>()
-                // Initialize all cells to null
-                for (day in 1..5) {
-                    for (index in 0 until 28) {
-                        eventsMap[day to index] = null
-                    }
-                }
-
-                // Fill the map
-                for (course in schedule.courses) {
-                    val startIndex = timeToIndex(course.startTime.first, course.startTime.second)
-                    val endIndex = timeToIndex(course.endTime.first, course.endTime.second)
-                    for (day in 1..5) {
-                        if (course.days[day-1]) {
-                            for (i in startIndex until endIndex) {
-                                eventsMap[day to i] = course
-                            }
-                        }
-                    }
-                }
-                Log.d(TAG, "eventsMap: $eventsMap")
-
-
-                // Create the calendar view
-                val recyclerView = findViewById<RecyclerView>(R.id.calendarRecyclerView)
-                val layoutManager = GridLayoutManager(this, 17, GridLayoutManager.VERTICAL, false)
-
-                layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                    override fun getSpanSize(position: Int): Int {
-                        val (day, index) = cells[position]
-                        return when {
-                            day == 0 -> 2  // Time labels (narrower)
-                            else -> 3  // Regular calendar cells (wider)
-                        }
-                    }
-                }
-                recyclerView.layoutManager = layoutManager
-                recyclerView.setHasFixedSize(true)
-                recyclerView.itemAnimator = null
-
-                // Disable scrolling (may need to use wrap_content or fixed size)
-                //recyclerView.isNestedScrollingEnabled = false
-
-                recyclerView.adapter = CalendarAdapter(cells, eventsMap)
-
+                loadCalendar(schedule)
             }
         }
     }
@@ -112,6 +54,12 @@ class ViewSchedule : AppCompatActivity() {
             scheduleLauncher.launch(intent) // Start activity for result
         }
 
+        // Clear Schedule Button
+        findViewById<Button>(R.id.clear_schedule_button).setOnClickListener {
+            Log.d(TAG, "Clear schedule button clicked")
+            loadCalendar()
+        }
+
 
     }
 
@@ -127,5 +75,62 @@ class ViewSchedule : AppCompatActivity() {
         // e.g. hour=8, minute=30 => (8-8)*2 + 1 = 1
         //      hour=9, minute=0 => (9-8)*2 + 0 = 2
         return (hour - 8) * 2 + (minute / 30)
+    }
+
+    fun loadCalendar(schedule: Schedule = Schedule(mutableListOf())) {
+        val cells = mutableListOf<Pair<Int, Int>>()  // (dayOfWeek, halfHourIndex)
+        for (day in 0..5) {  // 0 represents the header row, 1-5 are weekdays
+            cells.add(day to -1) // -1 represents a header cell
+        }
+        // dayOfWeek: 1..5 (Mon=1, Tue=2, etc.)
+        // halfHourIndex: 0..27 (0=8:00, 1=8:30, 2=9:00, etc.)
+        for (index in 0 until 28) {
+            cells.add(0 to index)
+            for (day in 1..5) {
+                cells.add(day to index)
+            }
+        }
+        Log.d(TAG, "cells: $cells")
+
+        val eventsMap = mutableMapOf<Pair<Int, Int>, Course?>()
+        // Initialize all cells to null
+        for (day in 1..5) {
+            for (index in 0 until 28) {
+                eventsMap[day to index] = null
+            }
+        }
+
+        // Fill the map
+        for (course in schedule.courses) {
+            val startIndex = timeToIndex(course.startTime.first, course.startTime.second)
+            val endIndex = timeToIndex(course.endTime.first, course.endTime.second)
+            for (day in 1..5) {
+                if (course.days[day-1]) {
+                    for (i in startIndex until endIndex) {
+                        eventsMap[day to i] = course
+                    }
+                }
+            }
+        }
+        Log.d(TAG, "eventsMap: $eventsMap")
+
+
+        // Create the calendar view
+        val recyclerView = findViewById<RecyclerView>(R.id.calendarRecyclerView)
+        val layoutManager = GridLayoutManager(this, 17, GridLayoutManager.VERTICAL, false)
+
+        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                val (day, index) = cells[position]
+                return when {
+                    day == 0 -> 2  // Time labels (narrower)
+                    else -> 3  // Regular calendar cells (wider)
+                }
+            }
+        }
+        recyclerView.layoutManager = layoutManager
+        recyclerView.setHasFixedSize(true)
+        recyclerView.itemAnimator = null
+        recyclerView.adapter = CalendarAdapter(cells, eventsMap)
     }
 }
