@@ -46,6 +46,8 @@ class ViewSchedule : AppCompatActivity() {
         val scheduleName = findViewById<TextView>(R.id.schedule_name)
         scheduleName.text = "$term Schedule: "
 
+        loadCalendar()
+
         // Upload Schedule Button
         findViewById<Button>(R.id.upload_schedule_button).setOnClickListener {
             Log.d(TAG, "Upload schedule button clicked")
