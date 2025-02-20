@@ -2,6 +2,7 @@ package com.example.get2class
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -86,6 +87,7 @@ class CalendarAdapter(private val cells: List<Pair<Int, Int>>, private val event
                     holder.cellFrame.setBackgroundColor(Color.parseColor("#B2FF59"))
                     holder.cellFrame.setOnClickListener {
                         // TODO: handle click, e.g. open detail screen
+                        Log.d(TAG, "Course was clicked: $course")
                     }
                 } else {
                     holder.cellText.text = ""

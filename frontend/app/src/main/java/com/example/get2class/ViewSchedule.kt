@@ -92,7 +92,6 @@ class ViewSchedule : AppCompatActivity() {
                 cells.add(day to index)
             }
         }
-        Log.d(TAG, "cells: $cells")
 
         val eventsMap = mutableMapOf<Pair<Int, Int>, Course?>()
         // Initialize all cells to null
@@ -114,8 +113,6 @@ class ViewSchedule : AppCompatActivity() {
                 }
             }
         }
-        Log.d(TAG, "eventsMap: $eventsMap")
-
 
         // Create the calendar view
         val recyclerView = findViewById<RecyclerView>(R.id.calendarRecyclerView)
