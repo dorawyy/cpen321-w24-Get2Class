@@ -28,6 +28,18 @@
             android:name=".MainActivity"
             android:exported="false"
             android:label="MainActivity"/>
+        <activity
+            android:name=".ScheduleListActivity"
+            android:exported="false"
+            android:label="ScheduleListActivity"/>
+        <activity
+            android:name=".KarmaActivity"
+            android:exported="false"
+            android:label="KarmaActivity"/>
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:label="SettingsActivity"/>
     </application>
 
 </manifest>

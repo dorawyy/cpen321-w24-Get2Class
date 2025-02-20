@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -46,6 +47,30 @@ class MainActivity : AppCompatActivity() {
                     .show()
             }
         })
+
+        val welcomeText: TextView = findViewById(R.id.welcome_text)
+        welcomeText.text = "Welcome " + LoginActivity.GoogleIdTokenCredentialName
+
+        findViewById<Button>(R.id.schedules_button).setOnClickListener() {
+            Log.d(TAG, "Schedules button clicked")
+
+            val intent = Intent(this@MainActivity, ScheduleListActivity::class.java)
+            startActivity(intent)
+        }
+
+        findViewById<Button>(R.id.karma_button).setOnClickListener() {
+            Log.d(TAG, "Karma button clicked")
+
+            val intent = Intent(this@MainActivity, KarmaActivity::class.java)
+            startActivity(intent)
+        }
+
+        findViewById<Button>(R.id.settings_button).setOnClickListener() {
+            Log.d(TAG, "Settings button clicked")
+
+            val intent = Intent(this@MainActivity, SettingsActivity::class.java)
+            startActivity(intent)
+        }
 
         findViewById<Button>(R.id.sign_out_button).setOnClickListener() {
             Log.d(TAG, "Sign out button clicked")
