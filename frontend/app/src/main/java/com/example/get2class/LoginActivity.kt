@@ -37,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
         private const val TAG = "LoginActivity"
         var GoogleIdTokenCredentialName = ""
         var GoogleIdTokenCredentialEmail = ""
+        var GoogleIdTokenSub = ""
         var credentialManager: CredentialManager? = null
     }
 
@@ -84,7 +85,38 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    fun findExistingUser(url: String, callback: (JSONObject) -> Unit) {
+    fun verifyToken(url: String, idToken: String, webClientId: String, callback: (JSONObject) -> Unit) {
+        // Create JSONObject to send
+        val jsonObject = JSONObject()
+        jsonObject.put("idToken", idToken)
+        jsonObject.put("audience", webClientId)
+
+        // Create RequestBody and Request for OkHttp3
+        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+        val request = Request.Builder().url(url).post(body).build()
+
+        // Make call
+        ApiService.client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.d(TAG, "Error: $e")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val result = response.body()?.string()
+                if(result != null) {
+                    try {
+                        val jsonObject = JSONObject(result)
+                        callback(jsonObject)
+                    } catch (_: Exception) {
+                        val badJsonObject = JSONObject()
+                        callback(badJsonObject)
+                    }
+                }
+            }
+        })
+    }
+
+    fun findExistingUser(url: String, sub: String, callback: (JSONObject) -> Unit) {
         // Create Request for OkHttp3
         val request = Request.Builder().url(url).get().build()
 
@@ -102,7 +134,7 @@ class LoginActivity : AppCompatActivity() {
                         callback(jsonObject)
                     } catch(_: Exception) {
                         Log.d(TAG, "Creating new user")
-                        createNewUser(BuildConfig.BASE_API_URL + "/create_new_user") { result ->
+                        createNewUser(BuildConfig.BASE_API_URL + "/create_new_user", sub) { result ->
                             callback(result)
                         }
                     }
@@ -111,10 +143,11 @@ class LoginActivity : AppCompatActivity() {
         })
     }
 
-    fun createNewUser(url: String, callback: (JSONObject) -> Unit) {
+    fun createNewUser(url: String, sub: String, callback: (JSONObject) -> Unit) {
         // Create JSONObject to send
         val jsonObject = JSONObject()
-        jsonObject.put("username", GoogleIdTokenCredentialEmail)
+        jsonObject.put("email", GoogleIdTokenCredentialEmail)
+        jsonObject.put("sub", sub)
         jsonObject.put("name", GoogleIdTokenCredentialName)
 
         // Create RequestBody and Request for OkHttp3
@@ -161,7 +194,7 @@ class LoginActivity : AppCompatActivity() {
                         // Use googleIdTokenCredential and extract id to validate and
                         // authenticate on your server
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        Log.d(TAG, "Received Google ID token: ${googleIdTokenCredential.idToken.take(10)}")
+                        Log.d(TAG, "Entire Google ID Token: ${googleIdTokenCredential.idToken}")
 
                         // Store Name and Email of user into this class
                         GoogleIdTokenCredentialName = googleIdTokenCredential.displayName.toString()
@@ -171,16 +204,24 @@ class LoginActivity : AppCompatActivity() {
                         Log.d(TAG, "GoogleIdTokenCredentialName: ${GoogleIdTokenCredentialName}")
                         Log.d(TAG, "GoogleIdTokenCredentialEmail: ${GoogleIdTokenCredentialEmail}")
 
-                        // Finds an existing user and creates one if existing user does not exist
-                        findExistingUser(BuildConfig.BASE_API_URL + "/find_existing_user?username=" + googleIdTokenCredential.id) { result ->
-                            Log.d(TAG, "Finding existing user: ${result}")
+                        // Verify the Google ID Token on the back end
+                        verifyToken(BuildConfig.BASE_API_URL + "/tokensignin", googleIdTokenCredential.idToken, BuildConfig.WEB_CLIENT_ID) { result ->
+                            Log.d(TAG, "Verifying Google ID Token")
 
-                            // Route to new page
-                            val intent = Intent(this, MainActivity::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                            startActivity(intent)
-                            finish()
+                            GoogleIdTokenSub = result.getString("sub")
+
+                            // Finds an existing user and if there does not exist a particular user, create one
+                            findExistingUser(BuildConfig.BASE_API_URL + "/find_existing_user?sub=" + result.getString("sub"), result.getString("sub")) { result ->
+                                Log.d(TAG, "Finding existing user: ${result}")
+
+                                val intent = Intent(this, MainActivity::class.java)
+                                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                startActivity(intent)
+                                finish()
+                            }
                         }
+
+                        // Finds an existing user and creates one if existing user does not exist
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
                     }
