@@ -8,7 +8,7 @@
     tools:content=".SettingsActivity">
 
     <TextView
-        android:id="@+id/schedule_list_text"
+        android:id="@+id/karma_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="User Settings"
