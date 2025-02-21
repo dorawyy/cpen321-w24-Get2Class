@@ -130,7 +130,7 @@ class RouteActivity : AppCompatActivity() {
 
             permissionsLauncher.launch(permissions)
         } else {
-            Handler(Looper.getMainLooper()).postDelayed({ onLocationPermissionGranted() }, 3000)
+            onLocationPermissionGranted()
         }
     }
 
@@ -320,7 +320,7 @@ class RouteActivity : AppCompatActivity() {
                     android.os.Handler(Looper.getMainLooper()).postDelayed({
 //                        navigateToPlace(RouteActivity.endLocation)
                         navigateToPlace(destinationPlaceId)
-                    }, 3000) // 3-second delay
+                    }, 5000) // 5-second delay
                 }
 
                 override fun onError(@NavigationApi.ErrorCode errorCode: Int) {
