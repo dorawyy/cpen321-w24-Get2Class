@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -48,7 +49,20 @@ android {
     }
 }
 
+val navSdkVersion by extra("6.0.0")
+
 dependencies {
+
+    // include the Google Navigation SDK
+    api("com.google.android.libraries.navigation:navigation:${navSdkVersion}")
+
+    implementation(libs.recyclerview.v7)
+
+    // for places api
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    implementation("com.google.android.libraries.places:places:3.5.0") {
+        exclude(group = "com.google.android.gms", module = "play-services-maps")
+    }
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -65,4 +79,14 @@ dependencies {
     // optional - needed for credentials support from play services, for devices running Android 13 and below.
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("androidx.credentials:credentials:1.3.0")
+}
+
+secrets {
+    // Optionally specify a different file name containing your secrets.
+    // The plugin defaults to "local.properties"
+    propertiesFileName = "local.properties"
+
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+    defaultPropertiesFileName = "local.defaults.properties"
 }

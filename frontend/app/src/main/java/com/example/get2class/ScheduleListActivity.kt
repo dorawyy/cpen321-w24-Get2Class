@@ -1,5 +1,6 @@
 package com.example.get2class
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -22,6 +23,14 @@ class ScheduleListActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        // test button for View Route
+        findViewById<Button>(R.id.view_route_button).setOnClickListener(){
+            val acronym = "LSK"
+            val intent = Intent(this, RouteActivity::class.java)
+            intent.putExtra("acronym", acronym)
+            startActivity(intent)
         }
 
         findViewById<Button>(R.id.fall_sem_schedule).setOnClickListener() {
