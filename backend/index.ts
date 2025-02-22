@@ -14,6 +14,17 @@ app.post('/', (req: Request, res: Response) => {
     res.json({ "data": `Client sent: ${req.body.text}` });
 });
 
+app.delete('/reset_db', async (req: Request, res: Response) => {
+    try {
+        const deleteUsers = await client.db("get2class").collection("users").deleteMany({});
+        const deleteSchedules = await client.db("get2class").collection("schedules").deleteMany({});
+        res.status(200).send("DB Reset");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
+});
+
 /**
  * Login related routes
  */
