@@ -3,6 +3,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    // excel parser
+    id("kotlin-parcelize")
 }
 
 android {
@@ -65,4 +68,7 @@ dependencies {
     // optional - needed for credentials support from play services, for devices running Android 13 and below.
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("androidx.credentials:credentials:1.3.0")
+
+    // excel parser
+    implementation(libs.poi.ooxml)
 }

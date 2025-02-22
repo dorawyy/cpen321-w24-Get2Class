@@ -10,7 +10,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
 import org.apache.poi.ss.usermodel.WorkbookFactory
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -36,7 +44,7 @@ class UploadScheduleActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE = 100 // Define request code for file selection
-        private const val TAG = "ScheduleFeature"
+        private const val TAG = "UploadScheduleActivity"
         private const val LISTING = 1
         private const val CREDITS = 2
         private const val FORMAT = 5
@@ -96,6 +104,7 @@ class UploadScheduleActivity : AppCompatActivity() {
     // Step 3: Read the Excel file and process its data
     private fun readExcelFromUri(uri: Uri): Schedule {
         val courses: MutableList<Course> = mutableListOf()
+        val coursesAsNotCourseObject: MutableList<JSONObject> = mutableListOf()
         try {
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 val workbook = WorkbookFactory.create(inputStream)
@@ -169,6 +178,17 @@ class UploadScheduleActivity : AppCompatActivity() {
 
                             // Make the course object
                             courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, building, credits, format))
+                            coursesAsNotCourseObject.add(JSONObject()
+                                .put("name", fullName)
+                                .put("daysBool", daysBool)
+                                .put("startTime", startTime)
+                                .put("endTime", endTime)
+                                .put("startDate", startDate)
+                                .put("endDate", endDate)
+                                .put("building", building)
+                                .put("credits", credits)
+                                .put("format", format)
+                            )
                         }
 
                     }
@@ -176,6 +196,9 @@ class UploadScheduleActivity : AppCompatActivity() {
                     rowNum++
                 }
                 Log.d(TAG, "Courses object: $courses")
+                storeSchedule(BuildConfig.BASE_API_URL + "/store_schedule", coursesAsNotCourseObject) { result ->
+                    Log.d(TAG, "$result")
+                }
 
                 workbook.close()
             }
@@ -183,5 +206,38 @@ class UploadScheduleActivity : AppCompatActivity() {
             e.printStackTrace()
         }
         return Schedule(courses)
+    }
+
+    fun storeSchedule(url: String, courses: MutableList<JSONObject>, callback: (JSONObject) -> Unit) {
+        Log.d(TAG, "Storing schedule to database")
+
+        // Create JSONObject to send
+        val jsonObject = JSONObject()
+        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+        jsonObject.put(ScheduleListActivity.term, JSONArray(courses))
+
+        // Create RequestBody and Request for OkHttp3
+        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+        val request = Request.Builder().url(url).put(body).build()
+
+        // Make call
+        ApiService.client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.d(TAG, "Error: $e")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val result = response.body()?.string()
+                if (result != null) {
+                    try {
+                        val jsonObject = JSONObject(result)
+                        callback(jsonObject)
+                    } catch (_: Exception) {
+                        val badJsonObject = JSONObject()
+                        callback(badJsonObject)
+                    }
+                }
+            }
+        })
     }
 }

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 class CalendarAdapter(private val cells: List<Pair<Int, Int>>, private val eventsMap: Map<Pair<Int, Int>, Course?>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private const val TAG = "ScheduleFeature"
+        private const val TAG = "CalendarAdapter"
         private const val TYPE_DAY_HEADER = 1
         private const val TYPE_TIME_LABEL = 2
         private const val TYPE_CELL = 3
