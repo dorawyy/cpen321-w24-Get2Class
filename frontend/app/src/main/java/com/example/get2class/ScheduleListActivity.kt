@@ -13,6 +13,7 @@ class ScheduleListActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "ScheduleListActivity"
+        var term: String = ""
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +29,8 @@ class ScheduleListActivity : AppCompatActivity() {
         // Fall Schedule Button
         findViewById<Button>(R.id.fall_schedule).setOnClickListener {
             Log.d(TAG, "Fall schedule button clicked")
+            term = "fallCourseList"
+
             val intent = Intent(this, ViewScheduleActivity::class.java)
             intent.putExtra("term", "Fall")
             startActivity(intent)
@@ -36,6 +39,8 @@ class ScheduleListActivity : AppCompatActivity() {
         // Winter Schedule Button
         findViewById<Button>(R.id.winter_schedule).setOnClickListener {
             Log.d(TAG, "Winter schedule button clicked")
+            term = "winterCourseList"
+
             val intent = Intent(this, ViewScheduleActivity::class.java)
             intent.putExtra("term", "Winter")
             startActivity(intent)
@@ -44,6 +49,8 @@ class ScheduleListActivity : AppCompatActivity() {
         // Summer Schedule Button
         findViewById<Button>(R.id.summer_schedule).setOnClickListener {
             Log.d(TAG, "Summer schedule button clicked")
+            term = "summerCourseList"
+
             val intent = Intent(this, ViewScheduleActivity::class.java)
             intent.putExtra("term", "Summer")
             startActivity(intent)
