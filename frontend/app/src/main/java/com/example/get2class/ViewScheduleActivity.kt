@@ -179,7 +179,7 @@ class ViewScheduleActivity : AppCompatActivity() {
         recyclerView.layoutManager = layoutManager
         recyclerView.setHasFixedSize(true)
         recyclerView.itemAnimator = null
-        recyclerView.adapter = CalendarAdapter(cells, eventsMap)
+        recyclerView.adapter = CalendarAdapter(this, cells, eventsMap)
     }
 
     fun clearSchedule(url: String, callback: (JSONObject) -> Unit) {

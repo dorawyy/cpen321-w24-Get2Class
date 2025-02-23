@@ -2,6 +2,7 @@
 package com.example.get2class
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,7 +11,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class CalendarAdapter(private val cells: List<Pair<Int, Int>>, private val eventsMap: Map<Pair<Int, Int>, Course?>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class CalendarAdapter(private val context: Context,
+                      private val cells: List<Pair<Int, Int>>,
+                      private val eventsMap: Map<Pair<Int, Int>, Course?>)
+    : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val TAG = "CalendarAdapter"
@@ -87,8 +91,11 @@ class CalendarAdapter(private val cells: List<Pair<Int, Int>>, private val event
                     holder.bottomBorder.visibility = View.GONE
                     holder.cellFrame.setBackgroundColor(Color.parseColor("#B2FF59"))
                     holder.cellFrame.setOnClickListener {
-                        // TODO: handle click, e.g. open detail screen
                         Log.d(TAG, "Course was clicked: $course")
+
+                        val intent = Intent(context, ClassInfoActivity::class.java)
+                        intent.putExtra("course", course)
+                        context.startActivity(intent)
                     }
                 } else {
                     holder.cellText.text = ""
