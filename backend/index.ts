@@ -155,6 +155,47 @@ app.put('/store_schedule', async (req: Request, res: Response) => {
     }
 });
 
+app.put('/clear_schedule', async (req: Request, res: Response) => {
+    try {
+        const sub = req.body["sub"];
+        let document;
+
+        const filter = {
+            sub: sub
+        };
+
+        if (req.body["fallCourseList"]) {
+            document = {
+                $set: {
+                    fallCourseList: req.body["fallCourseList"]
+                }
+            };
+        } else if (req.body["winterCourseList"]) {
+            document = {
+                $set: {
+                    winterCourseList: req.body["winterCourseList"]
+                }
+            };
+        } else {
+            document = {
+                $set: {
+                    summerCourseList: req.body["summerCourseList"]
+                }
+            };
+        };
+
+        const options = {
+            upsert: false
+        };
+
+        const data = await client.db("get2class").collection("schedules").updateOne(filter, document, options);
+        res.status(200).json({ acknowledged: data.acknowledged, message: "Successfully cleared schedule" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err)
+    }
+});
+
 /**
  * Mongo and Express connection setup
  */
@@ -168,4 +209,4 @@ client.connect().then(() => {
 }).catch(err => {
     console.error(err);
     client.close();
-})
+});
