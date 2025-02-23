@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
@@ -97,7 +98,25 @@ class ViewScheduleActivity : AppCompatActivity() {
         // Clear Schedule Button
         findViewById<Button>(R.id.clear_schedule_button).setOnClickListener {
             Log.d(TAG, "Clear schedule button clicked")
-            loadCalendar()
+
+            clearSchedule(BuildConfig.BASE_API_URL + "/clear_schedule") { result ->
+                Log.d(TAG, "${result}")
+                runOnUiThread {
+                    try {
+                        val acknowledged = result.getBoolean("acknowledged")
+                        val message = result.getString("message")
+
+                        if (acknowledged) {
+                            loadCalendar()
+                            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "Clear schedule has failed", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
 
 
@@ -161,6 +180,37 @@ class ViewScheduleActivity : AppCompatActivity() {
         recyclerView.setHasFixedSize(true)
         recyclerView.itemAnimator = null
         recyclerView.adapter = CalendarAdapter(cells, eventsMap)
+    }
+
+    fun clearSchedule(url: String, callback: (JSONObject) -> Unit) {
+        // Create JSONObject to send
+        val jsonObject = JSONObject()
+        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+        jsonObject.put(ScheduleListActivity.term, JSONArray())
+
+        // Create RequestBody and Request for OkHttp3
+        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+        val request = Request.Builder().url(url).put(body).build()
+
+        // Make call
+        ApiService.client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.d(TAG, "Error: $e")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val result = response.body()?.string()
+                if (result != null) {
+                    try {
+                        val jsonObject = JSONObject(result)
+                        callback(jsonObject)
+                    } catch (_: Exception) {
+                        val badJsonObject = JSONObject()
+                        callback(badJsonObject)
+                    }
+                }
+            }
+        })
     }
 
     fun getSchedule(url: String, callback: (JSONObject) -> Unit) {
