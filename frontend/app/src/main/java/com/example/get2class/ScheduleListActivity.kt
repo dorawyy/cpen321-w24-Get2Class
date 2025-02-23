@@ -13,6 +13,7 @@ class ScheduleListActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "ScheduleListActivity"
+        var term: String = ""
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,16 +34,33 @@ class ScheduleListActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        findViewById<Button>(R.id.fall_sem_schedule).setOnClickListener() {
-            Log.d(TAG, "Route to fall semester schedule")
+        // Fall Schedule Button
+        findViewById<Button>(R.id.fall_schedule).setOnClickListener {
+            Log.d(TAG, "Fall schedule button clicked")
+            term = "fallCourseList"
+
+            val intent = Intent(this, ViewScheduleActivity::class.java)
+            intent.putExtra("term", "Fall")
+            startActivity(intent)
+
+        // Winter Schedule Button
+        findViewById<Button>(R.id.winter_schedule).setOnClickListener {
+            Log.d(TAG, "Winter schedule button clicked")
+            term = "winterCourseList"
+
+            val intent = Intent(this, ViewScheduleActivity::class.java)
+            intent.putExtra("term", "Winter")
+            startActivity(intent)
         }
 
-        findViewById<Button>(R.id.winter_sem_schedule).setOnClickListener() {
-            Log.d(TAG, "Route to winter semester schedule")
-        }
+        // Summer Schedule Button
+        findViewById<Button>(R.id.summer_schedule).setOnClickListener {
+            Log.d(TAG, "Summer schedule button clicked")
+            term = "summerCourseList"
 
-        findViewById<Button>(R.id.summer_sem_schedule).setOnClickListener() {
-            Log.d(TAG, "Route to summer semester schedule")
+            val intent = Intent(this, ViewScheduleActivity::class.java)
+            intent.putExtra("term", "Summer")
+            startActivity(intent)
         }
     }
 }

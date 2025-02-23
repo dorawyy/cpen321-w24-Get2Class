@@ -10,6 +10,7 @@ material = "1.12.0"
 activity = "1.10.0"
 constraintlayout = "2.2.0"
 googleid = "1.1.1"
+poi-ooxml = "5.2.3"
 places = "2.4.0"
 recyclerviewV7 = "28.0.0"
 
@@ -23,6 +24,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "poi-ooxml" }
 places = { module = "com.google.android.libraries.places:places", version.ref = "places" }
 recyclerview-v7 = { module = "com.android.support:recyclerview-v7", version.ref = "recyclerviewV7" }
 

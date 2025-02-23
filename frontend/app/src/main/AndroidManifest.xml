@@ -17,6 +17,16 @@
         android:theme="@style/Theme.Get2Class"
         tools:targetApi="31">
         <activity
+            android:name=".CalendarAdapter"
+            android:exported="false"
+            tools:ignore="Instantiatable" />
+        <activity
+            android:name=".UploadScheduleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ViewScheduleActivity"
+            android:exported="false" />
+        <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
@@ -28,20 +38,19 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:label="MainActivity"/>
+            android:label="MainActivity" />
         <activity
             android:name=".ScheduleListActivity"
             android:exported="false"
-            android:label="ScheduleListActivity"/>
+            android:label="ScheduleListActivity" />
         <activity
             android:name=".KarmaActivity"
             android:exported="false"
-            android:label="KarmaActivity"/>
+            android:label="KarmaActivity" />
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:label="SettingsActivity"/>
-
+            android:label="SettingsActivity" />
         <activity
             android:name=".RouteActivity"
             android:exported="false" />

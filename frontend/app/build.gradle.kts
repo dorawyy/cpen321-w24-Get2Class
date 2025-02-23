@@ -3,6 +3,11 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    // excel parser
+    id("kotlin-parcelize")
+
+    // maps
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
@@ -25,6 +30,7 @@ android {
 
         buildConfigField("String", "BASE_API_URL", "\"${properties.getProperty("BASE_API_URL") ?: ""}\"")
         buildConfigField("String", "WEB_CLIENT_ID", "\"${properties.getProperty("WEB_CLIENT_ID") ?: ""}\"")
+        buildConfigField("String", "MAPS_API_KEY", "\"${properties.getProperty("MAPS_API_KEY") ?: ""}\"")
     }
 
     buildTypes {
@@ -79,6 +85,9 @@ dependencies {
     // optional - needed for credentials support from play services, for devices running Android 13 and below.
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("androidx.credentials:credentials:1.3.0")
+
+    // excel parser
+    implementation(libs.poi.ooxml)
 }
 
 secrets {
