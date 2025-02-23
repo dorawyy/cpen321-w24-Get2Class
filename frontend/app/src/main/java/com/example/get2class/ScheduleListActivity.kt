@@ -27,7 +27,7 @@ class ScheduleListActivity : AppCompatActivity() {
         }
 
         // test button for View Route
-        findViewById<Button>(R.id.view_route_button).setOnClickListener(){
+        findViewById<Button>(R.id.view_route_button).setOnClickListener() {
             val acronym = "LSK"
             val intent = Intent(this, RouteActivity::class.java)
             intent.putExtra("acronym", acronym)
@@ -42,6 +42,7 @@ class ScheduleListActivity : AppCompatActivity() {
             val intent = Intent(this, ViewScheduleActivity::class.java)
             intent.putExtra("term", "Fall")
             startActivity(intent)
+        }
 
         // Winter Schedule Button
         findViewById<Button>(R.id.winter_schedule).setOnClickListener {
