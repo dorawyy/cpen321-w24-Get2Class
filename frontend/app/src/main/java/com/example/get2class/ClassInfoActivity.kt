@@ -79,9 +79,9 @@ class ClassInfoActivity : AppCompatActivity() {
             Log.d(TAG, "Route to class button clicked")
 
             Log.d(TAG, "Building: ${course?.location?.split("-")?.get(0)?.trim()}")
-//TODO            val intent = Intent(this, ViewScheduleActivity::class.java)
-//                intent.putExtra("building", course?.location?.split("-")?.get(0)?.trim())
-//                startActivity(intent)
+            val intent = Intent(this, RouteActivity::class.java)
+            intent.putExtra("building", course?.location?.split("-")?.get(0)?.trim())
+            startActivity(intent)
         }
 
         // Check attendance Button

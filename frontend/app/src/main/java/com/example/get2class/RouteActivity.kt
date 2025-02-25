@@ -80,7 +80,7 @@ class RouteActivity : AppCompatActivity() {
         }
         placesClient = Places.createClient(this)
 
-        findPlaceId(intent.getStringExtra("acronym").toString(), placesClient) { placeId ->
+        findPlaceId(intent.getStringExtra("building").toString(), placesClient) { placeId ->
             if (placeId != null) {
                 // get the place id
                 destinationPlaceId = placeId

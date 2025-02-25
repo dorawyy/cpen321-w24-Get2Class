@@ -26,14 +26,6 @@ class ScheduleListActivity : AppCompatActivity() {
             insets
         }
 
-        // test button for View Route
-        findViewById<Button>(R.id.view_route_button).setOnClickListener() {
-            val acronym = "LSK"
-            val intent = Intent(this, RouteActivity::class.java)
-            intent.putExtra("acronym", acronym)
-            startActivity(intent)
-        }
-
         // Fall Schedule Button
         findViewById<Button>(R.id.fall_schedule).setOnClickListener {
             Log.d(TAG, "Fall schedule button clicked")
