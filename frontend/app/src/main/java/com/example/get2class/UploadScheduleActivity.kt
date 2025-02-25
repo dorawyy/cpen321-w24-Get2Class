@@ -186,7 +186,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                                 .put("endTime", endTime)
                                 .put("startDate", startDate)
                                 .put("endDate", endDate)
-                                .put("building", location)
+                                .put("location", location)
                                 .put("credits", credits)
                                 .put("format", format)
                             )
