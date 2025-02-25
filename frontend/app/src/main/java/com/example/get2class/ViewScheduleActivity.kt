@@ -251,7 +251,7 @@ class ViewScheduleActivity : AppCompatActivity() {
                         parsePair(obj.getString("endTime")),
                         parseLocalDate(obj.getString("startDate")),
                         parseLocalDate(obj.getString("endDate")),
-                        obj.getString("building"),
+                        obj.getString("location"),
                         obj.getDouble("credits"),
                         obj.getString("format")
                     )
