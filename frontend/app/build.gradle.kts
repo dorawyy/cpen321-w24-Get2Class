@@ -27,10 +27,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField("String", "BASE_API_URL", "\"${properties.getProperty("BASE_API_URL") ?: ""}\"")
-        buildConfigField("String", "WEB_CLIENT_ID", "\"${properties.getProperty("WEB_CLIENT_ID") ?: ""}\"")
-        buildConfigField("String", "MAPS_API_KEY", "\"${properties.getProperty("MAPS_API_KEY") ?: ""}\"")
     }
 
     buildTypes {
@@ -88,14 +84,4 @@ dependencies {
 
     // excel parser
     implementation(libs.poi.ooxml)
-}
-
-secrets {
-    // Optionally specify a different file name containing your secrets.
-    // The plugin defaults to "local.properties"
-    propertiesFileName = "local.properties"
-
-    // A properties file containing default secret values. This file can be
-    // checked in version control.
-    defaultPropertiesFileName = "local.defaults.properties"
 }

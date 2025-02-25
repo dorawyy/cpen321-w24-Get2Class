@@ -280,8 +280,6 @@ class RouteActivity : AppCompatActivity() {
 
             routeChangedListener =
                 Navigator.RouteChangedListener {
-                    // show an onscreen message when the route changes
-                    showToast("onRouteChanged: the user's route changed")
                 }
             mNavigator?.addRouteChangedListener(routeChangedListener)
         }
