@@ -88,8 +88,7 @@ class ClassInfoActivity : AppCompatActivity() {
         findViewById<Button>(R.id.check_attendance_button).setOnClickListener {
             Log.d(TAG, "Check attendance button clicked")
 
-//            val intent = Intent(this, TODO::class.java)
-//            startActivity(intent)
+            TODO("this will call a back end API route that awards karma to a user")
         }
 
     }
