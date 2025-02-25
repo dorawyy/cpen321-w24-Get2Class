@@ -169,15 +169,16 @@ class UploadScheduleActivity : AppCompatActivity() {
                             Log.d(TAG, "End time: $endTime")
 
                             // Get the building code
-                            val building = patternList[3].substringBefore("-").trim()
-                            Log.d(TAG, "Building: $building")
+                            val locationList = patternList[3].split("[-\n]".toRegex())
+                            val location = "${locationList[0].trim()} - ${locationList[2].trim()}"
+                            Log.d(TAG, "Location: $location")
 
                             // Get the format
                             val format = row.getCell(FORMAT).toString()
                             Log.d(TAG, "Format: $format")
 
                             // Make the course object
-                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, building, credits, format))
+                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format))
                             coursesAsNotCourseObject.add(JSONObject()
                                 .put("name", fullName)
                                 .put("daysBool", daysBool)
@@ -185,7 +186,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                                 .put("endTime", endTime)
                                 .put("startDate", startDate)
                                 .put("endDate", endDate)
-                                .put("building", building)
+                                .put("location", location)
                                 .put("credits", credits)
                                 .put("format", format)
                             )

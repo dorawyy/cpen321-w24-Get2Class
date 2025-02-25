@@ -6,6 +6,9 @@ const app = express();
 
 app.use(express.json());
 
+/**
+ * Test routes to confirm back end is working as expected
+ */
 app.get('/', (req: Request, res: Response) => {
     res.json({ "data": "Get2Class GET" });
 });
@@ -37,7 +40,7 @@ app.get('/find_existing_user', async (req: Request, res: Response) => {
         res.status(200).send(data);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ "err": err });
+        res.status(500).send(err);
     }
 });
 
@@ -64,10 +67,10 @@ app.post('/create_new_user', async (req: Request, res: Response) => {
         const userData = await client.db("get2class").collection("users").insertOne(userRequestBody);
         const scheduleData = await client.db("get2class").collection("schedules").insertOne(courseListRequestBody);
 
-        res.status(200).json({ "data": "Successfully registered account" });
+        res.status(200).json({ userAcknowledged: userData.acknowledged, scheduleAcknowledged: scheduleData.acknowledged, message: "Successfully registered account" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ "err": err });
+        res.status(500).send(err);
     }
 });
 
@@ -84,7 +87,59 @@ app.post('/tokensignin', async (req: Request, res: Response) => {
         res.status(200).json({ "sub": payload?.sub })
     } catch (err) {
         console.error(err);
-        res.status(500).json({ "err": err });
+        res.status(500).send(err);
+    }
+});
+
+/**
+ * User settings routes
+ */
+app.get('/get_notification_settings', async (req: Request, res: Response) => {
+    try {
+        const sub = req.query["sub"];
+
+        const data = await client.db("get2class").collection("users").findOne({ "sub": sub });
+        
+        if (data != null) {
+            const notificationsEnabled = data["notificationsEnabled"];
+            const notificationTime = data["notificationTime"];
+
+            res.status(200).json({ "notificationsEnabled": notificationsEnabled, "notificationTime": notificationTime });
+        } else {
+            throw Error("data is null")
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
+});
+
+app.put('/save_notification_settings', async (req: Request, res: Response) => {
+    try {
+        const sub = req.body["sub"];
+        const notificationsEnabled = req.body["notificationsEnabled"];
+        const notificationTime = req.body["notificationTime"];
+
+        const filter = {
+            sub: sub
+        };
+
+        const document = {
+            $set: {
+                notificationsEnabled: notificationsEnabled,
+                notificationTime: notificationTime
+            },
+        };
+
+        const options = {
+            upsert: false
+        };
+
+        const data = await client.db("get2class").collection("users").updateOne(filter, document, options);
+        res.status(200).json({ acknowledged: data.acknowledged, message: "Successfully saved notifications" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err);
     }
 });
 

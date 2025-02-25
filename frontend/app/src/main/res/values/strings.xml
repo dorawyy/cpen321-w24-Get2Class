@@ -5,4 +5,12 @@
     <string name="summer_schedule_button_text">Summer Schedule</string>
     <string name="upload_schedule_button_text">Upload</string>
     <string name="clear_schedule_button_text">Clear</string>
+    <string name="course_name_text"></string>
+    <string name="course_format_text"></string>
+    <string name="course_time_text"></string>
+    <string name="course_days_text"></string>
+    <string name="course_location_text"></string>
+    <string name="course_credits_text"></string>
+    <string name="route_button_text">View route to class</string>
+    <string name="check_attendance_button_text">Check in to class</string>
 </resources>
