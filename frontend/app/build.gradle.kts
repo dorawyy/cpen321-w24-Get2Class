@@ -6,6 +6,9 @@ plugins {
 
     // excel parser
     id("kotlin-parcelize")
+
+    // maps
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -24,9 +27,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField("String", "BASE_API_URL", "\"${properties.getProperty("BASE_API_URL") ?: ""}\"")
-        buildConfigField("String", "WEB_CLIENT_ID", "\"${properties.getProperty("WEB_CLIENT_ID") ?: ""}\"")
     }
 
     buildTypes {
@@ -51,7 +51,20 @@ android {
     }
 }
 
+val navSdkVersion by extra("6.0.0")
+
 dependencies {
+
+    // include the Google Navigation SDK
+    api("com.google.android.libraries.navigation:navigation:${navSdkVersion}")
+
+    implementation(libs.recyclerview.v7)
+
+    // for places api
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    implementation("com.google.android.libraries.places:places:3.5.0") {
+        exclude(group = "com.google.android.gms", module = "play-services-maps")
+    }
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
