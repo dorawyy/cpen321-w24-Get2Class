@@ -32,7 +32,8 @@ data class Course(
     val endDate: LocalDate,
     val location: String,
     val credits: Double,
-    val format: String
+    val format: String,
+    val attended: Boolean
 ) : Parcelable
 
 @Parcelize
@@ -178,7 +179,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                             Log.d(TAG, "Format: $format")
 
                             // Make the course object
-                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format))
+                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format, false))
                             coursesAsNotCourseObject.add(JSONObject()
                                 .put("name", fullName)
                                 .put("daysBool", daysBool)
@@ -189,6 +190,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                                 .put("location", location)
                                 .put("credits", credits)
                                 .put("format", format)
+                                .put("attended", false)
                             )
                         }
 

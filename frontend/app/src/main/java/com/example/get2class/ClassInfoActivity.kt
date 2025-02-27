@@ -17,7 +17,13 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import android.Manifest
 import android.location.Geocoder
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.Locale
+import kotlin.math.*
+
 
 
 class ClassInfoActivity : AppCompatActivity() {
@@ -108,16 +114,86 @@ class ClassInfoActivity : AppCompatActivity() {
         findViewById<Button>(R.id.check_attendance_button).setOnClickListener {
             Log.d(TAG, "Check attendance button clicked")
 
-//            TODO("this will call a back end API route that awards karma to a user")
+            val clientDate = getCurrentTime()?.split(" ") // day of week, hour, minute
+            val clientDay = clientDate?.get(0)?.toInt()
+            val clientTime = clientDate?.get(1)?.toDouble()?.plus(clientDate[2].toDouble()/60)
+            val classStartTime = (course?.startTime?.second?.toDouble()?.div(60))?.let { it1 ->
+                course.startTime.first.toDouble().plus(
+                    it1
+                )
+            }
+            var classEndTime = (course?.endTime?.second?.toDouble()?.div(60))?.let { it1 ->
+                course.endTime.first.toDouble().plus(
+                    it1
+                )
+            }
+            classEndTime = classEndTime?.minus(10.0/60.0)
 
-            requestCurrentLocation()
-            getCurrentTime()
-            getClassLocation("UBC " + course?.location?.split("-")?.get(0)?.trim())
+            // Perform null checking
+            if (clientDay == null || clientTime == null || classStartTime == null || classEndTime == null) {
+                Toast.makeText(
+                    this,
+                    "Could not get date data",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+            Log.d(TAG, "Start: $classStartTime, end: $classEndTime, client: $clientTime")
+
+
+            //TODO check if the course is this term
+
+            // Check if the course is today
+            if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
+                Toast.makeText(
+                    this,
+                    "You don't have this class today",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            // Check if the course has been attended yet
+            if (course.attended) {
+                Toast.makeText(this, "You already checked into this class today!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Check if it's too early
+            if (clientTime < classStartTime - 10.0/60.0) {
+                Toast.makeText(this, "You are too early to check into this class!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Check if it's too late
+            if (classEndTime < clientTime) {
+                Toast.makeText(this, "You missed your class!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+                val clientLocation = requestCurrentLocation()
+                val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim())
+
+                if (clientLocation.first == null || clientLocation.second == null || classLocation.first == null || classLocation.second == null) {
+                    Toast.makeText(this@ClassInfoActivity, "Location data not available", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                if (coordinatesToDistance(clientLocation, classLocation) < 75) {
+                    Toast.makeText(this@ClassInfoActivity, "You're too far from your class!", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+
+
+
+            }
         }
 
     }
 
-    private fun getClassLocation(classAddress: String){
+    private fun getClassLocation(classAddress: String): Pair<Double?, Double?> {
         val geocoder = Geocoder(this, Locale.getDefault())
         var addresses = geocoder.getFromLocationName(classAddress, 1)
         if (!addresses.isNullOrEmpty()) {
@@ -128,6 +204,7 @@ class ClassInfoActivity : AppCompatActivity() {
                 TAG,
                 "getClassLocation: class location ($classAddress) is : ($class_latitude, $class_longitude)"
             )
+            return class_latitude to class_longitude
         } else {
             // if no address found, set class to ubc book store
             addresses = geocoder.getFromLocationName("UBC Bookstore", 1)
@@ -142,69 +219,79 @@ class ClassInfoActivity : AppCompatActivity() {
                 TAG,
                 "getClassLocation: using UBC Bookstore : ($class_latitude, $class_longitude)"
             )
+            return class_latitude to class_longitude
         }
     }
 
-    private fun requestCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
+    private suspend fun requestCurrentLocation(): Pair<Double?, Double?> {
+        return if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            == PackageManager.PERMISSION_GRANTED
         ) {
+            getLastLocation()
+        } else {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 LOCATION_PERMISSION_REQUEST_CODE
             )
-        } else {
-            getLastLocation()
+            Log.d(TAG, "requestCurrentLocation: Permission requested, returning null until granted")
+            Pair(null, null) // Cannot proceed until user grants permission
         }
     }
 
-    private fun getLastLocation(){
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+    private suspend fun getLastLocation(): Pair<Double?, Double?> {
+        return if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED
-        ){
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+        ) {
+            try {
+                val location = fusedLocationClient.lastLocation.await()
                 if (location != null) {
-                    current_latitude = location.latitude
-                    current_longitude = location.longitude
-                    Log.d(
-                        TAG,
-                        "getLastLocation: lastLocation is ($current_latitude, $current_longitude)"
-                    )
-                }else{
-                    Log.d(
-                        TAG,
-                        "getLastLocation: lastLocation is null"
-                    )
+                    val latitude = location.latitude
+                    val longitude = location.longitude
+                    Log.d(TAG, "getLastLocation: lastLocation is ($latitude, $longitude)")
+                    Pair(latitude, longitude)
+                } else {
+                    Log.d(TAG, "getLastLocation: lastLocation is null")
+                    Pair(null, null)
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "getLastLocation: Failed to get location", e)
+                Pair(null, null)
             }
+        } else {
+            Log.d(TAG, "getLastLocation: Permission denied")
+            Pair(null, null)
         }
     }
 
-    private fun getCurrentTime(){
+    private fun getCurrentTime(): String? {
         val currentTime = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-        current_time = currentTime.format(formatter)
-        Log.d(
-            TAG,
-            "getCurrentTime: $current_time"
-        )
+        val dayOfWeek = currentTime.dayOfWeek.value // 1 = Monday, ..., 7 = Sunday
+        val formatter = DateTimeFormatter.ofPattern("HH mm")
+        current_time = "$dayOfWeek ${currentTime.format(formatter)}"
+
+        Log.d(TAG, "getCurrentTime: $current_time")
+        return current_time
     }
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults) // Keep this at the beginning
+
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.isNotEmpty() &&
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
-            getLastLocation()
-        }else{
-            Log.d(
-                TAG,
-                "onRequestPermissionsResult: invalid request results"
-            )
+            lifecycleScope.launch {
+                val location = getLastLocation()
+                Log.d(TAG, "onRequestPermissionsResult: Location received: $location")
+            }
+        } else {
+            Log.d(TAG, "onRequestPermissionsResult: Permission denied")
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     fun Pair<Int, Int>.to12HourTime(end: Boolean): String {
@@ -222,5 +309,29 @@ class ClassInfoActivity : AppCompatActivity() {
             else -> hour % 12
         }
         return String.format("%d:%02d %s", hour12, minute, amPm)
+    }
+
+    fun coordinatesToDistance(coord1: Pair<Double?, Double?>, coord2: Pair<Double?, Double?>): Double {
+        val R = 6378.137 // Radius of Earth in km
+        val lat1 = coord1.first
+        val lon1 = coord1.second
+        val lat2 = coord2.first
+        val lon2 = coord2.second
+
+        if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) {
+            return -1.0
+        }
+
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+
+        val a = sin(dLat / 2).pow(2) +
+                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+                sin(dLon / 2).pow(2)
+
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        val distance = R * c * 1000 // Convert km to meters
+
+        return distance
     }
 }

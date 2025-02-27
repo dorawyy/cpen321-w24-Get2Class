@@ -253,7 +253,8 @@ class ViewScheduleActivity : AppCompatActivity() {
                         parseLocalDate(obj.getString("endDate")),
                         obj.getString("location"),
                         obj.getDouble("credits"),
-                        obj.getString("format")
+                        obj.getString("format"),
+                        obj.getBoolean("attended")
                     )
                 )
             } catch (e: Exception) {
