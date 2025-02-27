@@ -1,20 +1,39 @@
 package com.example.get2class
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import android.Manifest
+import android.location.Geocoder
+import java.util.Locale
+
 
 class ClassInfoActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "ClassInfoActivity"
     }
+
+    // for accessing the current location
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val LOCATION_PERMISSION_REQUEST_CODE = 666
+    private var current_latitude: Double? = null
+    private var current_longitude: Double? = null
+    private var current_time: String? = null
+    private var class_latitude: Double? = null
+    private var class_longitude: Double? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +92,7 @@ class ClassInfoActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.course_location).text = "Location: ${course?.location}"
         findViewById<TextView>(R.id.course_credits).text = "Credits: ${course?.credits}"
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Route to class Button
         findViewById<Button>(R.id.route_button).setOnClickListener {
@@ -88,11 +108,104 @@ class ClassInfoActivity : AppCompatActivity() {
         findViewById<Button>(R.id.check_attendance_button).setOnClickListener {
             Log.d(TAG, "Check attendance button clicked")
 
-            TODO("this will call a back end API route that awards karma to a user")
+//            TODO("this will call a back end API route that awards karma to a user")
+
+            requestCurrentLocation()
+            getCurrentTime()
+            getClassLocation("UBC " + course?.location?.split("-")?.get(0)?.trim())
         }
 
     }
 
+    private fun getClassLocation(classAddress: String){
+        val geocoder = Geocoder(this, Locale.getDefault())
+        var addresses = geocoder.getFromLocationName(classAddress, 1)
+        if (!addresses.isNullOrEmpty()) {
+            val location = addresses[0]
+            class_latitude = location.latitude
+            class_longitude = location.longitude
+            Log.d(
+                TAG,
+                "getClassLocation: class location ($classAddress) is : ($class_latitude, $class_longitude)"
+            )
+        } else {
+            // if no address found, set class to ubc book store
+            addresses = geocoder.getFromLocationName("UBC Bookstore", 1)
+            val location = addresses?.get(0)
+            class_latitude = location?.latitude
+            class_longitude = location?.longitude
+            Log.d(
+                TAG,
+                "getClassLocation: class address not found"
+            )
+            Log.d(
+                TAG,
+                "getClassLocation: using UBC Bookstore : ($class_latitude, $class_longitude)"
+            )
+        }
+    }
+
+    private fun requestCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            getLastLocation()
+        }
+    }
+
+    private fun getLastLocation(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED
+        ){
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    current_latitude = location.latitude
+                    current_longitude = location.longitude
+                    Log.d(
+                        TAG,
+                        "getLastLocation: lastLocation is ($current_latitude, $current_longitude)"
+                    )
+                }else{
+                    Log.d(
+                        TAG,
+                        "getLastLocation: lastLocation is null"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun getCurrentTime(){
+        val currentTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        current_time = currentTime.format(formatter)
+        Log.d(
+            TAG,
+            "getCurrentTime: $current_time"
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            getLastLocation()
+        }else{
+            Log.d(
+                TAG,
+                "onRequestPermissionsResult: invalid request results"
+            )
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
 
     fun Pair<Int, Int>.to12HourTime(end: Boolean): String {
         var (hour, minute) = this
