@@ -30,6 +30,8 @@ class ClassInfoActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "ClassInfoActivity"
+        private const val MINUTES = 1.0/60.0
+
     }
 
     // for accessing the current location
@@ -117,6 +119,7 @@ class ClassInfoActivity : AppCompatActivity() {
             val clientDate = getCurrentTime()?.split(" ") // day of week, hour, minute
             val clientDay = clientDate?.get(0)?.toInt()
             val clientTime = clientDate?.get(1)?.toDouble()?.plus(clientDate[2].toDouble()/60)
+            // TODO: fetch course from backend so it has most recent attended value
             val classStartTime = (course?.startTime?.second?.toDouble()?.div(60))?.let { it1 ->
                 course.startTime.first.toDouble().plus(
                     it1
@@ -127,7 +130,7 @@ class ClassInfoActivity : AppCompatActivity() {
                     it1
                 )
             }
-            classEndTime = classEndTime?.minus(10.0/60.0)
+            classEndTime = classEndTime?.minus(10 * MINUTES)
 
             // Perform null checking
             if (clientDay == null || clientTime == null || classStartTime == null || classEndTime == null) {
@@ -145,6 +148,7 @@ class ClassInfoActivity : AppCompatActivity() {
 
             // Check if the course is today
             if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
+                Log.d(TAG, "You don't have this class today")
                 Toast.makeText(
                     this,
                     "You don't have this class today",
@@ -155,18 +159,21 @@ class ClassInfoActivity : AppCompatActivity() {
 
             // Check if the course has been attended yet
             if (course.attended) {
+                Log.d(TAG, "You already checked into this class today!")
                 Toast.makeText(this, "You already checked into this class today!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             // Check if it's too early
-            if (clientTime < classStartTime - 10.0/60.0) {
+            if (clientTime < classStartTime - 10 * MINUTES) {
+                Log.d(TAG, "You are too early to check into this class!")
                 Toast.makeText(this, "You are too early to check into this class!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             // Check if it's too late
-            if (classEndTime < clientTime) {
+            if (classEndTime <= clientTime) {
+                Log.d(TAG, "You missed your class!")
                 Toast.makeText(this, "You missed your class!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -180,13 +187,31 @@ class ClassInfoActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                if (coordinatesToDistance(clientLocation, classLocation) < 75) {
+                if (coordinatesToDistance(49.262898 to -123.254261, classLocation) > 75) {
+                    Log.d(TAG, "You're too far from your class!")
                     Toast.makeText(this@ClassInfoActivity, "You're too far from your class!", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
 
+                // Check if you're late
+                if (classStartTime < clientTime - 2 * MINUTES) {
+                    val lateness = clientTime - classStartTime
+                    Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
+                    Toast.makeText(this@ClassInfoActivity, "You were late by ${(lateness * 60).toInt()} minutes!", Toast.LENGTH_SHORT).show()
+                    val classLength = classEndTime - classStartTime
+                    var karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
+                    // TODO: post karma and attendance update
+                    Log.d(TAG, "You gained $karma Karma!")
+                    Toast.makeText(this@ClassInfoActivity, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
 
+                Log.d(TAG, "All checks passed")
 
+                val karma = (15 * (course.credits + 1)).toInt()
+                Log.d(TAG, "You gained $karma Karma!")
+
+                // TODO: post karma and attendance update
 
             }
         }
@@ -331,6 +356,8 @@ class ClassInfoActivity : AppCompatActivity() {
 
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         val distance = R * c * 1000 // Convert km to meters
+
+        Log.d(TAG, "Distance from you to the class: $distance")
 
         return distance
     }
