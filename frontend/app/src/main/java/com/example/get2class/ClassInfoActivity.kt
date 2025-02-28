@@ -23,10 +23,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 import kotlin.math.*
+import android.content.Context
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 
 
-
-class ClassInfoActivity : AppCompatActivity() {
+class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
     companion object {
         private const val TAG = "ClassInfoActivity"
@@ -37,8 +42,10 @@ class ClassInfoActivity : AppCompatActivity() {
     // for accessing the current location
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val LOCATION_PERMISSION_REQUEST_CODE = 666
-    private var current_latitude: Double? = null
-    private var current_longitude: Double? = null
+    private lateinit var locationManager: LocationManager
+    private var current_location: Pair<Double, Double>? = null
+    private var isOnCreate: Boolean = true
+
     private var current_time: String? = null
     private var class_latitude: Double? = null
     private var class_longitude: Double? = null
@@ -101,6 +108,7 @@ class ClassInfoActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.course_credits).text = "Credits: ${course?.credits}"
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         // Route to class Button
         findViewById<Button>(R.id.route_button).setOnClickListener {
@@ -115,6 +123,28 @@ class ClassInfoActivity : AppCompatActivity() {
         // Check attendance Button
         findViewById<Button>(R.id.check_attendance_button).setOnClickListener {
             Log.d(TAG, "Check attendance button clicked")
+
+            if(ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED){
+                locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    1_000,
+                    0f,
+                    this
+                )
+                Log.d(
+                    TAG,
+                    "OnCreate: Location updates requested"
+                )
+            }else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    LOCATION_PERMISSION_REQUEST_CODE
+                )
+            }
 
             val clientDate = getCurrentTime()?.split(" ") // day of week, hour, minute
             val clientDay = clientDate?.get(0)?.toInt()
@@ -187,7 +217,7 @@ class ClassInfoActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                if (coordinatesToDistance(49.262898 to -123.254261, classLocation) > 75) {
+                if (coordinatesToDistance(clientLocation, classLocation) > 75) {
                     Log.d(TAG, "You're too far from your class!")
                     Toast.makeText(this@ClassInfoActivity, "You're too far from your class!", Toast.LENGTH_SHORT).show()
                     return@launch
@@ -272,7 +302,23 @@ class ClassInfoActivity : AppCompatActivity() {
             == PackageManager.PERMISSION_GRANTED
         ) {
             try {
-                val location = fusedLocationClient.lastLocation.await()
+                var location: Location? = null
+
+                // call getCurrentLocation() for the first time, and use the updated location afterwards
+                if(isOnCreate){
+                    val cancellationTokenSource = CancellationTokenSource()
+                    // request the current location with high accuracy
+                    location = fusedLocationClient.getCurrentLocation(
+                        Priority.PRIORITY_HIGH_ACCURACY,
+                        cancellationTokenSource.token
+                    ).await()
+                    isOnCreate= false
+                }else{
+                    location = Location("gps")
+                    location.latitude = current_location?.first!!
+                    location.longitude = current_location?.second!!
+                }
+
                 if (location != null) {
                     val latitude = location.latitude
                     val longitude = location.longitude
@@ -310,6 +356,23 @@ class ClassInfoActivity : AppCompatActivity() {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.isNotEmpty() &&
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    1_000,
+                    0f,
+                    this
+                )
+                Log.d(
+                    TAG,
+                    "onRequestPermissionsResult: Location updates requested"
+                )
+            }
+
             lifecycleScope.launch {
                 val location = getLastLocation()
                 Log.d(TAG, "onRequestPermissionsResult: Location received: $location")
@@ -317,6 +380,10 @@ class ClassInfoActivity : AppCompatActivity() {
         } else {
             Log.d(TAG, "onRequestPermissionsResult: Permission denied")
         }
+    }
+
+    override fun onLocationChanged(p0: Location) {
+        current_location = p0.latitude to p0.longitude
     }
 
     fun Pair<Int, Int>.to12HourTime(end: Boolean): String {
