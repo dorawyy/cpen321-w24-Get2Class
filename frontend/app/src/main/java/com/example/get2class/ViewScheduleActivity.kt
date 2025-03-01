@@ -19,6 +19,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.time.LocalDate
@@ -59,7 +60,7 @@ class ViewScheduleActivity : AppCompatActivity() {
         val scheduleName = findViewById<TextView>(R.id.schedule_name)
         scheduleName.text = "$term Schedule: "
 
-        getSchedule(BuildConfig.BASE_API_URL + "/get_schedule?sub=" + LoginActivity.GoogleIdTokenSub + "&term=" + ScheduleListActivity.term) { result ->
+        getSchedule(BuildConfig.BASE_API_URL + "/schedule?sub=" + LoginActivity.GoogleIdTokenSub + "&term=" + ScheduleListActivity.term) { result ->
             Log.d(TAG, "$result")
 
             runOnUiThread {
@@ -90,7 +91,7 @@ class ViewScheduleActivity : AppCompatActivity() {
                 val intent = Intent(this, UploadScheduleActivity::class.java)
                 intent.putExtra("term", term)
                 scheduleLauncher.launch(intent) // Start activity for result
-            } catch (e: Exception) {
+            } catch (e: JSONException) {
                 Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT).show()
             }
         }
@@ -99,7 +100,7 @@ class ViewScheduleActivity : AppCompatActivity() {
         findViewById<Button>(R.id.clear_schedule_button).setOnClickListener {
             Log.d(TAG, "Clear schedule button clicked")
 
-            clearSchedule(BuildConfig.BASE_API_URL + "/clear_schedule") { result ->
+            clearSchedule(BuildConfig.BASE_API_URL + "/schedule") { result ->
                 Log.d(TAG, "${result}")
                 runOnUiThread {
                     try {
@@ -190,7 +191,7 @@ class ViewScheduleActivity : AppCompatActivity() {
 
         // Create RequestBody and Request for OkHttp3
         val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
-        val request = Request.Builder().url(url).put(body).build()
+        val request = Request.Builder().url(url).delete(body).build()
 
         // Make call
         ApiService.client.newCall(request).enqueue(object : Callback {
