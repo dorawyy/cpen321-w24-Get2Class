@@ -52,7 +52,8 @@ app.post('/create_new_user', async (req: Request, res: Response) => {
             name: req.body["name"],
             karma: 0,
             notificationTime: 15,
-            notificationsEnabled: true
+            notificationsEnabled: true,
+            registrationToken: "" // TODO: ask if im allowed to do this
         };
 
         const courseListRequestBody = {
@@ -143,6 +144,33 @@ app.put('/save_notification_settings', async (req: Request, res: Response) => {
     }
 });
 
+app.put('/update_registration_token', async (req: Request, res: Response) => {
+    try {
+        const sub = req.body["sub"];
+        const registrationToken = req.body["registrationToken"];
+
+        const filter = {
+            sub: sub
+        };
+
+        const document = {
+            $set: {
+                registrationToken: registrationToken,
+            },
+        };
+
+        const options = {
+            upsert: false
+        };
+
+        const data = await client.db("get2class").collection("users").updateOne(filter, document, options);
+        res.status(200).json({ acknowledged: data.acknowledged, message: "Successfully saved notifications" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
+});
+
 /**
  * Schedules related routes
  */
@@ -190,7 +218,7 @@ app.put('/store_schedule', async (req: Request, res: Response) => {
                     winterCourseList: req.body["winterCourseList"]
                 }
             };
-        } else {
+        } else { // (from Luke) TODO: I think we need to split this into 2 cases to error check
             document = {
                 $set: {
                     summerCourseList: req.body["summerCourseList"]

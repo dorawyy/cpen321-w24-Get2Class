@@ -7,25 +7,79 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import com.example.get2class.SettingsActivity.Companion
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
 
 const val channelId = "notification_channel"
 const val channelName = "com.example.get2class"
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-    // generate notification
-    // attach notification created with custom layout
-    // show notification
+
+    companion object {
+        private const val TAG = "MyFirebaseMessagingService"
+    }
+
+    override fun onNewToken(token: String) {
+        Log.d(TAG, "Refreshed token: $token")
+
+        // If you want to send messages to this application instance or
+        // manage this apps subscriptions on the server side, send the
+        // FCM registration token to your app server.
+        sendRegistrationToServer(token) { result ->
+            Log.d(TAG, "Sending registration token...")
+            Log.d(TAG, "$result")
+
+            val acknowledgement = result.getBoolean("acknowledged")
+            if (acknowledgement) {
+                Log.d(TAG, "Sent registration token to server")
+            } else {
+                Log.d(TAG, "An error has occurred")
+            }
+        }
+    }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
         if (remoteMessage.getNotification() != null) {
             generateNotification(remoteMessage.notification!!.title!!, remoteMessage.notification!!.body!!)
         }
+    }
 
+    fun sendNewRegistrationToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+
+            sendRegistrationToServer(token) { result ->
+                Log.d(TAG, "Sending registration token...")
+                Log.d(TAG, "$result")
+
+                val acknowledgement = result.getBoolean("acknowledged")
+                if (acknowledgement) {
+                    Log.d(TAG, "Sent registration token to server")
+                } else {
+                    Log.d(TAG, "An error has occurred")
+                }
+            }
+        })
     }
 
     fun getRemoteView(title: String, message: String) : RemoteViews {
@@ -65,5 +119,34 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         notificationManager.notify(0, builder.build())
+    }
+
+    private fun sendRegistrationToServer(token: String, callback: (JSONObject) -> Unit) {
+        val jsonObject = JSONObject()
+        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+        jsonObject.put("registrationToken", token)
+
+        // Create RequestBody and Request for OkHttp3
+        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+        val request = Request.Builder().url(BuildConfig.BASE_API_URL + "/update_registration_token").put(body).build()
+
+        ApiService.client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.d(TAG, "Error: $e")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val result = response.body()?.string()
+                if (result != null) {
+                    try {
+                        val goodJsonObject = JSONObject(result)
+                        callback(goodJsonObject)
+                    } catch (_: Exception) {
+                        val badJsonObject = JSONObject()
+                        callback(badJsonObject)
+                    }
+                }
+            }
+        })
     }
 }
