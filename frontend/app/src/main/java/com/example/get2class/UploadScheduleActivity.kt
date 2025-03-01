@@ -17,6 +17,7 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.time.LocalDate
@@ -197,7 +198,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                     rowNum++
                 }
                 Log.d(TAG, "Courses object: $courses")
-                storeSchedule(BuildConfig.BASE_API_URL + "/store_schedule", coursesAsNotCourseObject) { result ->
+                storeSchedule(BuildConfig.BASE_API_URL + "/schedule", coursesAsNotCourseObject) { result ->
                     Log.d(TAG, "$result")
                 }
 

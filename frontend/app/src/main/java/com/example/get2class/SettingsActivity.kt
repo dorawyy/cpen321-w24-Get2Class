@@ -42,7 +42,7 @@ class SettingsActivity : AppCompatActivity() {
         edit_minutes = findViewById(R.id.edit_minutes)
         save_button = findViewById(R.id.save_settings_button)
 
-        getNotificationSettings(BuildConfig.BASE_API_URL + "/get_notification_settings" + "?sub=" + LoginActivity.GoogleIdTokenSub) { result ->
+        getNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings" + "?sub=" + LoginActivity.GoogleIdTokenSub) { result ->
             Log.d(TAG, "getNotificationSettings: $result")
 
             val notificationsEnabled = result.getBoolean("notificationsEnabled")
@@ -55,7 +55,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         save_button.setOnClickListener() {
-            saveNotificationSettings(BuildConfig.BASE_API_URL + "/save_notification_settings") { result ->
+            saveNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings") { result ->
                 Log.d(TAG, "Saving notification settings...")
                 Log.d(TAG, "$result")
 
@@ -101,7 +101,7 @@ class SettingsActivity : AppCompatActivity() {
         val jsonObject = JSONObject()
         jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
         jsonObject.put("notificationsEnabled", notification_switch.isChecked)
-        jsonObject.put("notificationTime", edit_minutes.text)
+        jsonObject.put("notificationTime", edit_minutes.text.toString().toInt())
 
         // Create RequestBody and Request for OkHttp3
         val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
