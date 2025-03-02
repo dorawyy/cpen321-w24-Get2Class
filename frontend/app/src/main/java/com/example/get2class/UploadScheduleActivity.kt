@@ -34,7 +34,7 @@ data class Course(
     val location: String,
     val credits: Double,
     val format: String,
-    val attended: Boolean
+    var attended: Boolean
 ) : Parcelable
 
 @Parcelize

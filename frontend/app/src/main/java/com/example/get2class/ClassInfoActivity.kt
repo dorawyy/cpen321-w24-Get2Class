@@ -27,8 +27,16 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import androidx.activity.OnBackPressedCallback
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
 
 
 class ClassInfoActivity : AppCompatActivity(), LocationListener {
@@ -59,6 +67,14 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        // Override Android back button
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val intent = Intent(this@ClassInfoActivity, ViewScheduleActivity::class.java)
+                startActivity(intent)
+            }
+        })
 
         val course: Course? = intent.getParcelableExtra("course")
 
@@ -149,7 +165,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             val clientDate = getCurrentTime()?.split(" ") // day of week, hour, minute
             val clientDay = clientDate?.get(0)?.toInt()
             val clientTime = clientDate?.get(1)?.toDouble()?.plus(clientDate[2].toDouble()/60)
-            // TODO: fetch course from backend so it has most recent attended value
             val classStartTime = (course?.startTime?.second?.toDouble()?.div(60))?.let { it1 ->
                 course.startTime.first.toDouble().plus(
                     it1
@@ -174,7 +189,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             Log.d(TAG, "Start: $classStartTime, end: $classEndTime, client: $clientTime")
 
 
-            //TODO check if the course is this term
+            //TODO: check if the course is this term
 
             // Check if the course is today
             if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
@@ -229,8 +244,14 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                     Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
                     Toast.makeText(this@ClassInfoActivity, "You were late by ${(lateness * 60).toInt()} minutes!", Toast.LENGTH_SHORT).show()
                     val classLength = classEndTime - classStartTime
-                    var karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
-                    // TODO: post karma and attendance update
+                    val karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
+                    updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) {result ->
+                        Log.d(TAG, "${result}")
+                    }
+                    updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format) { result ->
+                        Log.d(TAG, "${result}")
+                        course.attended = true
+                    }
                     Log.d(TAG, "You gained $karma Karma!")
                     Toast.makeText(this@ClassInfoActivity, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
                     return@launch
@@ -239,10 +260,14 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 Log.d(TAG, "All checks passed")
 
                 val karma = (15 * (course.credits + 1)).toInt()
+                updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
+                    Log.d(TAG, "${result}")
+                }
+                updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format) { result ->
+                    Log.d(TAG, "${result}")
+                    course.attended = true
+                }
                 Log.d(TAG, "You gained $karma Karma!")
-
-                // TODO: post karma and attendance update
-
             }
         }
 
@@ -427,5 +452,69 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         Log.d(TAG, "Distance from you to the class: $distance")
 
         return distance
+    }
+
+    fun updateKarma(url: String, karma: Int, callback: (JSONObject) -> Unit) {
+        // Create JSONObject to send
+        val jsonObject = JSONObject()
+        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+        jsonObject.put("karma", karma)
+
+        // Create RequestBody and Request for OkHttp3
+        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+        val request = Request.Builder().url(url).put(body).build()
+
+        // Make call
+        ApiService.client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.d(TAG, "Error: $e")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val result = response.body()?.string()
+                if (result != null) {
+                    try {
+                        val jsonObject = JSONObject(result)
+                        callback(jsonObject)
+                    } catch (_: Exception) {
+                        val badJsonObject = JSONObject()
+                        callback(badJsonObject)
+                    }
+                }
+            }
+        })
+    }
+
+    fun updateAttendance(url: String, className: String, classFormat: String, callback: (JSONObject) -> Unit) {
+        // Create JSONObject to send
+        val jsonObject = JSONObject()
+        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+        jsonObject.put("className", className)
+        jsonObject.put("classFormat", classFormat)
+        jsonObject.put("term", ScheduleListActivity.term)
+
+        // Create RequestBody and Request for OkHttp3
+        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+        val request = Request.Builder().url(url).put(body).build()
+
+        // Make call
+        ApiService.client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.d(TAG, "Error: $e")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val result = response.body()?.string()
+                if (result != null) {
+                    try {
+                        val jsonObject = JSONObject(result)
+                        callback(jsonObject)
+                    } catch (_: Exception) {
+                        val badJsonObject = JSONObject()
+                        callback(badJsonObject)
+                    }
+                }
+            }
+        })
     }
 }

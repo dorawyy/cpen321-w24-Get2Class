@@ -49,4 +49,13 @@ export const UserRoutes = [
             body("notificationTime").toInt()
         ]
     },
+    {
+        method: "put",
+        route: "/karma",
+        action: controller.updateKarma,
+        validation: [
+            body("sub").exists().isString(),
+            body("karma").isInt()
+        ]
+    }
 ];
