@@ -70,14 +70,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             insets
         }
 
-        // Override Android back button
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                val intent = Intent(this@ClassInfoActivity, ViewScheduleActivity::class.java)
-                startActivity(intent)
-            }
-        })
-
         val course: Course? = intent.getParcelableExtra("course")
 
         findViewById<TextView>(R.id.course_name).text = "${course?.name}"
