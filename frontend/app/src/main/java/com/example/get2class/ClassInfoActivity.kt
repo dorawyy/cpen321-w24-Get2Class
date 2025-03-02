@@ -250,6 +250,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                     }
                     updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format) { result ->
                         Log.d(TAG, "${result}")
+                        course.attended = true
                     }
                     Log.d(TAG, "You gained $karma Karma!")
                     Toast.makeText(this@ClassInfoActivity, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
@@ -264,6 +265,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 }
                 updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format) { result ->
                     Log.d(TAG, "${result}")
+                    course.attended = true
                 }
                 Log.d(TAG, "You gained $karma Karma!")
             }
