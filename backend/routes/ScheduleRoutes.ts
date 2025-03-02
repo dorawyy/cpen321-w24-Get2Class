@@ -28,5 +28,16 @@ export const ScheduleRoutes = [
         validation: [
             body("sub").exists().isString()
         ]
+    },
+    {
+        method: "put",
+        route: "/attendance",
+        action: controller.updateAttendance,
+        validation: [
+            body("sub").exists().isString(),
+            body("className").exists().isString(),
+            body("classFormat").exists().isString(),
+            body("term").exists().isString()
+        ]
     }
 ];

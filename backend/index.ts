@@ -1,5 +1,4 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { OAuth2Client } from 'google-auth-library';
 import { validationResult } from 'express-validator';
 import { client } from "./services";
 import { UserRoutes } from './routes/UserRoutes';

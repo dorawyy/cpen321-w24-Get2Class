@@ -101,4 +101,65 @@ export class ScheduleController {
             res.status(200).json({ acknowledged: scheduleData.acknowledged, message: "Successfully cleared schedule" });
         }
     }
+
+    async updateAttendance(req: Request, res: Response, nextFunction: NextFunction) {
+        const sub = req.body["sub"];
+        const className = req.body["className"];
+        const classFormat = req.body["classFormat"];
+        const term = req.body["term"]
+
+        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+
+        if (userScheduleData != null) {
+            let classes = userScheduleData[term];
+
+            console.log(classes)
+
+            for (let i = 0; i < classes.length; i++) {
+                if (classes[i].name == className && classes[i].format == classFormat) {
+                    classes[i].attended = true;
+                }
+            }
+
+            let document;
+
+            const filter = {
+                sub: sub
+            };
+
+            if (term == "fallCourseList") {
+                document = {
+                    $set: {
+                        fallCourseList: classes
+                    }
+                };
+            } else if (term == "winterCourseList") {
+                document = {
+                    $set: {
+                        winterCourseList: classes
+                    }
+                };
+            } else {
+                document = {
+                    $set: {
+                        summerCourseList: classes
+                    }
+                };
+            }; 
+
+            const options = {
+                upsert: false
+            };
+
+            const updateData = await client.db("get2class").collection("schedules").updateOne(filter, document, options);
+
+            if (!updateData.acknowledged || updateData.modifiedCount == 0) {
+                res.status(400).send("Unable to clear schedule");
+            } else {
+                res.status(200).json({ acknowledged: updateData.acknowledged, message: "Successfully updated attendance" });
+            }
+        } else {
+            res.status(400).send("Could not find user schedule data");
+        }
+    }
 }

@@ -91,4 +91,41 @@ export class UserController {
             res.status(200).json({ acknowledged: notificationData.acknowledged, message: "Successfully saved notifications" });
         }
     }
+
+    async updateKarma(req: Request, res: Response, nextFunction: NextFunction) {
+        const sub = req.body["sub"];
+        const karma = req.body["karma"];
+
+        let currKarma;
+
+        const userData = await client.db("get2class").collection("users").findOne({ "sub": sub });
+        
+        if (userData != null) {
+            currKarma = userData["karma"];
+        } else {
+            res.status(400).send("User not found");
+        }
+
+        const filter = {
+            sub: sub
+        };
+
+        const document = {
+            $set: {
+                karma: currKarma + karma
+            },
+        };
+
+        const options = {
+            upsert: false
+        };
+
+        const updateData = await client.db("get2class").collection("users").updateOne(filter, document, options);
+
+        if (!updateData.acknowledged || updateData.modifiedCount == 0) {
+            res.status(400).send("Unable to update karma");
+        } else {
+            res.status(200).json({ acknowledged: updateData.acknowledged, message: "Successfully gained karma" });
+        }
+    }
 }
