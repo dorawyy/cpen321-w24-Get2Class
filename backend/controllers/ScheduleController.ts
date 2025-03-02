@@ -113,8 +113,6 @@ export class ScheduleController {
         if (userScheduleData != null) {
             let classes = userScheduleData[term];
 
-            console.log(classes)
-
             for (let i = 0; i < classes.length; i++) {
                 if (classes[i].name == className && classes[i].format == classFormat) {
                     classes[i].attended = true;
