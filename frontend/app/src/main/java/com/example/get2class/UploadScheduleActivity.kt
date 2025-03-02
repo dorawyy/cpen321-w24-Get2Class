@@ -21,6 +21,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.time.LocalDate
+import java.time.Month
 import java.time.format.DateTimeFormatter
 
 @Parcelize
@@ -111,14 +112,15 @@ class UploadScheduleActivity : AppCompatActivity() {
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 val workbook = WorkbookFactory.create(inputStream)
                 val sheet = workbook.getSheetAt(0)
-
                 var rowNum = 0
                 for (row in sheet) {
                     // Ignore classes that aren't in person
                     if (row.getCell(MODE).toString() != "In Person Learning") {
+                        Log.e(TAG, "Class rejected with reason: Not in person")
                         rowNum++
                         continue
                     }
+
 
                     if (rowNum > 2) {
                         // Create the full name value
@@ -136,6 +138,13 @@ class UploadScheduleActivity : AppCompatActivity() {
                         Log.d(TAG, "Start Date: $startDate")
                         val endDate = LocalDate.parse(row.getCell(END_DATE).toString(), dateFormatter)
                         Log.d(TAG, "End Date: $endDate")
+
+                        // Skip adding any classes that have the wrong start and end dates for this term
+                        if (!checkTerm(startDate, endDate)) {
+                            Log.e(TAG, "Class rejected with reason: Not this term")
+                            rowNum++
+                            continue
+                        }
 
                         // Get the meeting pattern
                         val pattern = row.getCell(PATTERN).toString()
@@ -244,4 +253,16 @@ class UploadScheduleActivity : AppCompatActivity() {
             }
         })
     }
+
+    // Check that the class is in the right term
+    private fun checkTerm(startDate: LocalDate, endDate: LocalDate): Boolean {
+        val term = intent.getStringExtra("term")
+        return when (term) {
+            "Fall" -> startDate.month == Month.SEPTEMBER && endDate.month == Month.DECEMBER
+            "Winter" -> startDate.month == Month.JANUARY && endDate.month == Month.APRIL
+            else -> startDate.month in listOf(Month.MAY, Month.JULY) &&
+                    endDate.month in listOf(Month.JUNE, Month.AUGUST)
+        }
+    }
+
 }

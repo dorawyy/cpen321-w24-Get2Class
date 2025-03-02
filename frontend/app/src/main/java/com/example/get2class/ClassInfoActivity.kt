@@ -37,6 +37,8 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
+import java.time.LocalDate
+import java.time.Month
 
 
 class ClassInfoActivity : AppCompatActivity(), LocationListener {
@@ -188,8 +190,16 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             }
             Log.d(TAG, "Start: $classStartTime, end: $classEndTime, client: $clientTime")
 
-
-            //TODO: check if the course is this term
+            // Check that the current term and year match the term and year of the course
+            if(!checkTermAndYear(course)) {
+                Log.d(TAG, "You don't have this class this term")
+                Toast.makeText(
+                    this,
+                    "You don't have this this term",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
 
             // Check if the course is today
             if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
@@ -224,6 +234,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             }
 
             lifecycleScope.launch {
+
                 val clientLocation = requestCurrentLocation()
                 val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim())
 
@@ -371,6 +382,24 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
         Log.d(TAG, "getCurrentTime: $current_time")
         return current_time
+    }
+
+    private fun checkTermAndYear(course: Course): Boolean {
+        val term = ScheduleListActivity.term
+        val start = course.startDate
+        val end = course.endDate
+        val curr = LocalDate.now()
+
+        // Ensure the current year matches the course's start year
+        if (curr.year != start.year) {
+            return false
+        }
+
+        return when (term) {
+            "fallCourseList" -> curr.month in Month.SEPTEMBER..Month.DECEMBER
+            "winterCourseList" -> curr.month in Month.JANUARY..Month.APRIL
+            else -> curr.month in listOf(Month.MAY, Month.JUNE, Month.JULY, Month.AUGUST)
+        } && curr in start..end
     }
 
     override fun onRequestPermissionsResult(
