@@ -30,6 +30,17 @@ export const ScheduleRoutes = [
         ]
     },
     {
+        method: "get",
+        route: "/attendance",
+        action: controller.getAttendance,
+        validation: [
+            query("sub").exists().isString(),
+            query("className").exists().isString(),
+            query("classFormat").exists().isString(),
+            query("term").exists().isString()
+        ]
+    },
+    {
         method: "put",
         route: "/attendance",
         action: controller.updateAttendance,
