@@ -27,7 +27,6 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import androidx.activity.OnBackPressedCallback
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import okhttp3.Call
@@ -119,6 +118,13 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        if (course != null) {
+            getAttendance(BuildConfig.BASE_API_URL + "/attendance?sub=" + LoginActivity.GoogleIdTokenSub + "&className=" + course.name + "&classFormat=" + course.format + "&term=" + ScheduleListActivity.term) {result ->
+                Log.d(TAG, "$result")
+                course.attended = result.getBoolean("attended")
+            }
+        }
 
         // Route to class Button
         findViewById<Button>(R.id.route_button).setOnClickListener {
@@ -496,6 +502,32 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 if (result != null) {
                     try {
                         val jsonObject = JSONObject(result)
+                        callback(jsonObject)
+                    } catch (_: Exception) {
+                        val badJsonObject = JSONObject()
+                        callback(badJsonObject)
+                    }
+                }
+            }
+        })
+    }
+
+    fun getAttendance(url: String, callback: (JSONObject) -> Unit) {
+        // Create GET request for OkHttp3
+        val request = Request.Builder().url(url).get().build()
+
+        // Make call
+        ApiService.client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.d(TAG, "Error: $e")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val result = response.body()?.string()
+                if (result != null) {
+                    try {
+                        val jsonObject = JSONObject()
+                        jsonObject.put("attended", JSONObject(result).getBoolean("attended"))
                         callback(jsonObject)
                     } catch (_: Exception) {
                         val badJsonObject = JSONObject()
