@@ -31,6 +31,59 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     companion object {
         private const val TAG = "MyFirebaseMessagingService"
+
+        fun sendNewRegistrationToken() {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                    return@OnCompleteListener
+                }
+
+                // Get new FCM registration token
+                val token = task.result
+
+                sendRegistrationToServer(token) { result ->
+                    Log.d(TAG, "Sending registration token...")
+                    Log.d(TAG, "$result")
+
+                    val acknowledgement = result.getBoolean("acknowledged")
+                    if (acknowledgement) {
+                        Log.d(TAG, "Sent registration token to server")
+                    } else {
+                        Log.d(TAG, "An error has occurred")
+                    }
+                }
+            })
+        }
+
+        private fun sendRegistrationToServer(token: String, callback: (JSONObject) -> Unit) {
+            val jsonObject = JSONObject()
+            jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+            jsonObject.put("registrationToken", token)
+
+            // Create RequestBody and Request for OkHttp3
+            val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+            val request = Request.Builder().url(BuildConfig.BASE_API_URL + "/update_registration_token").put(body).build()
+
+            ApiService.client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.d(TAG, "Error: $e")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val result = response.body()?.string()
+                    if (result != null) {
+                        try {
+                            val goodJsonObject = JSONObject(result)
+                            callback(goodJsonObject)
+                        } catch (_: Exception) {
+                            val badJsonObject = JSONObject()
+                            callback(badJsonObject)
+                        }
+                    }
+                }
+            })
+        }
     }
 
     override fun onNewToken(token: String) {
@@ -58,29 +111,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    fun sendNewRegistrationToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
-
-            // Get new FCM registration token
-            val token = task.result
-
-            sendRegistrationToServer(token) { result ->
-                Log.d(TAG, "Sending registration token...")
-                Log.d(TAG, "$result")
-
-                val acknowledgement = result.getBoolean("acknowledged")
-                if (acknowledgement) {
-                    Log.d(TAG, "Sent registration token to server")
-                } else {
-                    Log.d(TAG, "An error has occurred")
-                }
-            }
-        })
-    }
 
     fun getRemoteView(title: String, message: String) : RemoteViews {
         val remoteView = RemoteViews("com.example.get2class", R.layout.notification)
@@ -119,34 +149,5 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         notificationManager.notify(0, builder.build())
-    }
-
-    private fun sendRegistrationToServer(token: String, callback: (JSONObject) -> Unit) {
-        val jsonObject = JSONObject()
-        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
-        jsonObject.put("registrationToken", token)
-
-        // Create RequestBody and Request for OkHttp3
-        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
-        val request = Request.Builder().url(BuildConfig.BASE_API_URL + "/update_registration_token").put(body).build()
-
-        ApiService.client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.d(TAG, "Error: $e")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val result = response.body()?.string()
-                if (result != null) {
-                    try {
-                        val goodJsonObject = JSONObject(result)
-                        callback(goodJsonObject)
-                    } catch (_: Exception) {
-                        val badJsonObject = JSONObject()
-                        callback(badJsonObject)
-                    }
-                }
-            }
-        })
     }
 }

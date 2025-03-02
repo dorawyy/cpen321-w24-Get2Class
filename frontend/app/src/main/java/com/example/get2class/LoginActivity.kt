@@ -221,6 +221,8 @@ class LoginActivity : AppCompatActivity() {
                             }
                         }
 
+                        MyFirebaseMessagingService.sendNewRegistrationToken()
+
                         // Finds an existing user and creates one if existing user does not exist
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Received an invalid google id token response", e)
