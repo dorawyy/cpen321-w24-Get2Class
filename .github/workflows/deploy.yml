@@ -27,9 +27,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
-          source: "./backend"
           script: |
-            cd /home/ubuntu/get2class-be
+            cd /home/ubuntu/get2class-be/backend
 
             # Write secrets into .env
             cat > .env <<EOF
