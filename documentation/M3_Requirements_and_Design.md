@@ -212,7 +212,12 @@ N/A
 3. **Notifications**
     - **Purpose**: Schedules push notifications based of the schedules according to the users settings to remind them to leave for class
     - **Interfaces**:
-        1. TODO
+        1. void rescheduleAllNotifications(String sub)
+            - **Purpose**: Allows all notifications to rescheduled based on an update to the pre-class notification time buffer from user settings.
+        2. void rescheduleNotificationsByTerm(String sub, String term)
+            - **Purpose**: Clears all existing notifications associated with a specified calendar and schedules new ones base don the stored class info.
+        3. void clearNotificationsByTerm(String sub, String term)
+            - **Purpose**: Clears all existing notifications associated with a specified calendar.
 4. **Additional Component (not back end related) For Reference: Front End**
     - **Purpose**: Manages front end interactions with all other back end components of the app
     - **Interfaces**:
