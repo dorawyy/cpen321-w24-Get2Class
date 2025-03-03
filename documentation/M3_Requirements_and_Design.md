@@ -1,7 +1,31 @@
 # M3 - Requirements and Design
 
 ## 1. Change History
-<!-- Leave blank for M3 -->
+1. Updated section 3.1, on February 28. 
+    - Updated the Use-Case Diagram to use verbs in accordance with M3 feedback.
+    - Changed includes to extends to accurately depict relationships.
+2. Updated section 3.3, 2, on February 28.
+    - Removed create schedule use case since this is now done automatically upon account creation.
+    - Added language to describe Fall, Winter, Summer schedule format.
+    - Changed **import** to **upload** and **delete** to **clear** to accurately depict actions.
+    - Changed **csv** to **xlsx** since Workday no longer allows csv download.
+    - Removed failure scenario for clear schedule in accordance with M3 feedback.
+3. Updated section 3.3, 3, on February 28.
+    - Removed attendance checking as that is a separate feature.
+4. Updated section 3.5, 3, on February 28.
+    - Added further justification to NFRs 1 and 2 in accordance with M3 feedback.
+    - Removed NFR 3 as it was extraneous and not justifiable.
+5. Updated section 4, on February 28.
+    - Changed **username** to **sub** (subject) in many places as this is the unique identifier provided by Google Authentication that we are using to identify user data in our data bases.
+6. Updated section 4.1, on March 2.
+    - Removed attendance component as we implemented this component in our frontend
+    - Added checkAttendance() interface to frontend.
+    - Added Notification component as per M3 feedback and per our implementation plans.
+    - Updated User and Schedule component to align with the ScheduleController.ts and UserController.ts functions
+7. Updated section 4.5, on March 2.
+    - Updated dependency diagram to match changes to section 4.1.
+8. Updated section 4.8, on March 2.
+    - Updated description of complexity component and pseudo code to better align with our actual implementation.
 
 ## 2. Project Description
 Get2Class is a gamified calendar to help students get to class on time. The main target audience for this app will be UBC students and professors. The main problem we are trying to solve is simplifying the Workday Student calendar as it is unintuitive and difficult to use. We will make it easy to set up your calendar using data from Workday. It can be difficult, especially for first-year’s, to find your classes using the building acronym on Workday. We will provide maps and walking routes. Additionally, we want to help motivate students to be punctual and attend their classes. Our application aims to solve this by implementing a notification and points system that helps and motivates users to go to classes and provides best routes to reach their next class.
@@ -46,41 +70,23 @@ Get2Class is a gamified calendar to help students get to class on time. The main
     
 2. **Manage Schedules**
     - **Overview**:
-        1. Create Schedule: The system must allow the user to generate a blank schedule
-        2. Import Schedule: The system must allow the user to import their schedule from Workday as a csv file
-        3. View Schedule: The system must allow the user to view their schedule in a clear and understandable format
-        4. Delete Schedule: The system must allow the user to delete an existing schedule
+        1. Upload Schedule: The system must allow the user to upload their schedule from Workday as an xlsx file
+        2. View Schedule: The system must allow the user to view their schedule in a clear and understandable format
+        3. Clear Schedule: The system must allow the user to clear an existing schedule
     - **Detailed Flow for Each Independent Scenario**:
-        1. **Create Schedule**<a name="fr2_1"></a>:
-            - **Description**: The user can create a blank schedule with a name
+        1. **Upload Schedule**<a name="fr2_2"></a>:
+            - **Description**: The user can upload their own schedule from Workday as a xlsx file to one of their three schedules: Fall, Winter, and Summer
             - **Primary actor(s)**: User
             - **Main success scenario**:
-                1. The user clicks on the Add Schedule button
-                2. The app prompts the user to enter a name for the new schedule
-                3. Once the user enters the name, they will hit the Create button, the newly created schedule shows up on the screen
+                1. The user chooses which schedule they want to set
+                2. The user will then click on the Upload Schedule button
+                3. A popup or page reroute will occur requesting the user to upload a (valid) .xlsx file (from Workday)
+                4. Once the user successfully uploads an .xlsx file of their schedule, the blank schedule will become populated with the users uploaded schedule 
             - **Failure scenario(s)**:
-                - 2a. The user enters an empty string for the schedule name
-                    - 2a1. An error message is displayed telling the user that the schedule name cannot be empty
-                    - 2a2. The app prompts the user to enter a valid name again
-                - 2b. The user enters a schedule name that conflicts with an already existing schedule name
-                    - 2b1. An error message is displayed telling the user that the name has been used previously
-                    - 2b2. The app prompts the user to enter a new name
-                - 2c. The user enters illegal characters into the schedule name
-                    - 2c1. An error message is displayed telling the user that the schedule name does not meet the criteria of the schedule naming convention
-                    - 2c2. The app prompts the user to enter a valid schedule name
-        2. **Import Schedule**<a name="fr2_2"></a>:
-            - **Description**: The user can import their own schedule from Workday as a csv file onto a blank existing schedule the user has created
-            - **Primary actor(s)**: User
-            - **Main success scenario**:
-                1. The user clicks on an already existing blank schedule they have created
-                2. The user will then click on the Import Schedule button
-                3. A popup or page reroute will occur requesting the user to upload a (valid) .csv file (from Workday)
-                4. Once the user successfully uploads a .csv file of their schedule, the blank schedule will become populated with the users imported schedule 
-            - **Failure scenario(s)**:
-                - 3a. The user uploads a non-valid or non .csv file
+                - 3a. The user uploads a non-valid or non .xlsx file
                     - 3a1. An error message is displayed telling the user that the uploaded file is not valid
-                    - 3a2. The app will prompt the user to import a valid schedule again
-        3. **View Schedule**<a name="fr2_3"></a>:
+                    - 3a2. The app will prompt the user to upload a valid schedule again
+        2. **View Schedule**<a name="fr2_3"></a>:
             - **Description**: The user can view their schedules and a particular schedule
             - **Primary actor(s)**: User
             - **Main success scenario**:
@@ -88,17 +94,15 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 2. The app opens up the schedule for the user to view
             - **Failure scenario(s)**:
                 - N/A
-        4. **Delete Schedule**<a name="fr2_4"></a>:
-            - **Description**: The user can delete their existing schedules
+        3. **Clear Schedule**<a name="fr2_4"></a>:
+            - **Description**: The user can clear their existing schedules
             - **Primary actor(s)**: User
             - **Main success scenario**:
-                1. The user selects (e.g. swipe or long press on) one schedule
+                1. The user selects one schedule (Fall, Winter, or Summer)
                 2. The app pops up a warning message for deleting the selected schedule
-                3. If the user hits Confirm, the app deletes the schedule and the warning is dismissed
+                3. If the user hits Confirm, the app clears the schedule and the warning is dismissed
             - **Failure scenario(s)**:
-                - 3a. The user hits Cancel or elsewhere
-                    - 3a1. The warning message is dismissed
-                    - 3a2. The app routes the user back to the original screen and does not delete the schedule
+                - N/A
 
 3. **View Map/Route**
     - **Overview**:
@@ -111,7 +115,6 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 1. The user clicks on View Route
                 2. The app prompts the user to grant location permissions if not already granted
                 3. The user sees their current location and destination location together with the optimal route on the screen
-                4. When the user arrives (or their next class happens at their current location), the user gains or loses points (karma) based on their punctuality
             - **Failure scenario(s)**:
                 - 2a. The user does not grant location permissions
                     - 2a1. The app prompts the user for permissions again with rationale
@@ -170,14 +173,11 @@ N/A
 ### **3.5. Non-Functional Requirements**
 
 1. **Schedule Usability** <a name="nfr1"></a>
-    - **Description**: All schedules operations (create, import, view, delete) should be processed and reflected on the screen within 3 seconds of the user action
-    - **Justification**: Quick schedule display avoids user dissatisfaction and saves time for busy professors and students to check the time and location for their upcoming classes
+    - **Description**: All schedules operations (upload, view, clear) should be processed and reflected on the screen within 3 seconds of the user action
+    - **Justification**: Quick schedule display avoids user dissatisfaction and saves time for busy professors and students to check the time and location for their upcoming classes. According to https://think.storage.googleapis.com/docs/mobile-page-speed-new-industry-benchmarks.pdf, as page load time goes from 1s to 3s, the probability of bounce increases 32%.
 2. **Location Accuracy** <a name="nfr2"></a>
     - **Description**: The user's location should be track within a radius of 50 meters from the actual location
-    - **Justification**: Accurate location tracking helps provide the optimal route, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points (karma)
-2. **Route Accessibility** <a name="nfr3"></a>
-    - **Description**: When logged in, the user can obtain the optimal route to their next class in at most five clicks
-    - **Justification**: Quick route access ensures students and professors get route suggestions with minimal effort and avoids user dissatisfaction. This also help the user to get to class on time
+    - **Justification**: Accurate location tracking helps provide the optimal route, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points (karma). Our testing found that inside buildings on campus you can be up to 50m away from the building's google maps location, so we need precise location data to keep the valid radius small.
 
 
 ## 4. Designs Specification
@@ -185,38 +185,42 @@ N/A
 1. **Schedule**
     - **Purpose**: Manages schedule data and interacts with the schedule database/collection
     - **Interfaces**:
-        1. List\<Schedule> getAllSchedules()
-            - **Purpose**: Retrieves all the user's schedules as a list
-        2. Schedule getSpecificSchedule(String id)
+        1. Schedule getSchedule(String scheduleId)
             - **Purpose**: Retrieves a specific schedule of the user given the schedule id and returns back a schedule to the user
-        3. void addSchedule(String name)
-            - **Purpose**: Creates a blank schedule with a given name
-        4. void removeSchedule(String id)
-            - **Purpose**: Removes a schedule with a given id
-        5. void importSchedule(File csvFile, String id)
-            - **Purpose**: Import a Workday schedule as a csv file onto a newly created blank schedule by the user
-2. **Attendance**
-    - **Purpose**: Manages the attendance of a user and synchronizes communication between schedule data and Google Maps API data
-    - **Interfaces**:
-        1. String checkAttendance(String username, List\<double> userCoordinates, double userTime, String id)
-            - **Purpose**: Checks if the user is in class based on the username, user current location, the current time of the class, and the schedule ID that the user is interacting with
-        2. void resetAttendance(String username, String id)
-            - **Purpose**: Resets the attendance of all the classes the user has attended so they can recheck in for the next day and calculates the karma to decrease based on number of missed classes for a particular user
-3. **User**
-    - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, points (karma), and settings of a particular user
+        2. void clearSchedule(String scheduleId)
+            - **Purpose**: Clears the data of a specific schedule
+        3. void importSchedule(File xlsxFile, String scheduleId)
+            - **Purpose**: Import a Workday schedule as a xlsx file onto a blank schedule that the user selects
+        4. void updateAttendance(String userId, String scheduleId, String className, String classFormat)
+            - **Purpose**: Updates the attendance of a class that user has attended
+        5. boolean getAttendance(String userId, String scheduleId, String className, String classFormat)
+            - **Purpose**: Returns back to the user whether the user has attended the class they are trying to check into already or not
+2. **User**
+    - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, sub, points (karma), and settings of a particular user
     - **Interfaces**:
         1. void createNewUser()
             - **Purpose**: Creates a new user entry into the database if a newly logged in user does not exist in the database
-        2. String findExistingUser(String username)
+        2. String findExistingUser(String sub)
             - **Purpose**: Checks if a logged in user exists in the database already
-        3. int getKarma(String username)
+        3. int getKarma(String sub)
             - **Purpose**: Fetches the points (karma) of a given user
-        4. void updateKarma(String username, int karma)
+        4. void updateKarma(String sub, int karma)
             - **Purpose**: This increases or decreases the points (karma) of a user based on the location and time
-        5. List\<NotificationSetting> getNotificationSettings(String username)
+        5. List\<NotificationSetting> getNotificationSettings(String sub)
             - **Purpose**: Retrieves all notification settings of a specific user
-        6. void updateSettings(String username, bool toggleNotification, int remindInMins)
+        6. void updateSettings(String sub, bool toggleNotification, int remindInMins)
             - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications and setting how much time before a class a user wants to be notified)
+        7. void tokenSignIn(String idToken, String audience)
+            - **Purpose**: Generates a subject for a specific user so users can be uniquely identified on the back end database
+3. **Notifications**
+    - **Purpose**: Schedules push notifications based of the schedules according to the users settings to remind them to leave for class
+    - **Interfaces**:
+        1. void rescheduleAllNotifications(String sub)
+            - **Purpose**: Allows all notifications to rescheduled based on an update to the pre-class notification time buffer from user settings.
+        2. void rescheduleNotificationsByTerm(String sub, String term)
+            - **Purpose**: Clears all existing notifications associated with a specified calendar and schedules new ones base don the stored class info.
+        3. void clearNotificationsByTerm(String sub, String term)
+            - **Purpose**: Clears all existing notifications associated with a specified calendar.
 4. **Additional Component (not back end related) For Reference: Front End**
     - **Purpose**: Manages front end interactions with all other back end components of the app
     - **Interfaces**:
@@ -228,12 +232,15 @@ N/A
             - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to sign in with their Google account
         4. void signOut()
             - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to log out of their account
+        5. String checkAttendance(String sub, List\<double> userCoordinates, double userTime, String id)
+            - **Purpose**: Checks if the user is in class based on the sub, user current location, the current time of the class, and the schedule ID that the user is interacting with
+
 
 ### **4.2. Databases**
 1. **Schedule**
     - **Purpose**: Stores the schedules of a user along with each of the schedule's classes
 2. **User**
-    - **Purpose**: Stores all user information (e.g. username, points (karma), and settings)
+    - **Purpose**: Stores all user information (e.g. username, sub, points (karma), and settings)
 
 ### **4.3. External Modules**
 1. **Google Sign In API** 
@@ -294,8 +301,6 @@ N/A
     - **Validation**: We can set up a stopwatch and time how long each operation on the schedule takes. Then we check if the response time is less than 3 seconds.
 2. [**Location Accuracy**](#nfr2)
     - **Validation**: We can open the app and check the attendance at different distance (e.g. 50m, 80m, 120m, 150m etc.) away from the location of the next class. Then by checking the attendance and Karma points, we know the location accuracy
-3. [**Route Accessibility**](#nfr3)
-    - **Validation**: We log in to our app and navigate to an arbitrary screen. Then we can test if we can get the route suggestions in 5 clicks or fewer
 
 
 ### **4.8. Main Project Complexity Design**
@@ -303,63 +308,68 @@ N/A
 - **Description**: Check whether a user is in the correct class location at the correct time and manages the karma score of the user accordingly.
 - **Why complex?**: This is complex because we have to synchronize all back end components of the app along with the front end Google Maps API. We must utilize the location of the user, the location of the classroom, the time the class starts (obtained from the Schedule DB), the time of the user, and adjust the karma score to give to the user based on several cases.
 - **Design**:
-    - **Input**: The client's username, the client's current location as GPS coordinates, the client's current time, and the schedule ID the user is interacting with. 
+    - **Input**: The course to be checked, the term of the schedule it came from, and the sub of the user.
     - **Output**: A message will be provided back to the front end for the client. The back end will update the karma based on the conditions.
     - **Main computational logic**:
-        - Determining the class which the user is checking into: If a class is currently taking place or starting in less than 10 minutes, we will select this as the class that the user wants to check into. Otherwise, we will select whichever class is closest in time.
         - Conditional cases for determining which check in status to provide for the user:
+            - If the class is not in this term or this year, notify the user
             - If the class has already been marked as attended, notify the user
             - If it is before the class by more than 10 minutes, they are too early
             - If it is after the class, they are too late
-            - If they are more than 50 meters from the class location, they are marked as in the wrong location
-            - If it is mid way through the class, they are late. Mark the class as attended and add less karma according to how late they are
-            - Otherwise, they are considered on time for up to 10 minutes and they will be marked as attended and will be awarded the full number of karma 
+            - If they are more than 75 meters from the class location, they are marked as in the wrong location
+            - If it is mid way through the class, they are late. Mark the class as attended and add less karma according to how late they are then mark the class as attended
+            - Otherwise, they are considered on time for up to 2 minutes and they will be marked as attended and will be awarded the full number of karma 
         - Class attendance will reset at the end of every day
     - **Pseudo-code**:
         ```
-        String checkAttendance(username, userCoordinates, userTime, id):
-            Class currClass = null
-            Schedule s = Schedule.getSpecificSchedule(id)
-            
-            if (userTime < s[0].start - 10):
-                currClass = s[0]
-            
-            for i in range(sizeOf(s) - 1):
-                Class c1 = s[i]
-                Class c2 = s[i + 1]
-                
-                // It is before or during the first class
-                if (userTime < c1.end):
-                    currClass = c1
-                
-                // It is between the two classes
-                if (c1.end < userTime < c2.start - 10):
-                    // It is closer to the first class than the second
-                    if (abs(userTime - c1.end) < abs(userTime - c2.start + 10)):
-                        if (!c1.attended):
-                            currClass = c1
-            
-            // It is closest to the last class
-            if (currClass == null):
-                currClass = s[sizeOf(s) - 1]
-            
-            if (currClass.attended):
+        String checkAttendance(course, term, sub):
+            requestLocationUpdates()
+            clientTime = getCurrentTime()
+            clientDate = getCurrentDate()
+            clientLocation = requestCurrentLocation()
+            if(!checkTermAndYear(course, term)):
+                return "You don't have this class this term"
+            if (clientDate < 1 || clientDate > 5 || !course.days[clientDate - 1])
+                return "You don't have this class today"
+            if (course.attended):
                 return "You already signed in to this class today!"
-            elif (userTime < currClass.start - 10):
+            elif (clientTime < course.startTime - 10):
                 return "You are too early!"
-            elif (currClass.end < userTime):
+            elif (course.endTime <= clientTime):
                 return "You missed class!"
-            elif (50 < abs(userCoordinates - currClass.location)):
+            elif (75 < coordinatesToDistance(clientLocation, course.location)):
                 return "You are not in the correct location!"
-            elif (currClass.start < userTime):
-                int lateness = userTime - currClass.start
-                int classLength = currClass.end - currClass.start
-                int karma = 10 * (1 - lateness/classLength)
-                User.updateKarma(username, karma)
+            elif (course.startTime < clientTime - 2):
+                int lateness = clientTime - course.startTime
+                int classLength = course.endTime - course.startTime
+                int karma = (10 * (1 - lateness / classLength) * (course.credits + 1))
+                updateKarma(sub, karma)
+                updateAttendance(sub, course, true)
                 return "You were late to class!"
             else:
-                User.updateKarma(username, 15)
+                updateKarma(sub, 15 * (course.credits + 1))
+                updateAttendance(sub, course, true)
                 return "Welcome to class!"
+
+        clearAttendance():
+            allSchedules = await getAllSchedules();
+
+            for (i = 0; i < allSchedules.length; i++):
+                if (allSchedules[i]["fallCourseList"].length != 0):
+                    for (j = 0; j < allSchedules[i]["fallCourseList"].length; j++):
+                        allSchedules[i]["fallCourseList"][j]["attended"] = false
+
+                if (allSchedules[i]["winterCourseList"].length != 0):
+                    for (j = 0; j < allSchedules[i]["winterCourseList"].length; j++):
+                        allSchedules[i]["winterCourseList"][j]["attended"] = false
+
+                if (allSchedules[i]["summerCourseList"].length != 0):
+                    for (j = 0; j < allSchedules[i]["summerCourseList"].length; j++):
+                        allSchedules[i]["summerCourseList"][j]["attended"] = false
+
+
+            for (i = 0; i < allSchedules.length; i++):
+                updatedData = updateSchedule(allSchedules[i])
         ```
 
 
