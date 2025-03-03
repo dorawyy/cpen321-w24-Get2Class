@@ -186,14 +186,7 @@ N/A
             - **Purpose**: Removes a schedule with a given id
         5. void importSchedule(File xlsxFile, String id)
             - **Purpose**: Import a Workday schedule as a xlsx file onto a newly created blank schedule by the user
-2. **Attendance**
-    - **Purpose**: Manages the attendance of a user and synchronizes communication between schedule data and Google Maps API data
-    - **Interfaces**:
-        1. String checkAttendance(String sub, List\<double> userCoordinates, double userTime, String id)
-            - **Purpose**: Checks if the user is in class based on the sub, user current location, the current time of the class, and the schedule ID that the user is interacting with
-        2. void resetAttendance(String sub, String id)
-            - **Purpose**: Resets the attendance of all the classes the user has attended so they can recheck in for the next day and calculates the karma to decrease based on number of missed classes for a particular user
-3. **User**
+2. **User**
     - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, sub, points (karma), and settings of a particular user
     - **Interfaces**:
         1. void createNewUser()
@@ -208,6 +201,10 @@ N/A
             - **Purpose**: Retrieves all notification settings of a specific user
         6. void updateSettings(String sub, bool toggleNotification, int remindInMins)
             - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications and setting how much time before a class a user wants to be notified)
+3. **Notifications**
+    - **Purpose**: Schedules push notifications based of the schedules according to the users settings to remind them to leave for class
+    - **Interfaces**:
+        1. TODO
 4. **Additional Component (not back end related) For Reference: Front End**
     - **Purpose**: Manages front end interactions with all other back end components of the app
     - **Interfaces**:
@@ -219,6 +216,9 @@ N/A
             - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to sign in with their Google account
         4. void signOut()
             - **Purpose**: Wrapper function that calls the Google sign in API. It allows the user to log out of their account
+        5. String checkAttendance(String sub, List\<double> userCoordinates, double userTime, String id)
+            - **Purpose**: Checks if the user is in class based on the sub, user current location, the current time of the class, and the schedule ID that the user is interacting with
+
 
 ### **4.2. Databases**
 1. **Schedule**
@@ -306,49 +306,79 @@ N/A
         - Class attendance will reset at the end of every day
     - **Pseudo-code**:
         ```
-        String checkAttendance(sub, userCoordinates, userTime, id):
-            Class currClass = null
-            Schedule s = Schedule.getSpecificSchedule(id)
-            
-            if (userTime < s[0].start - 10):
-                currClass = s[0]
-            
-            for i in range(sizeOf(s) - 1):
-                Class c1 = s[i]
-                Class c2 = s[i + 1]
-                
-                // It is before or during the first class
-                if (userTime < c1.end):
-                    currClass = c1
-                
-                // It is between the two classes
-                if (c1.end < userTime < c2.start - 10):
-                    // It is closer to the first class than the second
-                    if (abs(userTime - c1.end) < abs(userTime - c2.start + 10)):
-                        if (!c1.attended):
-                            currClass = c1
-            
-            // It is closest to the last class
-            if (currClass == null):
-                currClass = s[sizeOf(s) - 1]
-            
-            if (currClass.attended):
+        String checkAttendance(course, term, sub):
+            requestLocationUpdates()
+            clientTime = getCurrentTime()
+            clientDate = getCurrentDate()
+            clientLocation = requestCurrentLocation()
+            if(!checkTermAndYear(course, term)):
+                return "You don't have this class this term"
+            if (clientDate < 1 || clientDate > 5 || !course.days[clientDate - 1])
+                return "You don't have this class today"
+            if (course.attended):
                 return "You already signed in to this class today!"
-            elif (userTime < currClass.start - 10):
+            elif (clientTime < course.startTime - 10):
                 return "You are too early!"
-            elif (currClass.end < userTime):
+            elif (course.endTime <= clientTime):
                 return "You missed class!"
-            elif (50 < abs(userCoordinates - currClass.location)):
+            elif (75 < coordinatesToDistance(clientLocation, course.location)):
                 return "You are not in the correct location!"
-            elif (currClass.start < userTime):
-                int lateness = userTime - currClass.start
-                int classLength = currClass.end - currClass.start
-                int karma = 10 * (1 - lateness/classLength)
-                User.updateKarma(sub, karma)
+            elif (course.startTime < clientTime):
+                int lateness = clientTime - course.startTime
+                int classLength = course.endTime - course.startTime
+                int karma = (10 * (1 - lateness / classLength) * (course.credits + 1))
+                updateKarma(sub, karma)
+                updateAttendance(sub, course, true)
                 return "You were late to class!"
             else:
-                User.updateKarma(sub, 15)
+                updateKarma(sub, 15 * (course.credits + 1))
+                updateAttendance(sub, course, true)
                 return "Welcome to class!"
+
+        
+            cron.schedule('0 0 * * *', async () => {
+                try {
+                    const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
+                    console.log(allSchedules);
+                    for (let i = 0; i < allSchedules.length; i++) {
+                        if (allSchedules[i]["fallCourseList"].length != 0) {
+                            for (let j = 0; j < allSchedules[i]["fallCourseList"].length; j++) {
+                                allSchedules[i]["fallCourseList"][j]["attended"] = false;
+                            }
+                        }
+                        if (allSchedules[i]["winterCourseList"].length != 0) {
+                            for (let j = 0; j < allSchedules[i]["winterCourseList"].length; j++) {
+                                allSchedules[i]["winterCourseList"][j]["attended"] = false;
+                            }
+                        }
+                        if (allSchedules[i]["summerCourseList"].length != 0) {
+                            for (let j = 0; j < allSchedules[i]["summerCourseList"].length; j++) {
+                                allSchedules[i]["summerCourseList"][j]["attended"] = false;
+                            }
+                        }
+                    }
+
+                    for (let i = 0; i < allSchedules.length; i++) {
+                        const filter = {
+                            sub: allSchedules[i]["sub"]
+                        };
+
+                        const document = {
+                            $set: {
+                                fallCourseList: allSchedules[i]["fallCourseList"],
+                                winterCourseList: allSchedules[i]["winterCourseList"],
+                                summerCourseList: allSchedules[i]["summerCourseList"]
+                            }
+                        };
+
+                        const updatedData = await client.db("get2class").collection("schedules").updateOne(filter, document);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }, {
+                timezone: "America/Los_Angeles"
+            });
         ```
 
 
