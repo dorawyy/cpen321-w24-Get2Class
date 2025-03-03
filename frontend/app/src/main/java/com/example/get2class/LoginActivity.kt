@@ -219,9 +219,9 @@ class LoginActivity : AppCompatActivity() {
                                 startActivity(intent)
                                 finish()
                             }
-                        }
 
-                        MyFirebaseMessagingService.sendNewRegistrationToken()
+                            MyFirebaseMessagingService.sendNewRegistrationToken()
+                        }
 
                         // Finds an existing user and creates one if existing user does not exist
                     } catch (e: GoogleIdTokenParsingException) {

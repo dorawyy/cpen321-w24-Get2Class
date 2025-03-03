@@ -58,7 +58,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         private fun sendRegistrationToServer(token: String, callback: (JSONObject) -> Unit) {
             val jsonObject = JSONObject()
-            jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+            val sub = LoginActivity.GoogleIdTokenSub
+            jsonObject.put("sub", sub)
             jsonObject.put("registrationToken", token)
 
             // Create RequestBody and Request for OkHttp3

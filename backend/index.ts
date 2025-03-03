@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import { MongoClient } from 'mongodb';
+// import { rescheduleAllNotifications, rescheduleNotificationsByTerm, clearNotificationsByTerm } from "./notificationScheduler";
+import { rescheduleNotificationsByTerm } from "./notificationScheduler";
+import { clearInterval } from 'timers';
 
 const app = express();
 
@@ -117,9 +120,13 @@ app.get('/get_notification_settings', async (req: Request, res: Response) => {
 
 app.put('/save_notification_settings', async (req: Request, res: Response) => {
     try {
+        // console.log("\Notification settings save request...");
+
         const sub = req.body["sub"];
         const notificationsEnabled = req.body["notificationsEnabled"];
         const notificationTime = req.body["notificationTime"];
+        
+        // console.log(`sub: ${sub}, notifEnabled: ${notificationsEnabled}, notifTime: ${notificationTime}`);
 
         const filter = {
             sub: sub
@@ -146,8 +153,12 @@ app.put('/save_notification_settings', async (req: Request, res: Response) => {
 
 app.put('/update_registration_token', async (req: Request, res: Response) => {
     try {
+        // console.log("\nRegistration token save request...");
+
         const sub = req.body["sub"];
         const registrationToken = req.body["registrationToken"];
+
+        // console.log(`sub: ${sub}, registrationToken: ${registrationToken}`);
 
         const filter = {
             sub: sub
@@ -164,7 +175,7 @@ app.put('/update_registration_token', async (req: Request, res: Response) => {
         };
 
         const data = await client.db("get2class").collection("users").updateOne(filter, document, options);
-        res.status(200).json({ acknowledged: data.acknowledged, message: "Successfully saved notifications" });
+        res.status(200).json({ acknowledged: data.acknowledged, message: "Successfully saved registration token" });
     } catch (err) {
         console.error(err);
         res.status(500).send(err);
@@ -201,6 +212,7 @@ app.put('/store_schedule', async (req: Request, res: Response) => {
     try {        
         const sub = req.body["sub"];
         let document;
+        let term: string;
         
         const filter = {
             sub: sub
@@ -212,18 +224,21 @@ app.put('/store_schedule', async (req: Request, res: Response) => {
                     fallCourseList: req.body["fallCourseList"]
                 }
             };
+            term = "fallCourseList";
         } else if (req.body["winterCourseList"]) {
             document = {
                 $set: {
                     winterCourseList: req.body["winterCourseList"]
                 }
             };
+            term = "winterCourseList";
         } else { // (from Luke) TODO: I think we need to split this into 2 cases to error check
             document = {
                 $set: {
                     summerCourseList: req.body["summerCourseList"]
                 }
             };
+            term = "summerCourseList";
         };
 
         const options = {
@@ -232,6 +247,8 @@ app.put('/store_schedule', async (req: Request, res: Response) => {
 
         const data = await client.db("get2class").collection("schedules").updateOne(filter, document, options);
         res.status(200).json({ acknowledged: data.acknowledged, message: "Successfully uploaded schedule" });
+
+        rescheduleNotificationsByTerm(client, sub, term);
     } catch (err) {
         console.error(err);
         res.status(500).send(err)
