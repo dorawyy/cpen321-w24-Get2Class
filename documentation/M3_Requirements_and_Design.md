@@ -21,6 +21,7 @@
     - Removed attendance component as we implemented this component in our frontend
     - Added checkAttendance() interface to frontend.
     - Added Notification component as per M3 feedback and per our implementation plans.
+    - Updated User and Schedule component to align with the ScheduleController.ts and UserController.ts functions
 7. Updated section 4.5, on March 2.
     - Updated dependency diagram to match changes to section 4.1.
 8. Updated section 4.8, on March 2.
@@ -184,16 +185,16 @@ N/A
 1. **Schedule**
     - **Purpose**: Manages schedule data and interacts with the schedule database/collection
     - **Interfaces**:
-        1. List\<Schedule> getAllSchedules()
-            - **Purpose**: Retrieves all the user's schedules as a list
-        2. Schedule getSpecificSchedule(String id)
+        1. Schedule getSchedule(String scheduleId)
             - **Purpose**: Retrieves a specific schedule of the user given the schedule id and returns back a schedule to the user
-        3. void addSchedule(String name)
-            - **Purpose**: Creates a blank schedule with a given name
-        4. void removeSchedule(String id)
-            - **Purpose**: Removes a schedule with a given id
-        5. void importSchedule(File xlsxFile, String id)
-            - **Purpose**: Import a Workday schedule as a xlsx file onto a newly created blank schedule by the user
+        2. void clearSchedule(String scheduleId)
+            - **Purpose**: Clears the data of a specific schedule
+        3. void importSchedule(File xlsxFile, String scheduleId)
+            - **Purpose**: Import a Workday schedule as a xlsx file onto a blank schedule that the user selects
+        4. void updateAttendance(String userId, String scheduleId, String className, String classFormat)
+            - **Purpose**: Updates the attendance of a class that user has attended
+        5. boolean getAttendance(String userId, String scheduleId, String className, String classFormat)
+            - **Purpose**: Returns back to the user whether the user has attended the class they are trying to check into already or not
 2. **User**
     - **Purpose**: Manages the user settings and provides communication to user database/collection which stores the username, sub, points (karma), and settings of a particular user
     - **Interfaces**:
@@ -209,6 +210,8 @@ N/A
             - **Purpose**: Retrieves all notification settings of a specific user
         6. void updateSettings(String sub, bool toggleNotification, int remindInMins)
             - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications and setting how much time before a class a user wants to be notified)
+        7. void tokenSignIn(String idToken, String audience)
+            - **Purpose**: Generates a subject for a specific user so users can be uniquely identified on the back end database
 3. **Notifications**
     - **Purpose**: Schedules push notifications based of the schedules according to the users settings to remind them to leave for class
     - **Interfaces**:
