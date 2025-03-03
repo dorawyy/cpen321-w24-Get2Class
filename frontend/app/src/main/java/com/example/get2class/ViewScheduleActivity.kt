@@ -178,7 +178,6 @@ class ViewScheduleActivity : AppCompatActivity() {
             }
         }
         recyclerView.layoutManager = layoutManager
-        recyclerView.setHasFixedSize(true)
         recyclerView.itemAnimator = null
         recyclerView.adapter = CalendarAdapter(this, cells, eventsMap)
     }
