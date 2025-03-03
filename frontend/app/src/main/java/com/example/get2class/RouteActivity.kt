@@ -23,7 +23,6 @@ import com.google.android.libraries.navigation.NavigationApi
 import com.google.android.libraries.navigation.NavigationView
 import com.google.android.libraries.navigation.Navigator
 import com.google.android.libraries.navigation.RoutingOptions
-import com.google.android.libraries.navigation.SimulationOptions
 import com.google.android.libraries.navigation.Waypoint
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
@@ -178,13 +177,6 @@ class RouteActivity : AppCompatActivity() {
 
                     // enable voice audio guidance (through the device speaker)
                     mNavigator?.setAudioGuidance(Navigator.AudioGuidance.VOICE_ALERTS_AND_GUIDANCE)
-
-                    // simulate vehicle progress along the route (for demo/debug builds)
-                    if (BuildConfig.DEBUG) {
-                        mNavigator?.simulator?.simulateLocationsAlongExistingRoute(
-                            SimulationOptions().speedMultiplier(5f)
-                        )
-                    }
                 }
 
                 Navigator.RouteStatus.ROUTE_CANCELED -> showToast("Route guidance canceled.")
@@ -269,11 +261,6 @@ class RouteActivity : AppCompatActivity() {
                     // show an onscreen message
                     showToast("You have arrived at the destination!")
                     mNavigator?.clearDestinations()
-
-                    // stop simulating vehicle movement
-                    if (BuildConfig.DEBUG) {
-                        mNavigator?.simulator?.unsetUserLocation()
-                    }
                 }
             mNavigator?.addArrivalListener(arrivalListener)
 
