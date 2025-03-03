@@ -17,6 +17,14 @@
     - Removed NFR 3 as it was extraneous and not justifiable.
 5. Updated section 4, on February 28.
     - Changed **username** to **sub** (subject) in many places as this is the unique identifier provided by Google Authentication that we are using to identify user data in our data bases.
+6. Updated section 4.1, on March 2.
+    - Removed attendance component as we implemented this component in our frontend
+    - Added checkAttendance() interface to frontend.
+    - Added Notification component as per M3 feedback and per our implementation plans.
+7. Updated section 4.5, on March 2.
+    - Updated dependency diagram to match changes to section 4.1.
+8. Updated section 4.8, on March 2.
+    - Updated description of complexity component and pseudo code to better align with our actual implementation.
 
 ## 2. Project Description
 Get2Class is a gamified calendar to help students get to class on time. The main target audience for this app will be UBC students and professors. The main problem we are trying to solve is simplifying the Workday Student calendar as it is unintuitive and difficult to use. We will make it easy to set up your calendar using data from Workday. It can be difficult, especially for first-year’s, to find your classes using the building acronym on Workday. We will provide maps and walking routes. Additionally, we want to help motivate students to be punctual and attend their classes. Our application aims to solve this by implementing a notification and points system that helps and motivates users to go to classes and provides best routes to reach their next class.
@@ -292,17 +300,17 @@ N/A
 - **Description**: Check whether a user is in the correct class location at the correct time and manages the karma score of the user accordingly.
 - **Why complex?**: This is complex because we have to synchronize all back end components of the app along with the front end Google Maps API. We must utilize the location of the user, the location of the classroom, the time the class starts (obtained from the Schedule DB), the time of the user, and adjust the karma score to give to the user based on several cases.
 - **Design**:
-    - **Input**: The client's sub, the client's current location as GPS coordinates, the client's current time, and the schedule ID the user is interacting with. 
+    - **Input**: The course to be checked, the term of the schedule it came from, and the sub of the user.
     - **Output**: A message will be provided back to the front end for the client. The back end will update the karma based on the conditions.
     - **Main computational logic**:
-        - Determining the class which the user is checking into: If a class is currently taking place or starting in less than 10 minutes, we will select this as the class that the user wants to check into. Otherwise, we will select whichever class is closest in time.
         - Conditional cases for determining which check in status to provide for the user:
+            - If the class is not in this term or this year, notify the user
             - If the class has already been marked as attended, notify the user
             - If it is before the class by more than 10 minutes, they are too early
             - If it is after the class, they are too late
-            - If they are more than 50 meters from the class location, they are marked as in the wrong location
-            - If it is mid way through the class, they are late. Mark the class as attended and add less karma according to how late they are
-            - Otherwise, they are considered on time for up to 10 minutes and they will be marked as attended and will be awarded the full number of karma 
+            - If they are more than 75 meters from the class location, they are marked as in the wrong location
+            - If it is mid way through the class, they are late. Mark the class as attended and add less karma according to how late they are then mark the class as attended
+            - Otherwise, they are considered on time for up to 2 minutes and they will be marked as attended and will be awarded the full number of karma 
         - Class attendance will reset at the end of every day
     - **Pseudo-code**:
         ```
@@ -323,7 +331,7 @@ N/A
                 return "You missed class!"
             elif (75 < coordinatesToDistance(clientLocation, course.location)):
                 return "You are not in the correct location!"
-            elif (course.startTime < clientTime):
+            elif (course.startTime < clientTime - 2):
                 int lateness = clientTime - course.startTime
                 int classLength = course.endTime - course.startTime
                 int karma = (10 * (1 - lateness / classLength) * (course.credits + 1))
@@ -335,50 +343,25 @@ N/A
                 updateAttendance(sub, course, true)
                 return "Welcome to class!"
 
-        
-            cron.schedule('0 0 * * *', async () => {
-                try {
-                    const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
-                    console.log(allSchedules);
-                    for (let i = 0; i < allSchedules.length; i++) {
-                        if (allSchedules[i]["fallCourseList"].length != 0) {
-                            for (let j = 0; j < allSchedules[i]["fallCourseList"].length; j++) {
-                                allSchedules[i]["fallCourseList"][j]["attended"] = false;
-                            }
-                        }
-                        if (allSchedules[i]["winterCourseList"].length != 0) {
-                            for (let j = 0; j < allSchedules[i]["winterCourseList"].length; j++) {
-                                allSchedules[i]["winterCourseList"][j]["attended"] = false;
-                            }
-                        }
-                        if (allSchedules[i]["summerCourseList"].length != 0) {
-                            for (let j = 0; j < allSchedules[i]["summerCourseList"].length; j++) {
-                                allSchedules[i]["summerCourseList"][j]["attended"] = false;
-                            }
-                        }
-                    }
+        clearAttendance():
+            allSchedules = await getAllSchedules();
 
-                    for (let i = 0; i < allSchedules.length; i++) {
-                        const filter = {
-                            sub: allSchedules[i]["sub"]
-                        };
+            for (i = 0; i < allSchedules.length; i++):
+                if (allSchedules[i]["fallCourseList"].length != 0):
+                    for (j = 0; j < allSchedules[i]["fallCourseList"].length; j++):
+                        allSchedules[i]["fallCourseList"][j]["attended"] = false
 
-                        const document = {
-                            $set: {
-                                fallCourseList: allSchedules[i]["fallCourseList"],
-                                winterCourseList: allSchedules[i]["winterCourseList"],
-                                summerCourseList: allSchedules[i]["summerCourseList"]
-                            }
-                        };
+                if (allSchedules[i]["winterCourseList"].length != 0):
+                    for (j = 0; j < allSchedules[i]["winterCourseList"].length; j++):
+                        allSchedules[i]["winterCourseList"][j]["attended"] = false
 
-                        const updatedData = await client.db("get2class").collection("schedules").updateOne(filter, document);
-                    }
-                } catch (err) {
-                    console.error(err);
-                }
-            }, {
-                timezone: "America/Los_Angeles"
-            });
+                if (allSchedules[i]["summerCourseList"].length != 0):
+                    for (j = 0; j < allSchedules[i]["summerCourseList"].length; j++):
+                        allSchedules[i]["summerCourseList"][j]["attended"] = false
+
+
+            for (i = 0; i < allSchedules.length; i++):
+                updatedData = updateSchedule(allSchedules[i])
         ```
 
 
