@@ -17,9 +17,11 @@ import okhttp3.RequestBody
 import okhttp3.Response
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.time.LocalDate
+import java.time.Month
 import java.time.format.DateTimeFormatter
 
 @Parcelize
@@ -32,7 +34,8 @@ data class Course(
     val endDate: LocalDate,
     val location: String,
     val credits: Double,
-    val format: String
+    val format: String,
+    var attended: Boolean
 ) : Parcelable
 
 @Parcelize
@@ -109,14 +112,15 @@ class UploadScheduleActivity : AppCompatActivity() {
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 val workbook = WorkbookFactory.create(inputStream)
                 val sheet = workbook.getSheetAt(0)
-
                 var rowNum = 0
                 for (row in sheet) {
                     // Ignore classes that aren't in person
                     if (row.getCell(MODE).toString() != "In Person Learning") {
+                        Log.e(TAG, "Class rejected with reason: Not in person")
                         rowNum++
                         continue
                     }
+
 
                     if (rowNum > 2) {
                         // Create the full name value
@@ -134,6 +138,13 @@ class UploadScheduleActivity : AppCompatActivity() {
                         Log.d(TAG, "Start Date: $startDate")
                         val endDate = LocalDate.parse(row.getCell(END_DATE).toString(), dateFormatter)
                         Log.d(TAG, "End Date: $endDate")
+
+                        // Skip adding any classes that have the wrong start and end dates for this term
+                        if (!checkTerm(startDate, endDate)) {
+                            Log.e(TAG, "Class rejected with reason: Not this term")
+                            rowNum++
+                            continue
+                        }
 
                         // Get the meeting pattern
                         val pattern = row.getCell(PATTERN).toString()
@@ -178,7 +189,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                             Log.d(TAG, "Format: $format")
 
                             // Make the course object
-                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format))
+                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format, false))
                             coursesAsNotCourseObject.add(JSONObject()
                                 .put("name", fullName)
                                 .put("daysBool", daysBool)
@@ -189,6 +200,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                                 .put("location", location)
                                 .put("credits", credits)
                                 .put("format", format)
+                                .put("attended", false)
                             )
                         }
 
@@ -197,7 +209,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                     rowNum++
                 }
                 Log.d(TAG, "Courses object: $courses")
-                storeSchedule(BuildConfig.BASE_API_URL + "/store_schedule", coursesAsNotCourseObject) { result ->
+                storeSchedule(BuildConfig.BASE_API_URL + "/schedule", coursesAsNotCourseObject) { result ->
                     Log.d(TAG, "$result")
                 }
 
@@ -241,4 +253,16 @@ class UploadScheduleActivity : AppCompatActivity() {
             }
         })
     }
+
+    // Check that the class is in the right term
+    private fun checkTerm(startDate: LocalDate, endDate: LocalDate): Boolean {
+        val term = intent.getStringExtra("term")
+        return when (term) {
+            "Fall" -> startDate.month == Month.SEPTEMBER && endDate.month == Month.DECEMBER
+            "Winter" -> startDate.month == Month.JANUARY && endDate.month == Month.APRIL
+            else -> startDate.month in listOf(Month.MAY, Month.JULY) &&
+                    endDate.month in listOf(Month.JUNE, Month.AUGUST)
+        }
+    }
+
 }

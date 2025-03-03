@@ -134,7 +134,7 @@ class LoginActivity : AppCompatActivity() {
                         callback(jsonObject)
                     } catch(_: Exception) {
                         Log.d(TAG, "Creating new user")
-                        createNewUser(BuildConfig.BASE_API_URL + "/create_new_user", sub) { result ->
+                        createNewUser(BuildConfig.BASE_API_URL + "/user", sub) { result ->
                             callback(result)
                         }
                     }
@@ -211,7 +211,7 @@ class LoginActivity : AppCompatActivity() {
                             GoogleIdTokenSub = result.getString("sub")
 
                             // Finds an existing user and if there does not exist a particular user, create one
-                            findExistingUser(BuildConfig.BASE_API_URL + "/find_existing_user?sub=" + result.getString("sub"), result.getString("sub")) { result ->
+                            findExistingUser(BuildConfig.BASE_API_URL + "/user?sub=" + result.getString("sub"), result.getString("sub")) { result ->
                                 Log.d(TAG, "Finding existing user: ${result}")
 
                                 val intent = Intent(this, MainActivity::class.java)

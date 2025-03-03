@@ -1,10 +1,118 @@
-import express, { Request, Response } from 'express';
-import { OAuth2Client } from 'google-auth-library';
-import { MongoClient } from 'mongodb';
+import express, { Request, Response, NextFunction } from 'express';
+import { validationResult } from 'express-validator';
+import { client } from "./services";
+import { UserRoutes } from './routes/UserRoutes';
+import morgan from 'morgan';
+import { ScheduleRoutes } from './routes/ScheduleRoutes';
 
 const app = express();
+var cron = require('node-cron');
 
 app.use(express.json());
+app.use(morgan('tiny'));
+
+/**
+ * Cron Scheduler: resets attendance at the end of each day (PST) for all users
+ */
+cron.schedule('0 0 * * *', async () => {
+    try {
+        const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
+        console.log(allSchedules);
+        for (let i = 0; i < allSchedules.length; i++) {
+            if (allSchedules[i]["fallCourseList"].length != 0) {
+                for (let j = 0; j < allSchedules[i]["fallCourseList"].length; j++) {
+                    allSchedules[i]["fallCourseList"][j]["attended"] = false;
+                }
+            }
+            if (allSchedules[i]["winterCourseList"].length != 0) {
+                for (let j = 0; j < allSchedules[i]["winterCourseList"].length; j++) {
+                    allSchedules[i]["winterCourseList"][j]["attended"] = false;
+                }
+            }
+            if (allSchedules[i]["summerCourseList"].length != 0) {
+                for (let j = 0; j < allSchedules[i]["summerCourseList"].length; j++) {
+                    allSchedules[i]["summerCourseList"][j]["attended"] = false;
+                }
+            }
+        }
+
+        for (let i = 0; i < allSchedules.length; i++) {
+            const filter = {
+                sub: allSchedules[i]["sub"]
+            };
+
+            const document = {
+                $set: {
+                    fallCourseList: allSchedules[i]["fallCourseList"],
+                    winterCourseList: allSchedules[i]["winterCourseList"],
+                    summerCourseList: allSchedules[i]["summerCourseList"]
+                }
+            };
+
+            const updatedData = await client.db("get2class").collection("schedules").updateOne(filter, document);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}, {
+    timezone: "America/Los_Angeles"
+});
+
+/**
+ * User Routes
+ */
+UserRoutes.forEach((route) => {
+    (app as any)[route.method] (
+        route.route,
+        route.validation,
+        async (req: Request, res: Response, next: NextFunction) => {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                /* If there are validation errors, send a response with the error messages */
+                return res.status(400).send({ errors: errors.array() });
+            }
+
+            try {
+                await route.action(
+                    req,
+                    res,
+                    next,
+                );
+            } catch (err) {
+                console.log(err);
+                return res.sendStatus(500); // Don't expose internal server workings
+            }
+        },
+    );
+});
+
+/**
+ * Schedule Routes
+ */
+ScheduleRoutes.forEach((route) => {
+    (app as any)[route.method] (
+        route.route,
+        route.validation,
+        async (req: Request, res: Response, next: NextFunction) => {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                /* If there are validation errors, send a response with the error messages */
+                return res.status(400).send({ errors: errors.array() });
+            }
+
+            try {
+                await route.action(
+                    req,
+                    res,
+                    next,
+                );
+            } catch (err) {
+                console.log(err);
+                return res.sendStatus(500); // Don't expose internal server workings
+            }
+        },
+    );
+});
 
 /**
  * Test routes to confirm back end is working as expected
@@ -17,249 +125,69 @@ app.post('/', (req: Request, res: Response) => {
     res.json({ "data": `Client sent: ${req.body.text}` });
 });
 
-app.delete('/reset_db', async (req: Request, res: Response) => {
-    try {
-        const deleteUsers = await client.db("get2class").collection("users").deleteMany({});
-        const deleteSchedules = await client.db("get2class").collection("schedules").deleteMany({});
-        res.status(200).send("DB Reset");
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err);
-    }
-});
+// app.delete('/reset_db', async (req: Request, res: Response) => {
+//     try {
+//         const deleteUsers = await client.db("get2class").collection("users").deleteMany({});
+//         const deleteSchedules = await client.db("get2class").collection("schedules").deleteMany({});
+//         res.status(200).send("DB Reset");
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send(err);
+//     }
+// });
 
-/**
- * Login related routes
- */
-app.get('/find_existing_user', async (req: Request, res: Response) => {
-    try {
-        const query = req.query;
-        const sub = query["sub"];
+// app.get('/test', async (req: Request, res: Response) => {
+//     try {
+//         const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
+//         console.log(allSchedules);
+//         for (let i = 0; i < allSchedules.length; i++) {
+//             if (allSchedules[i]["fallCourseList"].length != 0) {
+//                 for (let j = 0; j < allSchedules[i]["fallCourseList"].length; j++) {
+//                     allSchedules[i]["fallCourseList"][j]["attended"] = false;
+//                 }
+//             }
+//             if (allSchedules[i]["winterCourseList"].length != 0) {
+//                 for (let j = 0; j < allSchedules[i]["winterCourseList"].length; j++) {
+//                     allSchedules[i]["winterCourseList"][j]["attended"] = false;
+//                 }
+//             }
+//             if (allSchedules[i]["summerCourseList"].length != 0) {
+//                 for (let j = 0; j < allSchedules[i]["summerCourseList"].length; j++) {
+//                     allSchedules[i]["summerCourseList"][j]["attended"] = false;
+//                 }
+//             }
+//         }
 
-        const data = await client.db("get2class").collection("users").findOne({ "sub": sub });
-        res.status(200).send(data);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err);
-    }
-});
+//         for (let i = 0; i < allSchedules.length; i++) {
+//             const filter = {
+//                 sub: allSchedules[i]["sub"]
+//             };
 
-app.post('/create_new_user', async (req: Request, res: Response) => {
-    try {
-        const userRequestBody = {
-            email: req.body["email"],
-            sub: req.body["sub"],
-            name: req.body["name"],
-            karma: 0,
-            notificationTime: 15,
-            notificationsEnabled: true
-        };
+//             const document = {
+//                 $set: {
+//                     fallCourseList: allSchedules[i]["fallCourseList"],
+//                     winterCourseList: allSchedules[i]["winterCourseList"],
+//                     summerCourseList: allSchedules[i]["summerCourseList"]
+//                 }
+//             };
 
-        const courseListRequestBody = {
-            email: req.body["email"],
-            sub: req.body["sub"],
-            name: req.body["name"],
-            fallCourseList: [],
-            winterCourseList: [],
-            summerCourseList: []
-        };
-
-        const userData = await client.db("get2class").collection("users").insertOne(userRequestBody);
-        const scheduleData = await client.db("get2class").collection("schedules").insertOne(courseListRequestBody);
-
-        res.status(200).json({ userAcknowledged: userData.acknowledged, scheduleAcknowledged: scheduleData.acknowledged, message: "Successfully registered account" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err);
-    }
-});
-
-app.post('/tokensignin', async (req: Request, res: Response) => {
-    try {
-        const client = new OAuth2Client();
-
-        const ticket = await client.verifyIdToken({
-            idToken: req.body["idToken"],
-            audience: req.body["audience"]
-        });
-
-        const payload = ticket.getPayload();
-        res.status(200).json({ "sub": payload?.sub })
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err);
-    }
-});
-
-/**
- * User settings routes
- */
-app.get('/get_notification_settings', async (req: Request, res: Response) => {
-    try {
-        const sub = req.query["sub"];
-
-        const data = await client.db("get2class").collection("users").findOne({ "sub": sub });
-        
-        if (data != null) {
-            const notificationsEnabled = data["notificationsEnabled"];
-            const notificationTime = data["notificationTime"];
-
-            res.status(200).json({ "notificationsEnabled": notificationsEnabled, "notificationTime": notificationTime });
-        } else {
-            throw Error("data is null")
-        }
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err);
-    }
-});
-
-app.put('/save_notification_settings', async (req: Request, res: Response) => {
-    try {
-        const sub = req.body["sub"];
-        const notificationsEnabled = req.body["notificationsEnabled"];
-        const notificationTime = req.body["notificationTime"];
-
-        const filter = {
-            sub: sub
-        };
-
-        const document = {
-            $set: {
-                notificationsEnabled: notificationsEnabled,
-                notificationTime: notificationTime
-            },
-        };
-
-        const options = {
-            upsert: false
-        };
-
-        const data = await client.db("get2class").collection("users").updateOne(filter, document, options);
-        res.status(200).json({ acknowledged: data.acknowledged, message: "Successfully saved notifications" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err);
-    }
-});
-
-/**
- * Schedules related routes
- */
-app.get('/get_schedule', async (req: Request, res: Response) => {
-    try {
-        const sub = req.query["sub"];
-        const term = req.query["term"];
-
-        let courseList = "";
-        if (term == "fallCourseList") courseList = "fallCourseList";
-        else if (term == "winterCourseList") courseList = "winterCourseList";
-        else courseList = "summerCourseList";
-
-        const data = await client.db("get2class").collection("schedules").findOne({ sub: sub });
-
-        if (data != null) {
-            res.status(200).json({ "courseList": data[courseList] });
-        } else {
-            throw Error("data is null");
-        }
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err);
-    }
-});
-
-app.put('/store_schedule', async (req: Request, res: Response) => {
-    try {        
-        const sub = req.body["sub"];
-        let document;
-        
-        const filter = {
-            sub: sub
-        };
-
-        if (req.body["fallCourseList"]) {
-            document = {
-                $set: {
-                    fallCourseList: req.body["fallCourseList"]
-                }
-            };
-        } else if (req.body["winterCourseList"]) {
-            document = {
-                $set: {
-                    winterCourseList: req.body["winterCourseList"]
-                }
-            };
-        } else {
-            document = {
-                $set: {
-                    summerCourseList: req.body["summerCourseList"]
-                }
-            };
-        };
-
-        const options = {
-            upsert: false
-        };
-
-        const data = await client.db("get2class").collection("schedules").updateOne(filter, document, options);
-        res.status(200).json({ acknowledged: data.acknowledged, message: "Successfully uploaded schedule" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err)
-    }
-});
-
-app.put('/clear_schedule', async (req: Request, res: Response) => {
-    try {
-        const sub = req.body["sub"];
-        let document;
-
-        const filter = {
-            sub: sub
-        };
-
-        if (req.body["fallCourseList"]) {
-            document = {
-                $set: {
-                    fallCourseList: req.body["fallCourseList"]
-                }
-            };
-        } else if (req.body["winterCourseList"]) {
-            document = {
-                $set: {
-                    winterCourseList: req.body["winterCourseList"]
-                }
-            };
-        } else {
-            document = {
-                $set: {
-                    summerCourseList: req.body["summerCourseList"]
-                }
-            };
-        };
-
-        const options = {
-            upsert: false
-        };
-
-        const data = await client.db("get2class").collection("schedules").updateOne(filter, document, options);
-        res.status(200).json({ acknowledged: data.acknowledged, message: "Successfully cleared schedule" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err)
-    }
-});
+//             const updatedData = await client.db("get2class").collection("schedules").updateOne(filter, document);
+//         }
+//         res.status(200).send("working");
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send(err);
+//     }
+// });
 
 /**
  * Mongo and Express connection setup
  */
-const client = new MongoClient("mongodb://localhost:27017/");
 client.connect().then(() => {
     console.log("MongoDB Client Connected");
 
-    app.listen(3000, () => {
-        console.log("Listening on port " + 3000);
+    app.listen(process.env.PORT, () => {
+        console.log("Listening on port " + process.env.PORT);
     });
 }).catch(err => {
     console.error(err);
