@@ -102,11 +102,41 @@ export class ScheduleController {
         }
     }
 
+    async getAttendance(req: Request, res: Response, nextFunction: NextFunction) {
+        const sub = req.query["sub"];
+        const className = req.query["className"];
+        const classFormat = req.query["classFormat"];
+        const term = req.query["term"];
+
+        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+
+        if (userScheduleData != null) {
+            let classes = userScheduleData[term as string];
+            let found = false
+            let attendanceVal;
+
+            for (let i = 0; i < classes.length; i++) {
+                if (classes[i].name == className && classes[i].format == classFormat) {
+                    found = true;
+                    attendanceVal = classes[i].attended;
+                }
+            }
+            
+            if (found == true) {
+                res.status(200).json({ attended: attendanceVal });
+            } else {
+                res.status(400).send("Class not found");
+            }
+        } else {
+            res.status(400).send("User not found");
+        }
+    }
+
     async updateAttendance(req: Request, res: Response, nextFunction: NextFunction) {
         const sub = req.body["sub"];
         const className = req.body["className"];
         const classFormat = req.body["classFormat"];
-        const term = req.body["term"]
+        const term = req.body["term"];
 
         const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
 

@@ -33,8 +33,11 @@ class KarmaActivity : AppCompatActivity() {
         val karma_text: TextView = findViewById(R.id.karma_points)
 
         getKarma(BuildConfig.BASE_API_URL + "/user?sub=" + LoginActivity.GoogleIdTokenSub) { result ->
-            Log.d(TAG, "${result}")
-            karma_text.text = result.getString("karma")
+            Log.d(TAG, "${result.getString("karma")}")
+            val karmaPoints = result.getString("karma")
+            runOnUiThread {
+                karma_text.text = karmaPoints
+            }
         }
     }
 
@@ -52,7 +55,7 @@ class KarmaActivity : AppCompatActivity() {
                 val result = response.body()?.string()
                 if (result != null) {
                     try {
-                        val jsonObject = JSONObject()
+                        val jsonObject = JSONObject(result)
                         jsonObject.put("karma", JSONObject(result).getInt("karma"))
                         callback(jsonObject)
                     } catch (_: Exception) {
