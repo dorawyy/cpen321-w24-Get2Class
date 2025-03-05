@@ -117,11 +117,11 @@ ScheduleRoutes.forEach((route) => {
 /**
  * Test routes to confirm back end is working as expected
  */
-app.get('/', (req: Request, res: Response) => {
+app.get('/get2class', (req: Request, res: Response) => {
     res.json({ "data": "Get2Class GET" });
 });
 
-app.post('/', (req: Request, res: Response) => {
+app.post('/get2class', (req: Request, res: Response) => {
     res.json({ "data": `Client sent: ${req.body.text}` });
 });
 
