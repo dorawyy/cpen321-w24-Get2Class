@@ -48,7 +48,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
     }
 
-    // for accessing the current location
+    // For accessing the current location
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val LOCATION_PERMISSION_REQUEST_CODE = 666
     private lateinit var locationManager: LocationManager
