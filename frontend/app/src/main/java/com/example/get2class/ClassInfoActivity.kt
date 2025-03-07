@@ -27,6 +27,7 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import com.example.get2class.ClassInfoActivity.Companion.TAG
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import okhttp3.Call
@@ -55,7 +56,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
     private var current_location: Pair<Double, Double>? = null
     private var isOnCreate: Boolean = true
 
-    private var current_time: String? = null
     private var class_latitude: Double? = null
     private var class_longitude: Double? = null
 
@@ -69,70 +69,33 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             insets
         }
 
-        val course: Course? = intent.getParcelableExtra("course")
+        // Get the course from the intent and return if it's null
+        val course: Course = intent.getParcelableExtra("course") ?: return
 
-        findViewById<TextView>(R.id.course_name).text = "${course?.name}"
-        findViewById<TextView>(R.id.course_format).text = "${course?.format}"
-        findViewById<TextView>(R.id.course_time).text = "${course?.startTime?.to12HourTime(false)} - ${course?.endTime?.to12HourTime(true)}"
-        var days = ""
-        var first = true
-        if (course?.days?.get(0) == true) {
-            days += "Mon"
-            first = false
-        }
-        if (course?.days?.get(1) == true) {
-            if (first) {
-                days += "Tue"
-                first = false
-            } else {
-                days += ", Tue"
-            }
-        }
-        if (course?.days?.get(2) == true) {
-            if (first) {
-                days += "Wed"
-                first = false
-            } else {
-                days += ", Wed"
-            }
-        }
-        if (course?.days?.get(3) == true) {
-            if (first) {
-                days += "Thu"
-                first = false
-            } else {
-                days += ", Thu"
-            }
-        }
-        if (course?.days?.get(4) == true) {
-            if (first) {
-                days += "Fri"
-            } else {
-                days += ", Fri"
-            }
-        }
-        findViewById<TextView>(R.id.course_days).text = days
-
-        findViewById<TextView>(R.id.course_location).text = "Location: ${course?.location}"
-        findViewById<TextView>(R.id.course_credits).text = "Credits: ${course?.credits}"
+        // Set the values of the text fields
+        findViewById<TextView>(R.id.course_name).text = course.name
+        findViewById<TextView>(R.id.course_format).text = course.format
+        findViewById<TextView>(R.id.course_time).text = "${course.startTime.to12HourTime(false)} - ${course.endTime.to12HourTime(true)}"
+        findViewById<TextView>(R.id.course_days).text = daysToString(course)
+        findViewById<TextView>(R.id.course_location).text = "Location: ${course.location}"
+        findViewById<TextView>(R.id.course_credits).text = "Credits: ${course.credits}"
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        if (course != null) {
-            getAttendance(BuildConfig.BASE_API_URL + "/attendance?sub=" + LoginActivity.GoogleIdTokenSub + "&className=" + course.name + "&classFormat=" + course.format + "&term=" + ScheduleListActivity.term) {result ->
-                Log.d(TAG, "$result")
-                course.attended = result.getBoolean("attended")
-            }
+        // Get the current "attended" value from the DB
+        getAttendance(BuildConfig.BASE_API_URL + "/attendance?sub=" + LoginActivity.GoogleIdTokenSub + "&className=" + course.name + "&classFormat=" + course.format + "&term=" + ScheduleListActivity.term, TAG) {result ->
+            Log.d(TAG, "$result")
+            course.attended = result.getBoolean("attended")
         }
 
         // Route to class Button
         findViewById<Button>(R.id.route_button).setOnClickListener {
             Log.d(TAG, "Route to class button clicked")
-
-            Log.d(TAG, "Building: ${course?.location?.split("-")?.get(0)?.trim()}")
+            val building = course.location.split("-")[0].trim()
+            Log.d(TAG, "Building: $building")
             val intent = Intent(this, RouteActivity::class.java)
-            intent.putExtra("building", course?.location?.split("-")?.get(0)?.trim())
+            intent.putExtra("building", building)
             startActivity(intent)
         }
 
@@ -140,6 +103,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         findViewById<Button>(R.id.check_attendance_button).setOnClickListener {
             Log.d(TAG, "Check attendance button clicked")
 
+            // Check and request location permissions
             if(ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -162,40 +126,26 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 )
             }
 
-            val clientDate = getCurrentTime()?.split(" ") // day of week, hour, minute
-            val clientDay = clientDate?.get(0)?.toInt()
-            val clientTime = clientDate?.get(1)?.toDouble()?.plus(clientDate[2].toDouble()/60)
-            val classStartTime = (course?.startTime?.second?.toDouble()?.div(60))?.let { it1 ->
+            // Format the current date and time and the class time
+            val clientDate = getCurrentTime().split(" ") // day of week, hour, minute
+            val clientDay = clientDate[0].toInt()
+            val clientTime = clientDate[1].toDouble().plus(clientDate[2].toDouble()/60)
+            val classStartTime = (course.startTime.second.toDouble().div(60)).let { it1 ->
                 course.startTime.first.toDouble().plus(
                     it1
                 )
             }
-            var classEndTime = (course?.endTime?.second?.toDouble()?.div(60))?.let { it1 ->
+            var classEndTime = (course.endTime.second.toDouble().div(60)).let { it1 ->
                 course.endTime.first.toDouble().plus(
                     it1
                 )
             }
-            classEndTime = classEndTime?.minus(10 * MINUTES)
+            classEndTime = classEndTime.minus(10 * MINUTES)
 
-            // Perform null checking
-            if (clientDay == null || clientTime == null || classStartTime == null || classEndTime == null) {
-                Toast.makeText(
-                    this,
-                    "Could not get date data",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            }
             Log.d(TAG, "Start: $classStartTime, end: $classEndTime, client: $clientTime")
 
             // Check that the current term and year match the term and year of the course
-            if(!checkTermAndYear(course)) {
-                Log.d(TAG, "You don't have this class this term")
-                Toast.makeText(
-                    this,
-                    "You don't have this this term",
-                    Toast.LENGTH_SHORT
-                ).show()
+            if(!checkTermAndYear(course, this)) {
                 return@setOnClickListener
             }
 
@@ -236,7 +186,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 val clientLocation = requestCurrentLocation()
                 val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim())
 
-                if (clientLocation.first == null || clientLocation.second == null || classLocation.first == null || classLocation.second == null) {
+                if (clientLocation.first == null) {
                     Toast.makeText(this@ClassInfoActivity, "Location data not available", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
@@ -249,34 +199,9 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
                 // Check if you're late
                 if (classStartTime < clientTime - 2 * MINUTES) {
-                    val lateness = clientTime - classStartTime
-                    Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
-                    Toast.makeText(this@ClassInfoActivity, "You were late by ${(lateness * 60).toInt()} minutes!", Toast.LENGTH_SHORT).show()
-                    val classLength = classEndTime - classStartTime
-                    val karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
-                    updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) {result ->
-                        Log.d(TAG, "${result}")
-                    }
-                    updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format) { result ->
-                        Log.d(TAG, "${result}")
-                        course.attended = true
-                    }
-                    Log.d(TAG, "You gained $karma Karma!")
-                    Toast.makeText(this@ClassInfoActivity, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
+                    calculateKarma(clientTime, classStartTime, classEndTime, course, true, this@ClassInfoActivity, TAG)
                     return@launch
                 }
-
-                Log.d(TAG, "All checks passed")
-
-                val karma = (15 * (course.credits + 1)).toInt()
-                updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
-                    Log.d(TAG, "${result}")
-                }
-                updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format) { result ->
-                    Log.d(TAG, "${result}")
-                    course.attended = true
-                }
-                Log.d(TAG, "You gained $karma Karma!")
             }
         }
 
@@ -336,7 +261,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             == PackageManager.PERMISSION_GRANTED
         ) {
             try {
-                var location: Location? = null
+                val location: Location
 
                 // call getCurrentLocation() for the first time, and use the updated location afterwards
                 if(isOnCreate){
@@ -353,15 +278,11 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                     location.longitude = current_location?.second!!
                 }
 
-                if (location != null) {
-                    val latitude = location.latitude
-                    val longitude = location.longitude
-                    Log.d(TAG, "getLastLocation: lastLocation is ($latitude, $longitude)")
-                    Pair(latitude, longitude)
-                } else {
-                    Log.d(TAG, "getLastLocation: lastLocation is null")
-                    Pair(null, null)
-                }
+                val latitude = location.latitude
+                val longitude = location.longitude
+                Log.d(TAG, "getLastLocation: lastLocation is ($latitude, $longitude)")
+                Pair(latitude, longitude)
+
             } catch (e: Exception) {
                 Log.e(TAG, "getLastLocation: Failed to get location", e)
                 Pair(null, null)
@@ -370,34 +291,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             Log.d(TAG, "getLastLocation: Permission denied")
             Pair(null, null)
         }
-    }
-
-    private fun getCurrentTime(): String? {
-        val currentTime = LocalDateTime.now()
-        val dayOfWeek = currentTime.dayOfWeek.value // 1 = Monday, ..., 7 = Sunday
-        val formatter = DateTimeFormatter.ofPattern("HH mm")
-        current_time = "$dayOfWeek ${currentTime.format(formatter)}"
-
-        Log.d(TAG, "getCurrentTime: $current_time")
-        return current_time
-    }
-
-    private fun checkTermAndYear(course: Course): Boolean {
-        val term = ScheduleListActivity.term
-        val start = course.startDate
-        val end = course.endDate
-        val curr = LocalDate.now()
-
-        // Ensure the current year matches the course's start year
-        if (curr.year != start.year) {
-            return false
-        }
-
-        return when (term) {
-            "fallCourseList" -> curr.month in Month.SEPTEMBER..Month.DECEMBER
-            "winterCourseList" -> curr.month in Month.JANUARY..Month.APRIL
-            else -> curr.month in listOf(Month.MAY, Month.JUNE, Month.JULY, Month.AUGUST)
-        } && curr in start..end
     }
 
     override fun onRequestPermissionsResult(
@@ -454,120 +347,249 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         }
         return String.format("%d:%02d %s", hour12, minute, amPm)
     }
+}
 
-    fun coordinatesToDistance(coord1: Pair<Double?, Double?>, coord2: Pair<Double?, Double?>): Double {
-        val R = 6378.137 // Radius of Earth in km
-        val lat1 = coord1.first
-        val lon1 = coord1.second
-        val lat2 = coord2.first
-        val lon2 = coord2.second
+private fun getCurrentTime(): String {
+    val currentTime = LocalDateTime.now()
+    val dayOfWeek = currentTime.dayOfWeek.value // 1 = Monday, ..., 7 = Sunday
+    val formatter = DateTimeFormatter.ofPattern("HH mm")
+    val current_time = "$dayOfWeek ${currentTime.format(formatter)}"
 
-        if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) {
-            return -1.0
+    Log.d("ClassInfoActivity", "getCurrentTime: $current_time")
+    return current_time
+}
+
+private fun checkTermAndYear(course: Course, context: Context): Boolean {
+    val term = ScheduleListActivity.term
+    val start = course.startDate
+    val end = course.endDate
+    val curr = LocalDate.now()
+
+    // Ensure the current year matches the course's start year
+    if (curr.year != start.year) {
+        Log.d("ClassInfoActivity", "You don't have this class this year")
+        Toast.makeText(
+            context,
+            "You don't have this this year",
+            Toast.LENGTH_SHORT
+        ).show()
+        return false
+    }
+
+    val ret = when (term) {
+        "fallCourseList" -> curr.month in Month.SEPTEMBER..Month.DECEMBER
+        "winterCourseList" -> curr.month in Month.JANUARY..Month.APRIL
+        else -> curr.month in listOf(Month.MAY, Month.JUNE, Month.JULY, Month.AUGUST)
+    } && curr in start..end
+    if (ret) return true
+
+    Log.d("ClassInfoActivity", "You don't have this class this term")
+    Toast.makeText(
+        context,
+        "You don't have this this term",
+        Toast.LENGTH_SHORT
+    ).show()
+    return false
+}
+
+fun updateKarma(url: String, karma: Int, callback: (JSONObject) -> Unit) {
+    // Create JSONObject to send
+    val jsonObject = JSONObject()
+    jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+    jsonObject.put("karma", karma)
+
+    // Create RequestBody and Request for OkHttp3
+    val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+    val request = Request.Builder().url(url).put(body).build()
+
+    // Make call
+    ApiService.client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Log.d("ClassInfoActivity", "Error: $e")
         }
 
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-
-        val a = sin(dLat / 2).pow(2) +
-                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
-                sin(dLon / 2).pow(2)
-
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        val distance = R * c * 1000 // Convert km to meters
-
-        Log.d(TAG, "Distance from you to the class: $distance")
-
-        return distance
-    }
-
-    fun updateKarma(url: String, karma: Int, callback: (JSONObject) -> Unit) {
-        // Create JSONObject to send
-        val jsonObject = JSONObject()
-        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
-        jsonObject.put("karma", karma)
-
-        // Create RequestBody and Request for OkHttp3
-        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
-        val request = Request.Builder().url(url).put(body).build()
-
-        // Make call
-        ApiService.client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.d(TAG, "Error: $e")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val result = response.body()?.string()
-                if (result != null) {
-                    try {
-                        val jsonObject = JSONObject(result)
-                        callback(jsonObject)
-                    } catch (_: Exception) {
-                        val badJsonObject = JSONObject()
-                        callback(badJsonObject)
-                    }
+        override fun onResponse(call: Call, response: Response) {
+            val result = response.body()?.string()
+            if (result != null) {
+                try {
+                    val jsonObject = JSONObject(result)
+                    callback(jsonObject)
+                } catch (_: Exception) {
+                    val badJsonObject = JSONObject()
+                    callback(badJsonObject)
                 }
             }
-        })
+        }
+    })
+}
+
+fun coordinatesToDistance(coord1: Pair<Double?, Double?>, coord2: Pair<Double?, Double?>): Double {
+    val r = 6378.137 // Radius of Earth in km
+    val lat1 = coord1.first
+    val lon1 = coord1.second
+    val lat2 = coord2.first
+    val lon2 = coord2.second
+    if (lat1 == null) {
+        return Double.MAX_VALUE
+    }
+    if (lon1 == null) {
+        return Double.MAX_VALUE
+    }
+    if (lat2 == null) {
+        return Double.MAX_VALUE
+    }
+    if (lon2 == null) {
+        return Double.MAX_VALUE
     }
 
-    fun getAttendance(url: String, callback: (JSONObject) -> Unit) {
-        // Create GET request for OkHttp3
-        val request = Request.Builder().url(url).get().build()
 
-        // Make call
-        ApiService.client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.d(TAG, "Error: $e")
-            }
+    val dLat = Math.toRadians(lat2 - lat1)
+    val dLon = Math.toRadians(lon2 - lon1)
 
-            override fun onResponse(call: Call, response: Response) {
-                val result = response.body()?.string()
-                if (result != null) {
-                    try {
-                        val jsonObject = JSONObject()
-                        jsonObject.put("attended", JSONObject(result).getBoolean("attended"))
-                        callback(jsonObject)
-                    } catch (_: Exception) {
-                        val badJsonObject = JSONObject()
-                        callback(badJsonObject)
-                    }
+    val a = sin(dLat / 2).pow(2) +
+            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+            sin(dLon / 2).pow(2)
+
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    val distance = r * c * 1000 // Convert km to meters
+
+    Log.d("ClassInfoActivity", "Distance from you to the class: $distance")
+
+    return distance
+}
+
+fun getAttendance(url: String, tag: String, callback: (JSONObject) -> Unit) {
+    // Create GET request for OkHttp3
+    val request = Request.Builder().url(url).get().build()
+
+    // Make call
+    ApiService.client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Log.d(tag, "Error: $e")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            val result = response.body()?.string()
+            if (result != null) {
+                try {
+                    val jsonObject = JSONObject()
+                    jsonObject.put("attended", JSONObject(result).getBoolean("attended"))
+                    callback(jsonObject)
+                } catch (_: Exception) {
+                    val badJsonObject = JSONObject()
+                    callback(badJsonObject)
                 }
             }
-        })
+        }
+    })
+}
+
+fun updateAttendance(url: String, className: String, classFormat: String, tag: String, callback: (JSONObject) -> Unit) {
+    // Create JSONObject to send
+    val jsonObject = JSONObject()
+    jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+    jsonObject.put("className", className)
+    jsonObject.put("classFormat", classFormat)
+    jsonObject.put("term", ScheduleListActivity.term)
+
+    // Create RequestBody and Request for OkHttp3
+    val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+    val request = Request.Builder().url(url).put(body).build()
+
+    // Make call
+    ApiService.client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Log.d(tag, "Error: $e")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            val result = response.body()?.string()
+            if (result != null) {
+                try {
+                    val jsonObject = JSONObject(result)
+                    callback(jsonObject)
+                } catch (_: Exception) {
+                    val badJsonObject = JSONObject()
+                    callback(badJsonObject)
+                }
+            }
+        }
+    })
+}
+
+fun daysToString(course: Course): String {
+    var days = ""
+    var first = true
+    if (course.days[0]) {
+        days += "Mon"
+        first = false
     }
+    if (course.days[1]) {
+        if (first) {
+            days += "Tue"
+            first = false
+        } else {
+            days += ", Tue"
+        }
+    }
+    if (course.days[2]) {
+        if (first) {
+            days += "Wed"
+            first = false
+        } else {
+            days += ", Wed"
+        }
+    }
+    if (course.days[3]) {
+        if (first) {
+            days += "Thu"
+            first = false
+        } else {
+            days += ", Thu"
+        }
+    }
+    if (course.days[4]) {
+        if (first) {
+            days += "Fri"
+        } else {
+            days += ", Fri"
+        }
+    }
+    return days
+}
 
-    fun updateAttendance(url: String, className: String, classFormat: String, callback: (JSONObject) -> Unit) {
-        // Create JSONObject to send
-        val jsonObject = JSONObject()
-        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
-        jsonObject.put("className", className)
-        jsonObject.put("classFormat", classFormat)
-        jsonObject.put("term", ScheduleListActivity.term)
+fun calculateKarma(clientTime: Double, classStartTime: Double, classEndTime: Double, course: Course, late: Boolean, context: Context, tag: String) {
+    if (late) {
+        val lateness = clientTime - classStartTime
+        Log.d(tag, "You were late by ${(lateness * 60).toInt()} minutes!")
+        Toast.makeText(
+            context,
+            "You were late by ${(lateness * 60).toInt()} minutes!",
+            Toast.LENGTH_SHORT
+        ).show()
+        val classLength = classEndTime - classStartTime
+        val karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
+        updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
+            Log.d(tag, "$result")
+        }
+        updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format, tag) { result ->
+            Log.d(tag, "$result")
+            course.attended = true
 
-        // Create RequestBody and Request for OkHttp3
-        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
-        val request = Request.Builder().url(url).put(body).build()
+        }
+        Log.d(tag, "You gained $karma Karma!")
+        Toast.makeText(context, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
+    } else {
+        Log.d(tag, "All checks passed")
 
-        // Make call
-        ApiService.client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.d(TAG, "Error: $e")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val result = response.body()?.string()
-                if (result != null) {
-                    try {
-                        val jsonObject = JSONObject(result)
-                        callback(jsonObject)
-                    } catch (_: Exception) {
-                        val badJsonObject = JSONObject()
-                        callback(badJsonObject)
-                    }
-                }
-            }
-        })
+        val karma = (15 * (course.credits + 1)).toInt()
+        updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
+            Log.d(tag, "$result")
+        }
+        updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format, tag) { result ->
+            Log.d(tag, "$result")
+            course.attended = true
+        }
+        Log.d(tag, "You gained $karma Karma!")
     }
 }
