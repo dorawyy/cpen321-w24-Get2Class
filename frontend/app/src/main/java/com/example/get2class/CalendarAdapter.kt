@@ -88,15 +88,7 @@ class CalendarAdapter(private val context: Context,
         if (position > 0) {
             val prevCourse = eventsMap[dayOfWeek to halfHourIndex - 1]
             if (prevCourse != null && prevCourse.name == course.name && prevCourse.format == course.format) {
-                holder.cellText.text = course.format
-                holder.topBorder.visibility = View.GONE
-                if (position > 1) {
-                    val prevPrevCourse = eventsMap[dayOfWeek to halfHourIndex - 2]
-                    if (prevPrevCourse != null && prevPrevCourse.name == course.name && prevPrevCourse.format == course.format) {
-                        holder.cellText.text = ""
-                        holder.topBorder.visibility = View.GONE
-                    }
-                }
+                setCellText(holder, course, position, dayOfWeek, halfHourIndex)
             }
         }
         holder.bottomBorder.visibility = View.GONE
@@ -107,6 +99,18 @@ class CalendarAdapter(private val context: Context,
             val intent = Intent(context, ClassInfoActivity::class.java)
             intent.putExtra("course", course)
             context.startActivity(intent)
+        }
+    }
+
+    private fun setCellText(holder: CalendarCellViewHolder, course: Course, position: Int, dayOfWeek: Int, halfHourIndex: Int) {
+        holder.cellText.text = course.format
+        holder.topBorder.visibility = View.GONE
+        if (position > 1) {
+            val prevPrevCourse = eventsMap[dayOfWeek to halfHourIndex - 2]
+            if (prevPrevCourse != null && prevPrevCourse.name == course.name && prevPrevCourse.format == course.format) {
+                holder.cellText.text = ""
+                holder.topBorder.visibility = View.GONE
+            }
         }
     }
 

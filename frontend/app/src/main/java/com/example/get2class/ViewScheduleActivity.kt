@@ -97,11 +97,15 @@ class ViewScheduleActivity : AppCompatActivity() {
         }
 
         // Clear Schedule Button
+        setClearScheduleButton()
+    }
+
+    private fun setClearScheduleButton() {
         findViewById<Button>(R.id.clear_schedule_button).setOnClickListener {
             Log.d(TAG, "Clear schedule button clicked")
 
             clearSchedule(BuildConfig.BASE_API_URL + "/schedule") { result ->
-                Log.d(TAG, "${result}")
+                Log.d(TAG, "$result")
                 runOnUiThread {
                     try {
                         val acknowledged = result.getBoolean("acknowledged")
@@ -119,17 +123,15 @@ class ViewScheduleActivity : AppCompatActivity() {
                 }
             }
         }
-
-
     }
 
-    fun timeToIndex(hour: Int, minute: Int): Int {
+    private fun timeToIndex(hour: Int, minute: Int): Int {
         // e.g. hour=8, minute=30 => (8-8)*2 + 1 = 1
         //      hour=9, minute=0 => (9-8)*2 + 0 = 2
         return (hour - 8) * 2 + (minute / 30)
     }
 
-    fun loadCalendar(schedule: Schedule = Schedule(mutableListOf())) {
+    private fun loadCalendar(schedule: Schedule = Schedule(mutableListOf())) {
         val cells = mutableListOf<Pair<Int, Int>>()  // (dayOfWeek, halfHourIndex)
         for (day in 0..5) {  // 0 represents the header row, 1-5 are weekdays
             cells.add(day to -1) // -1 represents a header cell
@@ -182,7 +184,7 @@ class ViewScheduleActivity : AppCompatActivity() {
         recyclerView.adapter = CalendarAdapter(this, cells, eventsMap)
     }
 
-    fun clearSchedule(url: String, callback: (JSONObject) -> Unit) {
+    private fun clearSchedule(url: String, callback: (JSONObject) -> Unit) {
         // Create JSONObject to send
         val jsonObject = JSONObject()
         jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
