@@ -3,44 +3,31 @@ import { client } from "../services";
 
 export class ScheduleController {
     async getSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        try {
-            const sub = req.query.sub as string | undefined;
-            const term = req.query.sub as string | undefined;
+        const subject = req.query.sub;
+        const term = req.query.term;
 
-            if (!sub || !term) {
-                return res.status(400).send("Missing query parameters");
-            }
+        let courseList: string;
+        if (term == "fallCourseList") courseList = "fallCourseList";
+        else if (term == "winterCourseList") courseList = "winterCourseList";
+        else courseList = "summerCourseList";
 
-            let courseList: string;
-            if (term == "fallCourseList") courseList = "fallCourseList";
-            else if (term == "winterCourseList") courseList = "winterCourseList";
-            else courseList = "summerCourseList";
+        const scheduleData = await client.db("get2class").collection("schedules").findOne({ sub: subject })
 
-            if (!client) {
-                return res.status(400).send("Error occurred while initializing database client");
-            }
-
-            const db = client.db("get2class" as string | undefined);
-            const collection = db.collection("schedules");
-
-            const data = await collection.findOne<{ [key: string]: unknown }>({ sub });
-
-            if (!data || !(courseList in data)) {
-                res.status(400).send("User not found");
-            } else {
-                res.status(200).json({ "courseList": data[courseList] });
-            }
-        } catch (err) {
-            nextFunction(err);
+        if (!scheduleData || !(courseList in scheduleData)) {
+            res.status(400).send("User not found");
+        } else {
+            const schedule = scheduleData[courseList]
+            res.status(200).json({ "courseList": schedule });
         }
     }
 
     async saveSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body.sub;
+        const subject = req.body.sub;
+
         let document;
         
         const filter = {
-            sub: sub
+            sub: subject
         };
 
         if (req.body["fallCourseList" as string]) {
@@ -61,13 +48,13 @@ export class ScheduleController {
                     summerCourseList: req.body.summerCourseList
                 }
             };
-        };
+        }
 
         const options = {
             upsert: false
         };
 
-        const scheduleData = await client.db("get2class" as string).collection("schedules" as string).updateOne(filter, document, options);
+        const scheduleData = await client.db("get2class").collection("schedules").updateOne(filter, document, options);
 
         if (!scheduleData.acknowledged || scheduleData.modifiedCount == 0) {
             res.status(400).send("Unable to save schedule");
@@ -77,11 +64,11 @@ export class ScheduleController {
     }
 
     async clearSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
+        const subject = req.body["sub"];
         let document;
 
         const filter = {
-            sub: sub
+            sub: subject
         };
 
         if (req.body["fallCourseList"]) {
@@ -118,12 +105,12 @@ export class ScheduleController {
     }
 
     async getAttendance(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.query["sub"];
-        const className = req.query["className"];
-        const classFormat = req.query["classFormat"];
-        const term = req.query["term"];
+        const subject = req.query.sub;
+        const className = req.query.className;
+        const classFormat = req.query.classFormat;
+        const term = req.query.term;
 
-        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: subject });
 
         if (userScheduleData != null) {
             let classes = userScheduleData[term as string];
@@ -148,12 +135,12 @@ export class ScheduleController {
     }
 
     async updateAttendance(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
-        const className = req.body["className"];
-        const classFormat = req.body["classFormat"];
-        const term = req.body["term"];
+        const subject = req.body.sub;
+        const className = req.body.className;
+        const classFormat = req.body.classFormat;
+        const term = req.body.term;
 
-        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: subject });
 
         if (userScheduleData != null) {
             let classes = userScheduleData[term];
@@ -167,7 +154,7 @@ export class ScheduleController {
             let document;
 
             const filter = {
-                sub: sub
+                sub: subject
             };
 
             if (term == "fallCourseList") {
