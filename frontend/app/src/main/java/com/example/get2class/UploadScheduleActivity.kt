@@ -10,6 +10,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.get2class.UploadScheduleActivity.Companion
+import com.example.get2class.UploadScheduleActivity.Companion.MODE
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -25,6 +27,8 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.Month
 import java.time.format.DateTimeFormatter
+
+private const val TAG = "UploadScheduleActivity"
 
 @Parcelize
 data class Course(
@@ -49,7 +53,6 @@ class UploadScheduleActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE = 100 // Define request code for file selection
-        private const val TAG = "UploadScheduleActivity"
         private const val LISTING = 1
         private const val CREDITS = 2
         private const val FORMAT = 5
@@ -131,7 +134,7 @@ class UploadScheduleActivity : AppCompatActivity() {
         return Schedule(courses)
     }
 
-    fun storeSchedule(url: String, courses: MutableList<JSONObject>, callback: (JSONObject) -> Unit) {
+    private fun storeSchedule(url: String, courses: MutableList<JSONObject>, callback: (JSONObject) -> Unit) {
         Log.d(TAG, "Storing schedule to database")
 
         // Create JSONObject to send
@@ -216,75 +219,6 @@ class UploadScheduleActivity : AppCompatActivity() {
         }
     }
 
-    private fun isInPerson(row: Row): Boolean {
-        return row.getCell(MODE)?.toString() == "In Person Learning"
-    }
-
-    private fun extractLocation(patternList: List<String>): String {
-        val locationList = patternList.getOrNull(3)?.split("[-\n]".toRegex()) ?: return "Unknown"
-        return "${locationList.getOrNull(0)?.trim()} - ${locationList.getOrNull(2)?.trim()}"
-    }
-
-    // Check that the class is in the right term
-    private fun checkTerm(startDate: LocalDate, endDate: LocalDate): Boolean {
-        val term = intent.getStringExtra("term")
-        return when (term) {
-            "Fall" -> startDate.month == Month.SEPTEMBER && endDate.month == Month.DECEMBER
-            "Winter" -> startDate.month == Month.JANUARY && endDate.month == Month.APRIL
-            else -> startDate.month in listOf(Month.MAY, Month.JULY) &&
-                    endDate.month in listOf(Month.JUNE, Month.AUGUST)
-        }
-    }
-
-    private fun createDaysList(patternList: List<String>): MutableList<Boolean> {
-        val days = patternList[1].split(" ")
-        val daysBool = mutableListOf(false, false, false, false, false)
-        if (days.contains("Mon")) daysBool[0] = true
-        if (days.contains("Tue")) daysBool[1] = true
-        if (days.contains("Wed")) daysBool[2] = true
-        if (days.contains("Thu")) daysBool[3] = true
-        if (days.contains("Fri")) daysBool[4] = true
-        Log.d(TAG, "Days: $daysBool")
-        return daysBool
-    }
-
-    private fun createTimes(patternList: List<String>): Pair<Pair<Int, Int>, Pair<Int, Int>>{
-        val times = patternList[2].split("-")
-        val startTimeParts = times[0].split("[ :]".toRegex())
-        Log.d(TAG, "Start time parts: $startTimeParts")
-        var startTime = startTimeParts[1].toInt() to startTimeParts[2].toInt()
-        if (startTime.first != 12 && startTimeParts[3] == "p.m.") {
-            startTime = startTime.first + 12 to startTime.second
-        }
-        Log.d(TAG, "Start time: $startTime")
-
-        // Create the end time
-        val endTimeParts = times[1].split("[ :]".toRegex())
-        var endTime = endTimeParts[1].toInt() to endTimeParts[2].toInt()
-        if (endTime.first != 12 && endTimeParts[3] == "p.m.") {
-            endTime = endTime.first + 12 to endTime.second
-        }
-        Log.d(TAG, "End time: $endTime")
-
-        return startTime to endTime
-    }
-
-    private fun initializeCourses(courses: MutableList<Course>, coursesAsNotCourseObject: MutableList<JSONObject>, course: Course) {
-        courses.add(course)
-        coursesAsNotCourseObject.add(JSONObject()
-            .put("name", course.name)
-            .put("daysBool", course.days)
-            .put("startTime", course.startTime)
-            .put("endTime", course.endTime)
-            .put("startDate", course.startDate)
-            .put("endDate", course.endDate)
-            .put("location", course.location)
-            .put("credits", course.credits)
-            .put("format", course.format)
-            .put("attended", false)
-        )
-    }
-
     private fun parseRow(row: Row): Triple<String, Double, Pair<LocalDate, LocalDate>> {
         val listing = row.getCell(LISTING).toString()
         val fullName = listing.substringBefore('_') + ' ' + listing.substringAfter(' ')
@@ -303,4 +237,75 @@ class UploadScheduleActivity : AppCompatActivity() {
 
         return Triple(fullName, credits, startDate to endDate)
     }
+
+    // Check that the class is in the right term
+    private fun checkTerm(startDate: LocalDate, endDate: LocalDate): Boolean {
+        val term = intent.getStringExtra("term")
+        return when (term) {
+            "Fall" -> startDate.month == Month.SEPTEMBER && endDate.month == Month.DECEMBER
+            "Winter" -> startDate.month == Month.JANUARY && endDate.month == Month.APRIL
+            else -> startDate.month in listOf(Month.MAY, Month.JULY) &&
+                    endDate.month in listOf(Month.JUNE, Month.AUGUST)
+        }
+    }
+
+    private fun isInPerson(row: Row): Boolean {
+        return row.getCell(MODE)?.toString() == "In Person Learning"
+    }
+}
+
+
+
+private fun extractLocation(patternList: List<String>): String {
+    val locationList = patternList.getOrNull(3)?.split("[-\n]".toRegex()) ?: return "Unknown"
+    return "${locationList.getOrNull(0)?.trim()} - ${locationList.getOrNull(2)?.trim()}"
+}
+
+private fun createDaysList(patternList: List<String>): MutableList<Boolean> {
+    val days = patternList[1].split(" ")
+    val daysBool = mutableListOf(false, false, false, false, false)
+    if (days.contains("Mon")) daysBool[0] = true
+    if (days.contains("Tue")) daysBool[1] = true
+    if (days.contains("Wed")) daysBool[2] = true
+    if (days.contains("Thu")) daysBool[3] = true
+    if (days.contains("Fri")) daysBool[4] = true
+    Log.d(TAG, "Days: $daysBool")
+    return daysBool
+}
+
+private fun createTimes(patternList: List<String>): Pair<Pair<Int, Int>, Pair<Int, Int>>{
+    val times = patternList[2].split("-")
+    val startTimeParts = times[0].split("[ :]".toRegex())
+    Log.d(TAG, "Start time parts: $startTimeParts")
+    var startTime = startTimeParts[1].toInt() to startTimeParts[2].toInt()
+    if (startTime.first != 12 && startTimeParts[3] == "p.m.") {
+        startTime = startTime.first + 12 to startTime.second
+    }
+    Log.d(TAG, "Start time: $startTime")
+
+    // Create the end time
+    val endTimeParts = times[1].split("[ :]".toRegex())
+    var endTime = endTimeParts[1].toInt() to endTimeParts[2].toInt()
+    if (endTime.first != 12 && endTimeParts[3] == "p.m.") {
+        endTime = endTime.first + 12 to endTime.second
+    }
+    Log.d(TAG, "End time: $endTime")
+
+    return startTime to endTime
+}
+
+private fun initializeCourses(courses: MutableList<Course>, coursesAsNotCourseObject: MutableList<JSONObject>, course: Course) {
+    courses.add(course)
+    coursesAsNotCourseObject.add(JSONObject()
+        .put("name", course.name)
+        .put("daysBool", course.days)
+        .put("startTime", course.startTime)
+        .put("endTime", course.endTime)
+        .put("startDate", course.startDate)
+        .put("endDate", course.endDate)
+        .put("location", course.location)
+        .put("credits", course.credits)
+        .put("format", course.format)
+        .put("attended", false)
+    )
 }

@@ -40,7 +40,7 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.Month
 
-const val TAG = "ClassInfoActivity"
+private const val TAG = "ClassInfoActivity"
 
 class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
