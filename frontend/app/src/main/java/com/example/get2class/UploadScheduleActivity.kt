@@ -134,7 +134,18 @@ class UploadScheduleActivity : AppCompatActivity() {
                     val pattern = row.getCell(PATTERN)?.toString().orEmpty()
                     if (pattern.isEmpty()) continue
 
-                    processCourse(row, pattern, fullName, credits, startDate, endDate, courses, coursesAsNotCourseObject)
+                    val patternList = pattern.split("|")
+
+                    val daysBool = createDaysList(patternList)
+                    val (startTime, endTime) = createTimes(patternList)
+
+                    val location = extractLocation(patternList)
+                    Log.d(TAG, "Location: $location")
+
+                    val format = row.getCell(FORMAT)?.toString() ?: ""
+                    Log.d(TAG, "Format: $format")
+
+                    initializeCourses(courses, coursesAsNotCourseObject, Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format, false))
                 }
 
                 Log.d(TAG, "Courses object: $courses")
@@ -185,26 +196,6 @@ class UploadScheduleActivity : AppCompatActivity() {
 
     private fun isInPerson(row: Row): Boolean {
         return row.getCell(MODE)?.toString() == "In Person Learning"
-    }
-
-    private fun processCourse(
-        row: Row, pattern: String, fullName: String, credits: Double, startDate: LocalDate, endDate: LocalDate,
-        courses: MutableList<Course>, coursesAsNotCourseObject: MutableList<JSONObject>
-    ) {
-        val patternList = pattern.split("|")
-
-        val daysBool = createDaysList(patternList)
-        val (startTime, endTime) = createTimes(patternList)
-
-        val location = extractLocation(patternList)
-        Log.d(TAG, "Location: $location")
-
-        val format = row.getCell(FORMAT)?.toString() ?: ""
-        Log.d(TAG, "Format: $format")
-
-        initializeCourses(courses, coursesAsNotCourseObject,
-            Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format, false)
-        )
     }
 
     private fun extractLocation(patternList: List<String>): String {
