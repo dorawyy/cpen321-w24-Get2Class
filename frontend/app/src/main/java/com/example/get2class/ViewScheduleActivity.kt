@@ -251,7 +251,11 @@ class ViewScheduleActivity : AppCompatActivity() {
                         obj.getBoolean("attended")
                     )
                 )
-            } catch (e: Exception) {
+            } catch (e: JSONException) {
+                Log.e(TAG, "JSON parsing error: ${e.message}", e)
+                return null
+            } catch (e: NumberFormatException) {
+                Log.e(TAG, "Number format error: ${e.message}", e)
                 return null
             }
         }
