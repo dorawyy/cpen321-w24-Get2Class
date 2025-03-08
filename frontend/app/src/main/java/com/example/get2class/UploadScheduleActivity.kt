@@ -123,44 +123,44 @@ class UploadScheduleActivity : AppCompatActivity() {
                         continue
                     }
 
-                    if (rowNum > 2) {
-                        // Create the full name value
-                        val data = parseRow(row)
-                        val fullName = data.first
-                        val credits = data.second
-                        val startDate = data.third.first
-                        val endDate = data.third.second
+                    if (rowNum < 3) continue
 
-                        // Skip adding any classes that have the wrong start and end dates for this term
-                        if (!checkTerm(startDate, endDate)) {
-                            Log.e(TAG, "Class rejected with reason: Not this term")
-                            rowNum++
-                            continue
-                        }
+                    // Create the full name value
+                    val data = parseRow(row)
+                    val fullName = data.first
+                    val credits = data.second
+                    val startDate = data.third.first
+                    val endDate = data.third.second
 
-                        // Get the meeting pattern
-                        val pattern = row.getCell(PATTERN).toString()
-                        if (pattern != "") {
-                            val patternList = pattern.split("|")
+                    // Skip adding any classes that have the wrong start and end dates for this term
+                    if (!checkTerm(startDate, endDate)) {
+                        Log.e(TAG, "Class rejected with reason: Not this term")
+                        rowNum++
+                        continue
+                    }
 
-                            // Create the days list
-                            val daysBool = createDaysList(patternList)
+                    // Get the meeting pattern
+                    val pattern = row.getCell(PATTERN).toString()
+                    if (pattern != "") {
+                        val patternList = pattern.split("|")
 
-                            // Get the start time and end time in a pair
-                            val times = createTimes(patternList)
+                        // Create the days list
+                        val daysBool = createDaysList(patternList)
 
-                            // Get the building code
-                            val locationList = patternList[3].split("[-\n]".toRegex())
-                            val location = "${locationList[0].trim()} - ${locationList[2].trim()}"
-                            Log.d(TAG, "Location: $location")
+                        // Get the start time and end time in a pair
+                        val times = createTimes(patternList)
 
-                            // Get the format
-                            val format = row.getCell(FORMAT).toString()
-                            Log.d(TAG, "Format: $format")
+                        // Get the building code
+                        val locationList = patternList[3].split("[-\n]".toRegex())
+                        val location = "${locationList[0].trim()} - ${locationList[2].trim()}"
+                        Log.d(TAG, "Location: $location")
 
-                            // Make the course object
-                            initializeCourses(courses, coursesAsNotCourseObject, Course(fullName, daysBool, times.first, times.second, startDate, endDate, location, credits, format, false))
-                        }
+                        // Get the format
+                        val format = row.getCell(FORMAT).toString()
+                        Log.d(TAG, "Format: $format")
+
+                        // Make the course object
+                        initializeCourses(courses, coursesAsNotCourseObject, Course(fullName, daysBool, times.first, times.second, startDate, endDate, location, credits, format, false))
                     }
                     Log.d(TAG, "---------------------------------------------------------------------------")
                     rowNum++
