@@ -87,4 +87,9 @@ dependencies {
 
     // excel parser
     implementation(libs.poi.ooxml)
+
+    // Espresso
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.rules)
 }
