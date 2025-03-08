@@ -16,6 +16,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.json.JSONArray
 import org.json.JSONException
@@ -115,38 +116,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                 val workbook = WorkbookFactory.create(inputStream)
                 val sheet = workbook.getSheetAt(0)
 
-                for (rowIndex in 3 until sheet.physicalNumberOfRows) {
-                    val row = sheet.getRow(rowIndex) ?: continue
-
-                    if (!isInPerson(row)) {
-                        Log.e(TAG, "Class rejected with reason: Not in person")
-                        continue
-                    }
-
-                    val (fullName, credits, dateRange) = parseRow(row)
-                    val (startDate, endDate) = dateRange
-
-                    if (!checkTerm(startDate, endDate)) {
-                        Log.e(TAG, "Class rejected with reason: Not this term")
-                        continue
-                    }
-
-                    val pattern = row.getCell(PATTERN)?.toString().orEmpty()
-                    if (pattern.isEmpty()) continue
-
-                    val patternList = pattern.split("|")
-
-                    val daysBool = createDaysList(patternList)
-                    val (startTime, endTime) = createTimes(patternList)
-
-                    val location = extractLocation(patternList)
-                    Log.d(TAG, "Location: $location")
-
-                    val format = row.getCell(FORMAT)?.toString() ?: ""
-                    Log.d(TAG, "Format: $format")
-
-                    initializeCourses(courses, coursesAsNotCourseObject, Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format, false))
-                }
+                processSheet(sheet, courses, coursesAsNotCourseObject)
 
                 Log.d(TAG, "Courses object: $courses")
                 storeSchedule(BuildConfig.BASE_API_URL + "/schedule", coursesAsNotCourseObject) { result ->
@@ -192,6 +162,58 @@ class UploadScheduleActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun processSheet(sheet: Sheet, courses: MutableList<Course>, coursesAsNotCourseObject: MutableList<JSONObject>) {
+        for (rowIndex in 3 until sheet.physicalNumberOfRows) {
+            val row = sheet.getRow(rowIndex) ?: continue
+
+            if (!isInPerson(row)) {
+                Log.e(TAG, "Class rejected with reason: Not in person")
+                continue
+            }
+
+            val (fullName, credits, dateRange) = parseRow(row)
+            val (startDate, endDate) = dateRange
+
+            if (!checkTerm(startDate, endDate)) {
+                Log.e(TAG, "Class rejected with reason: Not this term")
+                continue
+            }
+
+            val pattern = row.getCell(PATTERN)?.toString().orEmpty()
+
+            if (pattern.isEmpty()) continue
+
+            val patternList = pattern.split("|")
+
+            val daysBool = createDaysList(patternList)
+            val (startTime, endTime) = createTimes(patternList)
+
+            val location = extractLocation(patternList)
+            Log.d(TAG, "Location: $location")
+
+            val format = row.getCell(FORMAT)?.toString() ?: ""
+            Log.d(TAG, "Format: $format")
+
+            initializeCourses(
+                courses,
+                coursesAsNotCourseObject,
+                Course(
+                    fullName,
+                    daysBool,
+                    startTime,
+                    endTime,
+                    startDate,
+                    endDate,
+                    location,
+                    credits,
+                    format,
+                    false
+                )
+            )
+
+        }
     }
 
     private fun isInPerson(row: Row): Boolean {
