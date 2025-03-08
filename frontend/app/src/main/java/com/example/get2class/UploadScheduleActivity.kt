@@ -127,10 +127,13 @@ class UploadScheduleActivity : AppCompatActivity() {
                 }
                 workbook.close()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (e: IOException) {
+            Log.e(TAG, "Error opening or reading the file", e)
+        } catch (e: NullPointerException) {
+            Log.e(TAG, "URI or input stream is null", e)
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Permission denied for file access", e)
         }
-
         return Schedule(courses)
     }
 

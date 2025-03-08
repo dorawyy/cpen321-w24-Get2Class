@@ -96,13 +96,15 @@ class MainActivity : AppCompatActivity() {
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     startActivity(intent)
                     finish()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error clearing credential state", e)
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Error clearing credential state",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                } catch (e: SecurityException) {
+                    Log.e(TAG, "Security error while clearing credential state", e)
+                    Toast.makeText(this@MainActivity, "Security error occurred", Toast.LENGTH_SHORT).show()
+                } catch (e: IllegalStateException) {
+                    Log.e(TAG, "Credential manager is in an invalid state", e)
+                    Toast.makeText(this@MainActivity, "Invalid credential state", Toast.LENGTH_SHORT).show()
+                } catch (e: NullPointerException) {
+                    Log.e(TAG, "Credential manager is null", e)
+                    Toast.makeText(this@MainActivity, "Credential manager unavailable", Toast.LENGTH_SHORT).show()
                 }
             }
         }

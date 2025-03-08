@@ -250,7 +250,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 val location: Location
 
                 // call getCurrentLocation() for the first time, and use the updated location afterwards
-                if(isOnCreate){
+                if (isOnCreate) {
                     val cancellationTokenSource = CancellationTokenSource()
                     // request the current location with high accuracy
                     location = fusedLocationClient.getCurrentLocation(
@@ -258,7 +258,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                         cancellationTokenSource.token
                     ).await()
                     isOnCreate= false
-                }else{
+                } else {
                     location = Location("gps")
                     location.latitude = current_location?.first!!
                     location.longitude = current_location?.second!!
@@ -269,8 +269,14 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 Log.d(TAG, "getLastLocation: lastLocation is ($latitude, $longitude)")
                 Pair(latitude, longitude)
 
-            } catch (e: Exception) {
-                Log.e(TAG, "getLastLocation: Failed to get location", e)
+            } catch (e: SecurityException) {
+                Log.e(TAG, "getLastLocation: Location permission not granted", e)
+                Pair(null, null)
+            } catch (e: IllegalStateException) {
+                Log.e(TAG, "getLastLocation: Illegal state encountered while retrieving location", e)
+                Pair(null, null)
+            } catch (e: IOException) {
+                Log.e(TAG, "getLastLocation: IO error while retrieving location", e)
                 Pair(null, null)
             }
         } else {

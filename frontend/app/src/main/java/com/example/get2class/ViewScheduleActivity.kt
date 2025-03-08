@@ -78,7 +78,14 @@ class ViewScheduleActivity : AppCompatActivity() {
 
                     jsonArrayToCourseList(result.getJSONArray("courseList"))?.let { Schedule(it) }
                         ?.let { loadCalendar(it) }
-                } catch (e: Exception) {
+                } catch (e: JSONException) {
+                    Log.e(TAG, "Error parsing JSON: ${e.message}", e)
+                    loadCalendar()
+                } catch (e: NullPointerException) {
+                    Log.e(TAG, "Null value encountered: ${e.message}", e)
+                    loadCalendar()
+                } catch (e: ClassCastException) {
+                    Log.e(TAG, "Unexpected type in JSON parsing: ${e.message}", e)
                     loadCalendar()
                 }
             }
