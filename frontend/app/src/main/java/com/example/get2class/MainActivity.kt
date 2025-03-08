@@ -102,9 +102,6 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: IllegalStateException) {
                     Log.e(TAG, "Credential manager is in an invalid state", e)
                     Toast.makeText(this@MainActivity, "Invalid credential state", Toast.LENGTH_SHORT).show()
-                } catch (e: NullPointerException) {
-                    Log.e(TAG, "Credential manager is null", e)
-                    Toast.makeText(this@MainActivity, "Credential manager unavailable", Toast.LENGTH_SHORT).show()
                 }
             }
         }
