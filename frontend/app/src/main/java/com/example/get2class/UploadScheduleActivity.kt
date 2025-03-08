@@ -109,62 +109,34 @@ class UploadScheduleActivity : AppCompatActivity() {
     private fun readExcelFromUri(uri: Uri): Schedule {
         val courses: MutableList<Course> = mutableListOf()
         val coursesAsNotCourseObject: MutableList<JSONObject> = mutableListOf()
+
         try {
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 val workbook = WorkbookFactory.create(inputStream)
                 val sheet = workbook.getSheetAt(0)
-                var rowNum = 0
-                for (row in sheet) {
 
-                    // Ignore classes that aren't in person
-                    if (row.getCell(MODE).toString() != "In Person Learning") {
+                for (rowIndex in 3 until sheet.physicalNumberOfRows) {
+                    val row = sheet.getRow(rowIndex) ?: continue
+
+                    if (!isInPerson(row)) {
                         Log.e(TAG, "Class rejected with reason: Not in person")
-                        rowNum++
                         continue
                     }
 
-                    if (rowNum < 3) continue
+                    val (fullName, credits, dateRange) = parseRow(row)
+                    val (startDate, endDate) = dateRange
 
-                    // Create the full name value
-                    val data = parseRow(row)
-                    val fullName = data.first
-                    val credits = data.second
-                    val startDate = data.third.first
-                    val endDate = data.third.second
-
-                    // Skip adding any classes that have the wrong start and end dates for this term
                     if (!checkTerm(startDate, endDate)) {
                         Log.e(TAG, "Class rejected with reason: Not this term")
-                        rowNum++
                         continue
                     }
 
-                    // Get the meeting pattern
-                    val pattern = row.getCell(PATTERN).toString()
-                    if (pattern != "") {
-                        val patternList = pattern.split("|")
+                    val pattern = row.getCell(PATTERN)?.toString().orEmpty()
+                    if (pattern.isEmpty()) continue
 
-                        // Create the days list
-                        val daysBool = createDaysList(patternList)
-
-                        // Get the start time and end time in a pair
-                        val times = createTimes(patternList)
-
-                        // Get the building code
-                        val locationList = patternList[3].split("[-\n]".toRegex())
-                        val location = "${locationList[0].trim()} - ${locationList[2].trim()}"
-                        Log.d(TAG, "Location: $location")
-
-                        // Get the format
-                        val format = row.getCell(FORMAT).toString()
-                        Log.d(TAG, "Format: $format")
-
-                        // Make the course object
-                        initializeCourses(courses, coursesAsNotCourseObject, Course(fullName, daysBool, times.first, times.second, startDate, endDate, location, credits, format, false))
-                    }
-                    Log.d(TAG, "---------------------------------------------------------------------------")
-                    rowNum++
+                    processCourse(row, pattern, fullName, credits, startDate, endDate, courses, coursesAsNotCourseObject)
                 }
+
                 Log.d(TAG, "Courses object: $courses")
                 storeSchedule(BuildConfig.BASE_API_URL + "/schedule", coursesAsNotCourseObject) { result ->
                     Log.d(TAG, "$result")
@@ -174,6 +146,7 @@ class UploadScheduleActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+
         return Schedule(courses)
     }
 
@@ -208,6 +181,35 @@ class UploadScheduleActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun isInPerson(row: Row): Boolean {
+        return row.getCell(MODE)?.toString() == "In Person Learning"
+    }
+
+    private fun processCourse(
+        row: Row, pattern: String, fullName: String, credits: Double, startDate: LocalDate, endDate: LocalDate,
+        courses: MutableList<Course>, coursesAsNotCourseObject: MutableList<JSONObject>
+    ) {
+        val patternList = pattern.split("|")
+
+        val daysBool = createDaysList(patternList)
+        val (startTime, endTime) = createTimes(patternList)
+
+        val location = extractLocation(patternList)
+        Log.d(TAG, "Location: $location")
+
+        val format = row.getCell(FORMAT)?.toString() ?: ""
+        Log.d(TAG, "Format: $format")
+
+        initializeCourses(courses, coursesAsNotCourseObject,
+            Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format, false)
+        )
+    }
+
+    private fun extractLocation(patternList: List<String>): String {
+        val locationList = patternList.getOrNull(3)?.split("[-\n]".toRegex()) ?: return "Unknown"
+        return "${locationList.getOrNull(0)?.trim()} - ${locationList.getOrNull(2)?.trim()}"
     }
 
     // Check that the class is in the right term
