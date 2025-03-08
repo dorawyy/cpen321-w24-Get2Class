@@ -64,7 +64,7 @@ export class ScheduleController {
     }
 
     async clearSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const subject = req.body["sub"];
+        const subject = req.body.sub;
         let document;
 
         const filter = {
