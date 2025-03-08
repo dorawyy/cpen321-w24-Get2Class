@@ -108,7 +108,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             Log.d(TAG, "Check attendance button clicked")
 
             // Check and request location permissions
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1_000, 0f, this)
                 Log.d(TAG, "OnCreate: Location updates requested")
             } else {
@@ -125,32 +125,37 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             Log.d(TAG, "Start: $classStartTime, end: $classEndTime, client: $clientTime")
 
             // Check that the current term and year match the term and year of the course
-            if(!checkTermAndYear(course, this)) {
-                return@setOnClickListener
-            }
-
-            // Check if the course is today
-            if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
-                Log.d(TAG, "You don't have this class today")
-                Toast.makeText(
-                    this,
-                    "You don't have this class today",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            }
-
-            if (!checkTime(course, clientTime, classStartTime, classEndTime)) return@setOnClickListener
-
-            lifecycleScope.launch {
-                if(!checkLocation(course)) return@launch
-
-                // Check if you're late
-                if (classStartTime < clientTime - 2 * MINUTES) {
-                    calculateKarma(clientTime, classStartTime, classEndTime, course, true, this@ClassInfoActivity)
-                    return@launch
+            if (checkTermAndYear(course, this)) {
+                // Check if the course is today
+                if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
+                    Log.d(TAG, "You don't have this class today")
+                    Toast.makeText(
+                        this,
+                        "You don't have this class today",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else if (checkTime(course, clientTime, classStartTime, classEndTime)) {
+                    lifecycleScope.launch {
+                        if (checkLocation(course)) {
+                            // Check if you're late
+                            if (classStartTime < clientTime - 2 * MINUTES) {
+                                calculateKarma(
+                                    arrayOf(clientTime, classStartTime, classEndTime),
+                                    course,
+                                    true,
+                                    this@ClassInfoActivity
+                                )
+                            } else {
+                                calculateKarma(
+                                    arrayOf(clientTime, classStartTime, classEndTime),
+                                    course,
+                                    false,
+                                    this@ClassInfoActivity
+                                )
+                            }
+                        }
+                    }
                 }
-                calculateKarma(clientTime, classStartTime, classEndTime, course, false, this@ClassInfoActivity)
             }
         }
     }
@@ -348,7 +353,7 @@ private fun checkTermAndYear(course: Course, context: Context): Boolean {
         Log.d("ClassInfoActivity", "You don't have this class this year")
         Toast.makeText(
             context,
-            "You don't have this this year",
+            "You don't have this class this year",
             Toast.LENGTH_SHORT
         ).show()
         return false
@@ -364,7 +369,7 @@ private fun checkTermAndYear(course: Course, context: Context): Boolean {
     Log.d("ClassInfoActivity", "You don't have this class this term")
     Toast.makeText(
         context,
-        "You don't have this this term",
+        "You don't have this class this term",
         Toast.LENGTH_SHORT
     ).show()
     return false
@@ -536,8 +541,12 @@ fun daysToString(course: Course): String {
     return days
 }
 
-fun calculateKarma(clientTime: Double, classStartTime: Double, classEndTime: Double, course: Course, late: Boolean, context: Context) {
+fun calculateKarma(times: Array<Double>, course: Course, late: Boolean, context: Context) {
+    val karma: Int
     if (late) {
+        val clientTime = times[0]
+        val classStartTime = times[1]
+        val classEndTime = times[2]
         val lateness = clientTime - classStartTime
         Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
         Toast.makeText(
@@ -546,21 +555,18 @@ fun calculateKarma(clientTime: Double, classStartTime: Double, classEndTime: Dou
             Toast.LENGTH_SHORT
         ).show()
         val classLength = classEndTime - classStartTime
-        val karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
+        karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
         updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
             Log.d(TAG, "$result")
         }
         updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format) { result ->
             Log.d(TAG, "$result")
             course.attended = true
-
         }
-        Log.d(TAG, "You gained $karma Karma!")
-        Toast.makeText(context, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
     } else {
         Log.d(TAG, "All checks passed")
 
-        val karma = (15 * (course.credits + 1)).toInt()
+        karma = (15 * (course.credits + 1)).toInt()
         updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
             Log.d(TAG, "$result")
         }
@@ -568,6 +574,7 @@ fun calculateKarma(clientTime: Double, classStartTime: Double, classEndTime: Dou
             Log.d(TAG, "$result")
             course.attended = true
         }
-        Log.d(TAG, "You gained $karma Karma!")
     }
+    Log.d(TAG, "You gained $karma Karma!")
+    Toast.makeText(context, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
 }
