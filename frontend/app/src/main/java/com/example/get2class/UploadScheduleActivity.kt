@@ -15,6 +15,7 @@ import okhttp3.Callback
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.json.JSONArray
 import org.json.JSONException
@@ -90,7 +91,7 @@ class UploadScheduleActivity : AppCompatActivity() {
         }
 
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            data?.data?.let { uri ->
+            data.data?.let { uri ->
                 schedule = readExcelFromUri(uri)
                 val resultIntent = Intent().apply {
                     putExtra("schedule", schedule)
@@ -114,6 +115,7 @@ class UploadScheduleActivity : AppCompatActivity() {
                 val sheet = workbook.getSheetAt(0)
                 var rowNum = 0
                 for (row in sheet) {
+
                     // Ignore classes that aren't in person
                     if (row.getCell(MODE).toString() != "In Person Learning") {
                         Log.e(TAG, "Class rejected with reason: Not in person")
@@ -121,23 +123,13 @@ class UploadScheduleActivity : AppCompatActivity() {
                         continue
                     }
 
-
                     if (rowNum > 2) {
                         // Create the full name value
-                        val listing = row.getCell(LISTING).toString()
-                        val fullName = listing.substringBefore('_') + ' ' + listing.substringAfter(' ')
-                        Log.d(TAG, "Full name: $fullName")
-
-                        // Get the credits
-                        val credits = row.getCell(CREDITS).toString().toDouble()
-                        Log.d(TAG, "Credits: $credits")
-
-                        // Create the start date and end date
-                        val dateFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
-                        val startDate = LocalDate.parse(row.getCell(START_DATE).toString(), dateFormatter)
-                        Log.d(TAG, "Start Date: $startDate")
-                        val endDate = LocalDate.parse(row.getCell(END_DATE).toString(), dateFormatter)
-                        Log.d(TAG, "End Date: $endDate")
+                        val data = parseRow(row)
+                        val fullName = data.first
+                        val credits = data.second
+                        val startDate = data.third.first
+                        val endDate = data.third.second
 
                         // Skip adding any classes that have the wrong start and end dates for this term
                         if (!checkTerm(startDate, endDate)) {
@@ -152,32 +144,10 @@ class UploadScheduleActivity : AppCompatActivity() {
                             val patternList = pattern.split("|")
 
                             // Create the days list
-                            val days = patternList[1].split(" ")
-                            val daysBool = mutableListOf(false, false, false, false, false)
-                            if (days.contains("Mon")) daysBool[0] = true
-                            if (days.contains("Tue")) daysBool[1] = true
-                            if (days.contains("Wed")) daysBool[2] = true
-                            if (days.contains("Thu")) daysBool[3] = true
-                            if (days.contains("Fri")) daysBool[4] = true
-                            Log.d(TAG, "Days: $daysBool")
+                            val daysBool = createDaysList(patternList)
 
-                            // Create the start time
-                            val times = patternList[2].split("-")
-                            val startTimeParts = times[0].split("[ :]".toRegex())
-                            Log.d(TAG, "Start time parts: $startTimeParts")
-                            var startTime = startTimeParts[1].toInt() to startTimeParts[2].toInt()
-                            if (startTime.first != 12 && startTimeParts[3] == "p.m.") {
-                                startTime = startTime.first + 12 to startTime.second
-                            }
-                            Log.d(TAG, "Start time: $startTime")
-
-                            // Create the end time
-                            val endTimeParts = times[1].split("[ :]".toRegex())
-                            var endTime = endTimeParts[1].toInt() to endTimeParts[2].toInt()
-                            if (endTime.first != 12 && endTimeParts[3] == "p.m.") {
-                                endTime = endTime.first + 12 to endTime.second
-                            }
-                            Log.d(TAG, "End time: $endTime")
+                            // Get the start time and end time in a pair
+                            val times = createTimes(patternList)
 
                             // Get the building code
                             val locationList = patternList[3].split("[-\n]".toRegex())
@@ -189,21 +159,8 @@ class UploadScheduleActivity : AppCompatActivity() {
                             Log.d(TAG, "Format: $format")
 
                             // Make the course object
-                            courses.add(Course(fullName, daysBool, startTime, endTime, startDate, endDate, location, credits, format, false))
-                            coursesAsNotCourseObject.add(JSONObject()
-                                .put("name", fullName)
-                                .put("daysBool", daysBool)
-                                .put("startTime", startTime)
-                                .put("endTime", endTime)
-                                .put("startDate", startDate)
-                                .put("endDate", endDate)
-                                .put("location", location)
-                                .put("credits", credits)
-                                .put("format", format)
-                                .put("attended", false)
-                            )
+                            initializeCourses(courses, coursesAsNotCourseObject, Course(fullName, daysBool, times.first, times.second, startDate, endDate, location, credits, format, false))
                         }
-
                     }
                     Log.d(TAG, "---------------------------------------------------------------------------")
                     rowNum++
@@ -212,7 +169,6 @@ class UploadScheduleActivity : AppCompatActivity() {
                 storeSchedule(BuildConfig.BASE_API_URL + "/schedule", coursesAsNotCourseObject) { result ->
                     Log.d(TAG, "$result")
                 }
-
                 workbook.close()
             }
         } catch (e: Exception) {
@@ -265,4 +221,71 @@ class UploadScheduleActivity : AppCompatActivity() {
         }
     }
 
+    private fun createDaysList(patternList: List<String>): MutableList<Boolean> {
+        val days = patternList[1].split(" ")
+        val daysBool = mutableListOf(false, false, false, false, false)
+        if (days.contains("Mon")) daysBool[0] = true
+        if (days.contains("Tue")) daysBool[1] = true
+        if (days.contains("Wed")) daysBool[2] = true
+        if (days.contains("Thu")) daysBool[3] = true
+        if (days.contains("Fri")) daysBool[4] = true
+        Log.d(TAG, "Days: $daysBool")
+        return daysBool
+    }
+
+    private fun createTimes(patternList: List<String>): Pair<Pair<Int, Int>, Pair<Int, Int>>{
+        val times = patternList[2].split("-")
+        val startTimeParts = times[0].split("[ :]".toRegex())
+        Log.d(TAG, "Start time parts: $startTimeParts")
+        var startTime = startTimeParts[1].toInt() to startTimeParts[2].toInt()
+        if (startTime.first != 12 && startTimeParts[3] == "p.m.") {
+            startTime = startTime.first + 12 to startTime.second
+        }
+        Log.d(TAG, "Start time: $startTime")
+
+        // Create the end time
+        val endTimeParts = times[1].split("[ :]".toRegex())
+        var endTime = endTimeParts[1].toInt() to endTimeParts[2].toInt()
+        if (endTime.first != 12 && endTimeParts[3] == "p.m.") {
+            endTime = endTime.first + 12 to endTime.second
+        }
+        Log.d(TAG, "End time: $endTime")
+
+        return startTime to endTime
+    }
+
+    private fun initializeCourses(courses: MutableList<Course>, coursesAsNotCourseObject: MutableList<JSONObject>, course: Course) {
+        courses.add(course)
+        coursesAsNotCourseObject.add(JSONObject()
+            .put("name", course.name)
+            .put("daysBool", course.days)
+            .put("startTime", course.startTime)
+            .put("endTime", course.endTime)
+            .put("startDate", course.startDate)
+            .put("endDate", course.endDate)
+            .put("location", course.location)
+            .put("credits", course.credits)
+            .put("format", course.format)
+            .put("attended", false)
+        )
+    }
+
+    private fun parseRow(row: Row): Triple<String, Double, Pair<LocalDate, LocalDate>> {
+        val listing = row.getCell(LISTING).toString()
+        val fullName = listing.substringBefore('_') + ' ' + listing.substringAfter(' ')
+        Log.d(TAG, "Full name: $fullName")
+
+        // Get the credits
+        val credits = row.getCell(CREDITS).toString().toDouble()
+        Log.d(TAG, "Credits: $credits")
+
+        // Create the start date and end date
+        val dateFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
+        val startDate = LocalDate.parse(row.getCell(START_DATE).toString(), dateFormatter)
+        Log.d(TAG, "Start Date: $startDate")
+        val endDate = LocalDate.parse(row.getCell(END_DATE).toString(), dateFormatter)
+        Log.d(TAG, "End Date: $endDate")
+
+        return Triple(fullName, credits, startDate to endDate)
+    }
 }
