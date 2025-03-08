@@ -3,47 +3,47 @@ import { client } from "../services";
 
 export class ScheduleController {
     async getSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.query["sub"];
-        const term = req.query["term"];
+        const sub = req.query.sub;
+        const term = req.query.sub;
 
         let courseList = "";
         if (term == "fallCourseList") courseList = "fallCourseList";
         else if (term == "winterCourseList") courseList = "winterCourseList";
         else courseList = "summerCourseList";
 
-        const data = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        const data = await client.db("get2class" as string).collection("schedules" as string).findOne({ sub: sub });
 
         if (data != null) {
-            res.status(200).json({ "courseList": data[courseList] });
+            res.status(200).json({ "courseList": data[courseList as string] });
         } else {
             res.status(400).send("User not found");
         }
     }
 
     async saveSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
+        const sub = req.body.sub;
         let document;
         
         const filter = {
             sub: sub
         };
 
-        if (req.body["fallCourseList"]) {
+        if (req.body["fallCourseList" as string]) {
             document = {
                 $set: {
-                    fallCourseList: req.body["fallCourseList"]
+                    fallCourseList: req.body.fallCourseList
                 }
             };
-        } else if (req.body["winterCourseList"]) {
+        } else if (req.body["winterCourseList" as string]) {
             document = {
                 $set: {
-                    winterCourseList: req.body["winterCourseList"]
+                    winterCourseList: req.body.winterCourseList
                 }
             };
         } else {
             document = {
                 $set: {
-                    summerCourseList: req.body["summerCourseList"]
+                    summerCourseList: req.body.summerCourseList
                 }
             };
         };
@@ -52,7 +52,7 @@ export class ScheduleController {
             upsert: false
         };
 
-        const scheduleData = await client.db("get2class").collection("schedules").updateOne(filter, document, options);
+        const scheduleData = await client.db("get2class" as string).collection("schedules" as string).updateOne(filter, document, options);
 
         if (!scheduleData.acknowledged || scheduleData.modifiedCount == 0) {
             res.status(400).send("Unable to save schedule");
