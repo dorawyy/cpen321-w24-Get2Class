@@ -121,8 +121,9 @@ class ViewScheduleActivity : AppCompatActivity() {
                         } else {
                             Toast.makeText(this, "Clear schedule has failed", Toast.LENGTH_SHORT).show()
                         }
-                    } catch (e: Exception) {
-                        Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT).show()
+                    } catch (e: JSONException) {
+                        Toast.makeText(this, "Error parsing response data", Toast.LENGTH_SHORT).show()
+                        Log.e(TAG, "JSONException: ${e.message}", e)
                     }
                 }
             }
