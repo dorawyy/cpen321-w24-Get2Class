@@ -1,28 +1,33 @@
 import { Request, Response, NextFunction } from "express";
 import { client } from "../services";
 
-const dbMap = {
-    db: "get2class" as string,
-    scheduleCollection: "schedules" as string,
-    usersCollection: "users" as string
-};
-
 export class ScheduleController {
     async getSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.query.sub;
-        const term = req.query.sub;
+        const sub = req.query.sub as string | undefined;
+        const term = req.query.sub as string | undefined;
 
-        let courseList = "";
+        if (!sub || !term) {
+            return res.status(400).send("Missing query parameters");
+        }
+
+        let courseList: string;
         if (term == "fallCourseList") courseList = "fallCourseList";
         else if (term == "winterCourseList") courseList = "winterCourseList";
         else courseList = "summerCourseList";
 
-        const data = await client.db(dbMap.db).collection(dbMap.scheduleCollection).findOne({ sub: sub });
+        if (!client) {
+            return res.status(400).send("Error occurred while initializing database client");
+        }
 
-        if (data != null) {
-            res.status(200).json({ "courseList": data[courseList] });
-        } else {
+        const db = client.db("get2class");
+        const collection = db.collection("schedules");
+
+        const data = await collection.findOne<{ [key: string]: unknown }>({ sub });
+
+        if (!data || !(courseList in data)) {
             res.status(400).send("User not found");
+        } else {
+            res.status(200).json({ "courseList": data[courseList] });
         }
     }
 
