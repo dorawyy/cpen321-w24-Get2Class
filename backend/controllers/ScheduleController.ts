@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { client } from "../services";
 
+const dbMap = {
+    db: "get2class" as string,
+    scheduleCollection: "schedules" as string,
+    usersCollection: "users" as string
+};
+
 export class ScheduleController {
     async getSchedule(req: Request, res: Response, nextFunction: NextFunction) {
         const sub = req.query.sub;
@@ -11,10 +17,10 @@ export class ScheduleController {
         else if (term == "winterCourseList") courseList = "winterCourseList";
         else courseList = "summerCourseList";
 
-        const data = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        const data = await client.db(dbMap.db).collection(dbMap.scheduleCollection).findOne({ sub: sub });
 
         if (data != null) {
-            res.status(200).json({ "courseList": data[courseList as string] });
+            res.status(200).json({ "courseList": data[courseList] });
         } else {
             res.status(400).send("User not found");
         }
