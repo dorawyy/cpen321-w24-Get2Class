@@ -20,7 +20,7 @@ export class ScheduleController {
                 return res.status(400).send("Error occurred while initializing database client");
             }
 
-            const db = client.db("get2class");
+            const db = client.db("get2class" as string | undefined);
             const collection = db.collection("schedules");
 
             const data = await collection.findOne<{ [key: string]: unknown }>({ sub });
