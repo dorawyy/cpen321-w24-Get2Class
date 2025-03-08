@@ -3,31 +3,35 @@ import { client } from "../services";
 
 export class ScheduleController {
     async getSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.query.sub as string | undefined;
-        const term = req.query.sub as string | undefined;
+        try {
+            const sub = req.query.sub as string | undefined;
+            const term = req.query.sub as string | undefined;
 
-        if (!sub || !term) {
-            return res.status(400).send("Missing query parameters");
-        }
+            if (!sub || !term) {
+                return res.status(400).send("Missing query parameters");
+            }
 
-        let courseList: string;
-        if (term == "fallCourseList") courseList = "fallCourseList";
-        else if (term == "winterCourseList") courseList = "winterCourseList";
-        else courseList = "summerCourseList";
+            let courseList: string;
+            if (term == "fallCourseList") courseList = "fallCourseList";
+            else if (term == "winterCourseList") courseList = "winterCourseList";
+            else courseList = "summerCourseList";
 
-        if (!client) {
-            return res.status(400).send("Error occurred while initializing database client");
-        }
+            if (!client) {
+                return res.status(400).send("Error occurred while initializing database client");
+            }
 
-        const db = client.db("get2class");
-        const collection = db.collection("schedules");
+            const db = client.db("get2class");
+            const collection = db.collection("schedules");
 
-        const data = await collection.findOne<{ [key: string]: unknown }>({ sub });
+            const data = await collection.findOne<{ [key: string]: unknown }>({ sub });
 
-        if (!data || !(courseList in data)) {
-            res.status(400).send("User not found");
-        } else {
-            res.status(200).json({ "courseList": data[courseList] });
+            if (!data || !(courseList in data)) {
+                res.status(400).send("User not found");
+            } else {
+                res.status(200).json({ "courseList": data[courseList] });
+            }
+        } catch (err) {
+            nextFunction(err);
         }
     }
 
