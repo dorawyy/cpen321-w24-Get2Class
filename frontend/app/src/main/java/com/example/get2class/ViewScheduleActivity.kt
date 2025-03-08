@@ -154,6 +154,19 @@ class ViewScheduleActivity : AppCompatActivity() {
         }
 
         // Fill the map
+        fillMap(schedule, eventsMap)
+
+        // Create the calendar view
+        val recyclerView = findViewById<RecyclerView>(R.id.calendarRecyclerView)
+        val layoutManager = GridLayoutManager(this, 17, GridLayoutManager.VERTICAL, false)
+
+        setSpanSize(layoutManager, cells)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.itemAnimator = null
+        recyclerView.adapter = CalendarAdapter(this, cells, eventsMap)
+    }
+
+    private fun fillMap(schedule: Schedule, eventsMap: MutableMap<Pair<Int, Int>, Course?>) {
         for (course in schedule.courses) {
             val startIndex = timeToIndex(course.startTime.first, course.startTime.second)
             val endIndex = timeToIndex(course.endTime.first, course.endTime.second)
@@ -165,23 +178,18 @@ class ViewScheduleActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
-        // Create the calendar view
-        val recyclerView = findViewById<RecyclerView>(R.id.calendarRecyclerView)
-        val layoutManager = GridLayoutManager(this, 17, GridLayoutManager.VERTICAL, false)
-
+    private fun setSpanSize(layoutManager: GridLayoutManager, cells: MutableList<Pair<Int, Int>>) {
         layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                val (day, index) = cells[position]
+                val day = cells[position].first
                 return when {
                     day == 0 -> 2  // Time labels (narrower)
                     else -> 3  // Regular calendar cells (wider)
                 }
             }
         }
-        recyclerView.layoutManager = layoutManager
-        recyclerView.itemAnimator = null
-        recyclerView.adapter = CalendarAdapter(this, cells, eventsMap)
     }
 
     private fun clearSchedule(url: String, callback: (JSONObject) -> Unit) {
