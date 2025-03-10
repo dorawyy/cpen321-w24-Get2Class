@@ -111,9 +111,9 @@ class CalendarAdapter(private val context: Context,
 
 class CalendarCellViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val cellText: TextView = itemView.findViewById(R.id.cellTextView)
-    val cellFrame: View = itemView.findViewById(R.id.cellFrame) // Added this line
-    val bottomBorder: View = itemView.findViewById(R.id.bottomBorder) // Added border reference
-    val topBorder: View = itemView.findViewById(R.id.topBorder) // Added border reference
+    val cellFrame: View = itemView.findViewById(R.id.cellFrame)
+    val bottomBorder: View = itemView.findViewById(R.id.bottomBorder)
+    val topBorder: View = itemView.findViewById(R.id.topBorder)
 }
 
 class DayHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

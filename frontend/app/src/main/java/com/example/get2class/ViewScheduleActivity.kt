@@ -25,6 +25,8 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+var uploadDone = false
+
 class ViewScheduleActivity : AppCompatActivity() {
 
     companion object {
@@ -180,6 +182,7 @@ class ViewScheduleActivity : AppCompatActivity() {
         recyclerView.layoutManager = layoutManager
         recyclerView.itemAnimator = null
         recyclerView.adapter = CalendarAdapter(this, cells, eventsMap)
+        uploadDone = true
     }
 
     fun clearSchedule(url: String, callback: (JSONObject) -> Unit) {
