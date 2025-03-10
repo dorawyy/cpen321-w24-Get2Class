@@ -78,6 +78,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.uiautomator)
+
 
     implementation("com.squareup.okhttp3:okhttp:3.8.1")
 
