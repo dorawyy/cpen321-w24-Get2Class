@@ -1,5 +1,6 @@
-import request from "supertest";
-import { app } from "../../index";
+const request = require("supertest");
+const { app } = require("../../index");
+
 
 describe("Unmocked: PUT /schedule", () => {
     test("Empty request body", async () => {
