@@ -73,7 +73,8 @@ class CalendarAdapter(private val context: Context,
                 val course = eventsMap[dayOfWeek to halfHourIndex]
 
                 if (course != null) {
-                    holder.cellText.text = course.name.substringBefore("-")
+                    holder.cellText.text = course.name.substringBefore("-").trim()
+
                     if (position > 0) {
                         val prevCourse = eventsMap[dayOfWeek to halfHourIndex - 1]
                         if (prevCourse != null && prevCourse.name == course.name && prevCourse.format == course.format) {
