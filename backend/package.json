@@ -20,12 +20,14 @@
     "mongodb": "^6.13.0",
     "morgan": "^1.10.0",
     "node-cron": "^3.0.3",
+    "supertest": "^7.0.0",
     "ts-jest": "^29.2.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "devDependencies": {
     "@types/morgan": "^1.9.9",
+    "@types/supertest": "^6.0.2",
     "dotenv": "^16.4.7",
     "dotenv-cli": "^8.0.0",
     "supertest": "^7.0.0",
