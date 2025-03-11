@@ -140,7 +140,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         findViewById<Button>(R.id.check_attendance_button).setOnClickListener {
             Log.d(TAG, "Check attendance button clicked")
 
-            if(ActivityCompat.checkSelfPermission(
+            if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED){
@@ -154,7 +154,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                     TAG,
                     "OnCreate: Location updates requested"
                 )
-            }else {
+            } else {
                 ActivityCompat.requestPermissions(
                     this,
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -182,8 +182,10 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 Toast.makeText(
                     this,
                     "Could not get date data",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_LONG
                 ).show()
+                findViewById<TextView>(R.id.error_message).text = "Could not get date data"
+                Log.d(TAG, "You don't have this class this term")
                 return@setOnClickListener
             }
             Log.d(TAG, "Start: $classStartTime, end: $classEndTime, client: $clientTime")
@@ -193,9 +195,10 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 Log.d(TAG, "You don't have this class this term")
                 Toast.makeText(
                     this,
-                    "You don't have this this term",
-                    Toast.LENGTH_SHORT
+                    "You don't have this class this term",
+                    Toast.LENGTH_LONG
                 ).show()
+                findViewById<TextView>(R.id.error_message).text = "You don't have this class this term"
                 return@setOnClickListener
             }
 
@@ -205,29 +208,33 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 Toast.makeText(
                     this,
                     "You don't have this class today",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_LONG
                 ).show()
+                findViewById<TextView>(R.id.error_message).text = "You don't have this class today"
                 return@setOnClickListener
             }
 
             // Check if the course has been attended yet
             if (course.attended) {
                 Log.d(TAG, "You already checked into this class today!")
-                Toast.makeText(this, "You already checked into this class today!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "You already checked into this class today!", Toast.LENGTH_LONG).show()
+                findViewById<TextView>(R.id.error_message).text = "You already checked into this class today!"
                 return@setOnClickListener
             }
 
             // Check if it's too early
             if (clientTime < classStartTime - 10 * MINUTES) {
                 Log.d(TAG, "You are too early to check into this class!")
-                Toast.makeText(this, "You are too early to check into this class!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "You are too early to check into this class!", Toast.LENGTH_LONG).show()
+                findViewById<TextView>(R.id.error_message).text = "You are too early to check into this class!"
                 return@setOnClickListener
             }
 
             // Check if it's too late
             if (classEndTime <= clientTime) {
                 Log.d(TAG, "You missed your class!")
-                Toast.makeText(this, "You missed your class!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "You missed your class!", Toast.LENGTH_LONG).show()
+                findViewById<TextView>(R.id.error_message).text = "You missed your class!"
                 return@setOnClickListener
             }
 
@@ -237,13 +244,15 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim())
 
                 if (clientLocation.first == null || clientLocation.second == null || classLocation.first == null || classLocation.second == null) {
-                    Toast.makeText(this@ClassInfoActivity, "Location data not available", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ClassInfoActivity, "Location data not available", Toast.LENGTH_LONG).show()
+                    findViewById<TextView>(R.id.error_message).text = "Location data not available"
                     return@launch
                 }
 
                 if (coordinatesToDistance(clientLocation, classLocation) > 75) {
                     Log.d(TAG, "You're too far from your class!")
-                    Toast.makeText(this@ClassInfoActivity, "You're too far from your class!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ClassInfoActivity, "You're too far from your class!", Toast.LENGTH_LONG).show()
+                    findViewById<TextView>(R.id.error_message).text = "You're too far from your class!"
                     return@launch
                 }
 
@@ -251,9 +260,12 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 if (classStartTime < clientTime - 2 * MINUTES) {
                     val lateness = clientTime - classStartTime
                     Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
-                    Toast.makeText(this@ClassInfoActivity, "You were late by ${(lateness * 60).toInt()} minutes!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ClassInfoActivity, "You were late by ${(lateness * 60).toInt()} minutes!", Toast.LENGTH_LONG).show()
                     val classLength = classEndTime - classStartTime
                     val karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
+                    runOnUiThread {
+                        findViewById<TextView>(R.id.error_message).text = "You gained $karma Karma!"
+                    }
                     updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) {result ->
                         Log.d(TAG, "${result}")
                     }
@@ -262,7 +274,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                         course.attended = true
                     }
                     Log.d(TAG, "You gained $karma Karma!")
-                    Toast.makeText(this@ClassInfoActivity, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ClassInfoActivity, "You gained $karma Karma!", Toast.LENGTH_LONG).show()
                     return@launch
                 }
 
@@ -275,6 +287,10 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 updateAttendance(BuildConfig.BASE_API_URL + "/attendance", course.name, course.format) { result ->
                     Log.d(TAG, "${result}")
                     course.attended = true
+                }
+                Toast.makeText(this@ClassInfoActivity, "You gained $karma Karma!", Toast.LENGTH_LONG).show()
+                runOnUiThread {
+                    findViewById<TextView>(R.id.error_message).text = "You gained $karma Karma!"
                 }
                 Log.d(TAG, "You gained $karma Karma!")
             }
