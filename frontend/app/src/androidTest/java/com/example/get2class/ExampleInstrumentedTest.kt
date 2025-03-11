@@ -5,6 +5,8 @@ import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -18,6 +20,14 @@ import androidx.test.uiautomator.UiSelector
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.Rule
+import android.os.IBinder
+import android.util.Log
+import android.view.WindowManager
+import androidx.test.espresso.Root
+import junit.framework.TestCase.assertTrue
+import org.hamcrest.Description
+import org.hamcrest.TypeSafeMatcher
+import org.junit.Before
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -25,6 +35,13 @@ import org.junit.Rule
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class E2EEspressoTest {
+
+    // reset location permissions for testing both success and failure scenarios
+    @Before
+    fun setUp() {
+        revokeLocationPermission()
+        Thread.sleep(1000)
+    }
 
     @get:Rule
     val activityRule = ActivityScenarioRule(LoginActivity::class.java)
@@ -35,7 +52,7 @@ class E2EEspressoTest {
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
         Thread.sleep(lag)
-        ui_click("Lucas")
+        ui_click("Hardy Huang")
         Thread.sleep(lag)
         onView(withId(R.id.schedules_button)).perform(click())
 
@@ -66,12 +83,93 @@ class E2EEspressoTest {
         onView(withId(R.id.clear_schedule_button)).perform(click())
         testScheduleLoaded(false)
     }
+
+    @Test fun viewRouteTest(){
+        logInAndLoadWinterSchedule()
+
+        // 1. The user clicks on View Route
+        ui_click("CPEN 321")
+        Thread.sleep(5000)
+        ui_click("View route to class")
+        Thread.sleep(5000)
+
+        // 2. The app prompts the user to grant location permissions if not already granted
+        assertTrue("Permission dialog should pop up", uiExistWithText("While using the app"))
+        Thread.sleep(5000)
+
+        // 2a. The user does not grant location permissions
+        ui_click("Don't allow")
+        Thread.sleep(1000)
+
+        // 2a1. If the user denies twice, the app shows a toast to tell the user to enable location permissions in the settings first
+        onView(withText("Please grant Location permissions in Settings to view your routes :/")).inRoot(ToastMatcher()).check(matches(isDisplayed()))
+
+        // 2a2. The app routes the user back to the previous screen
+        onView(withId(R.id.route_button)).check(matches(isDisplayed()))
+        onView(withId(R.id.check_attendance_button)).check(matches(isDisplayed()))
+
+        // retry step 1 for the success scenario
+        ui_click("CPEN 321")
+        Thread.sleep(5000)
+        ui_click("View route to class")
+        Thread.sleep(5000)
+
+        // retry step 2
+        assertTrue("Permission dialog should pop up again", uiExistWithText("Don't allow"))
+        ui_click("Only this time")
+        Thread.sleep(2000)
+
+        // a navigation dialog will show up if this is the first run
+        if(uiExistWithText("Welcome to Google Maps navigation")){
+            ui_click("GOT IT")
+        }
+
+        Thread.sleep(6000)
+
+        // 3. The user sees their current location and destination location together with the optimal route on the screen
+        onView(withId(R.id.navigation_view)).check(matches(isDisplayed()))
+    }
+}
+
+private fun uiExistWithText(text: String): Boolean{
+    // get UI element with the given text
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    val e = device.findObject(UiSelector().text(text))
+
+    return e.exists()
+}
+
+private fun logInAndLoadWinterSchedule(){
+    // log in
+    onView(withId(R.id.login_button)).perform(click())
+    Thread.sleep(5000)
+    ui_click("Hardy Huang")
+    Thread.sleep(5000)
+    onView(withId(R.id.schedules_button)).perform(click())
+
+    // upload schedule
+    onView(withId(R.id.winter_schedule)).perform(click())
+    onView(withId(R.id.upload_schedule_button)).perform(click())
+    Thread.sleep(5000)
+    ui_click("View_My_Courses.xlsx")
+    Thread.sleep(5000)
+}
+
+private fun revokeLocationPermission(){
+    val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+
+    uiAutomation.executeShellCommand("pm revoke com.example.get2class android.permission.ACCESS_FINE_LOCATION")
+    uiAutomation.executeShellCommand("pm revoke com.example.get2class android.permission.ACCESS_COARSE_LOCATION")
 }
 
 // Use UIAutomator to click on the file in the system file picker
 private fun ui_click(elementText: String) {
     val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     val element = device.findObject(UiSelector().text(elementText))
+    Log.d(
+        "ui_click on $elementText",
+        "ui_click: exist - ${element.exists()}; enable - ${element.isEnabled}"
+    )
     if (element.exists() && element.isEnabled) {
         element.click()
     } else {
@@ -113,5 +211,23 @@ private fun testScheduleLoaded(loaded: Boolean) {
         onView(withText("Lecture")).check(doesNotExist())
         onView(withText("Laboratory")).check(doesNotExist())
         onView(withText("Discussion")).check(doesNotExist())
+    }
+}
+
+// matcher that verifies the toast’s window is used
+class ToastMatcher : TypeSafeMatcher<Root>() {
+    override fun describeTo(description: Description) {
+        description.appendText("is toast")
+    }
+
+    public override fun matchesSafely(root: Root): Boolean {
+        val type = root.windowLayoutParams.get().type
+        if (type == WindowManager.LayoutParams.TYPE_TOAST) {
+            val windowToken: IBinder = root.decorView.windowToken
+            val appToken: IBinder = root.decorView.applicationWindowToken
+            // if they are equal, this window isn't contained by any other windows
+            return windowToken === appToken
+        }
+        return false
     }
 }
