@@ -5,7 +5,7 @@ import { UserRoutes } from './routes/UserRoutes';
 import morgan from 'morgan';
 import { ScheduleRoutes } from './routes/ScheduleRoutes';
 
-const app = express();
+export const app = express();
 var cron = require('node-cron');
 
 app.use(express.json());
