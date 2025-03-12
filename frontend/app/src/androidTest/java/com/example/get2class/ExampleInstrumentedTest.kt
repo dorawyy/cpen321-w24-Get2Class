@@ -1,8 +1,14 @@
 package com.example.get2class
 
+import android.R
+import android.os.IBinder
+import android.util.Log
+import android.view.WindowManager
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
+import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.NoMatchingViewException
+import androidx.test.espresso.Root
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -12,22 +18,19 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.espresso.util.TreeIterables
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.Rule
-import android.os.IBinder
-import android.util.Log
-import android.view.WindowManager
-import androidx.test.espresso.Root
 import junit.framework.TestCase.assertTrue
 import org.hamcrest.Description
 import org.hamcrest.TypeSafeMatcher
 import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -95,11 +98,9 @@ class E2EEspressoTest {
 
         // 2. The app prompts the user to grant location permissions if not already granted
         assertTrue("Permission dialog should pop up", uiExistWithText("While using the app"))
-        Thread.sleep(5000)
 
         // 2a. The user does not grant location permissions
-        ui_click("Don't allow")
-        Thread.sleep(1000)
+        ui_click("Don’t allow")
 
         // 2a1. If the user denies twice, the app shows a toast to tell the user to enable location permissions in the settings first
         onView(withText("Please grant Location permissions in Settings to view your routes :/")).inRoot(ToastMatcher()).check(matches(isDisplayed()))
@@ -214,6 +215,45 @@ private fun testScheduleLoaded(loaded: Boolean) {
     }
 }
 
+class ToastIdlingResource(
+    private val expectedText: String,
+    private val timeout: Long = 3000L  // timeout in milliseconds
+) : IdlingResource {
+
+    private var resourceCallback: IdlingResource.ResourceCallback? = null
+    private var startTime: Long = 0
+
+    override fun getName(): String {
+        return ToastIdlingResource::class.java.name + ":" + expectedText
+    }
+
+    override fun isIdleNow(): Boolean {
+        // Initialize start time on first check
+        if (startTime == 0L) {
+            startTime = System.currentTimeMillis()
+        }
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        // Look for the toast message using UIAutomator
+        val toast = device.findObject(UiSelector().text(expectedText))
+        val isToastVisible = toast != null && toast.exists()
+        // If found, notify Espresso that we’re idle
+        if (isToastVisible) {
+            resourceCallback?.onTransitionToIdle()
+            return true
+        }
+        // If timeout is exceeded, consider it idle (or you can fail the test here)
+        if (System.currentTimeMillis() - startTime >= timeout) {
+            resourceCallback?.onTransitionToIdle()
+            return true
+        }
+        return false
+    }
+
+    override fun registerIdleTransitionCallback(callback: IdlingResource.ResourceCallback?) {
+        this.resourceCallback = callback
+    }
+}
+
 // matcher that verifies the toast’s window is used
 class ToastMatcher : TypeSafeMatcher<Root>() {
     override fun describeTo(description: Description) {
@@ -221,8 +261,8 @@ class ToastMatcher : TypeSafeMatcher<Root>() {
     }
 
     public override fun matchesSafely(root: Root): Boolean {
-        val type = root.windowLayoutParams.get().type
-        if (type == WindowManager.LayoutParams.TYPE_TOAST) {
+        val type = root.getWindowLayoutParams2().type
+        if (type == WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY) {
             val windowToken: IBinder = root.decorView.windowToken
             val appToken: IBinder = root.decorView.applicationWindowToken
             // if they are equal, this window isn't contained by any other windows
