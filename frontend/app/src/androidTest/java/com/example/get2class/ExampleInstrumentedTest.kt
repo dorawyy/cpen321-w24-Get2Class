@@ -24,9 +24,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import androidx.test.espresso.action.ViewActions.*
 
 
-val userName = "Hardy Huang"
+val userName = "Lucas"
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -45,7 +46,7 @@ class E2EEspressoTest {
     @get:Rule
     val activityRule = ActivityScenarioRule(LoginActivity::class.java)
 
-    @Test fun uploadScheduleTest() {
+    @Test fun t1_uploadScheduleTest() {
         val lag = 8000.toLong()
 
         // Log in and navigate to schedules
@@ -83,21 +84,21 @@ class E2EEspressoTest {
         testScheduleLoaded(false)
     }
 
-    @Test fun viewRouteTest(){
+    @Test fun t2_viewRouteTest(){
         logInAndLoadWinterSchedule()
 
         // 1. The user clicks on View Route
         ui_click("CPEN 321")
         Thread.sleep(2000)
         ui_click("View route to class")
-        Thread.sleep(2000)
+        Thread.sleep(5000)
 
         // 2. The app prompts the user to grant location permissions if not already granted
         assertTrue("Permission dialog should pop up", uiExistWithText("While using the app"))
 
         // 2a. The user does not grant location permissions
         ui_click("Don’t allow")
-        Thread.sleep(1000)
+        Thread.sleep(2000)
 
         // 2a1. If the user denies twice, the app shows a toast to tell the user to enable location permissions in the settings first
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -122,10 +123,15 @@ class E2EEspressoTest {
             ui_click("GOT IT")
         }
 
-        Thread.sleep(6000)
+        Thread.sleep(8000)
 
         // 3. The user sees their current location and destination location together with the optimal route on the screen
         onView(withId(R.id.navigation_view)).check(matches(isDisplayed()))
+        onView(withId(R.id.navigation_view)).perform(swipeUp())
+        Thread.sleep(2000)
+        onView(withText("Re-center")).check(matches(isDisplayed()))
+
+        pressBack()
     }
 }
 
