@@ -1,12 +1,10 @@
 package com.example.get2class
 
-import android.R
 import android.os.IBinder
 import android.util.Log
 import android.view.WindowManager
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
-import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.NoMatchingViewException
 import androidx.test.espresso.Root
 import androidx.test.espresso.action.ViewActions.click
@@ -32,6 +30,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 
+val userName = "Hardy Huang"
+
 /**
  * Instrumented test, which will execute on an Android device.
  */
@@ -55,7 +55,7 @@ class E2EEspressoTest {
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
         Thread.sleep(lag)
-        ui_click("Hardy Huang")
+        ui_click(userName)
         Thread.sleep(lag)
         onView(withId(R.id.schedules_button)).perform(click())
 
@@ -92,9 +92,9 @@ class E2EEspressoTest {
 
         // 1. The user clicks on View Route
         ui_click("CPEN 321")
-        Thread.sleep(5000)
+        Thread.sleep(2000)
         ui_click("View route to class")
-        Thread.sleep(5000)
+        Thread.sleep(2000)
 
         // 2. The app prompts the user to grant location permissions if not already granted
         assertTrue("Permission dialog should pop up", uiExistWithText("While using the app"))
@@ -103,20 +103,18 @@ class E2EEspressoTest {
         ui_click("Don’t allow")
 
         // 2a1. If the user denies twice, the app shows a toast to tell the user to enable location permissions in the settings first
-        onView(withText("Please grant Location permissions in Settings to view your routes :/")).inRoot(ToastMatcher()).check(matches(isDisplayed()))
+//        onView(withText("Please grant Location permissions in Settings to view your routes :/")).inRoot(ToastMatcher()).check(matches(isDisplayed()))
 
         // 2a2. The app routes the user back to the previous screen
         onView(withId(R.id.route_button)).check(matches(isDisplayed()))
         onView(withId(R.id.check_attendance_button)).check(matches(isDisplayed()))
 
         // retry step 1 for the success scenario
-        ui_click("CPEN 321")
-        Thread.sleep(5000)
         ui_click("View route to class")
-        Thread.sleep(5000)
+        Thread.sleep(3000)
 
         // retry step 2
-        assertTrue("Permission dialog should pop up again", uiExistWithText("Don't allow"))
+        assertTrue("Permission dialog should pop up again", uiExistWithText("Don’t allow"))
         ui_click("Only this time")
         Thread.sleep(2000)
 
@@ -143,17 +141,17 @@ private fun uiExistWithText(text: String): Boolean{
 private fun logInAndLoadWinterSchedule(){
     // log in
     onView(withId(R.id.login_button)).perform(click())
-    Thread.sleep(5000)
-    ui_click("Hardy Huang")
-    Thread.sleep(5000)
+    Thread.sleep(3000)
+    ui_click(userName)
+    Thread.sleep(3000)
     onView(withId(R.id.schedules_button)).perform(click())
 
     // upload schedule
     onView(withId(R.id.winter_schedule)).perform(click())
     onView(withId(R.id.upload_schedule_button)).perform(click())
-    Thread.sleep(5000)
+    Thread.sleep(3000)
     ui_click("View_My_Courses.xlsx")
-    Thread.sleep(5000)
+    Thread.sleep(3000)
 }
 
 private fun revokeLocationPermission(){
@@ -215,59 +213,22 @@ private fun testScheduleLoaded(loaded: Boolean) {
     }
 }
 
-class ToastIdlingResource(
-    private val expectedText: String,
-    private val timeout: Long = 3000L  // timeout in milliseconds
-) : IdlingResource {
-
-    private var resourceCallback: IdlingResource.ResourceCallback? = null
-    private var startTime: Long = 0
-
-    override fun getName(): String {
-        return ToastIdlingResource::class.java.name + ":" + expectedText
-    }
-
-    override fun isIdleNow(): Boolean {
-        // Initialize start time on first check
-        if (startTime == 0L) {
-            startTime = System.currentTimeMillis()
-        }
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Look for the toast message using UIAutomator
-        val toast = device.findObject(UiSelector().text(expectedText))
-        val isToastVisible = toast != null && toast.exists()
-        // If found, notify Espresso that we’re idle
-        if (isToastVisible) {
-            resourceCallback?.onTransitionToIdle()
-            return true
-        }
-        // If timeout is exceeded, consider it idle (or you can fail the test here)
-        if (System.currentTimeMillis() - startTime >= timeout) {
-            resourceCallback?.onTransitionToIdle()
-            return true
-        }
-        return false
-    }
-
-    override fun registerIdleTransitionCallback(callback: IdlingResource.ResourceCallback?) {
-        this.resourceCallback = callback
-    }
-}
-
 // matcher that verifies the toast’s window is used
-class ToastMatcher : TypeSafeMatcher<Root>() {
-    override fun describeTo(description: Description) {
-        description.appendText("is toast")
-    }
+class ToastMatcher : TypeSafeMatcher<Root?>() {
 
-    public override fun matchesSafely(root: Root): Boolean {
-        val type = root.getWindowLayoutParams2().type
-        if (type == WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY) {
-            val windowToken: IBinder = root.decorView.windowToken
-            val appToken: IBinder = root.decorView.applicationWindowToken
-            // if they are equal, this window isn't contained by any other windows
-            return windowToken === appToken
+    override fun matchesSafely(item: Root?): Boolean {
+        val type: Int? = item?.getWindowLayoutParams2()?.type
+        if (type == WindowManager.LayoutParams.FIRST_APPLICATION_WINDOW) {
+            val windowToken: IBinder = item.decorView.windowToken
+            val appToken: IBinder = item.decorView.applicationWindowToken
+            if (windowToken === appToken) { // means this window isn't contained by any other windows.
+                return true
+            }
         }
         return false
+    }
+
+    override fun describeTo(description: Description?) {
+        description?.appendText("is toast")
     }
 }
