@@ -5,7 +5,7 @@ import { UserRoutes } from './routes/UserRoutes';
 import morgan from 'morgan';
 import { ScheduleRoutes } from './routes/ScheduleRoutes';
 
-export const app = express();
+const app = express();
 var cron = require('node-cron');
 
 app.use(express.json());
@@ -14,7 +14,7 @@ app.use(morgan('tiny'));
 /**
  * Cron Scheduler: resets attendance at the end of each day (PST) for all users
  */
-cron.schedule('0 0 * * *', async () => {
+const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
     try {
         const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
         console.log(allSchedules);
@@ -183,13 +183,29 @@ app.post('/get2class', (req: Request, res: Response) => {
 /**
  * Mongo and Express connection setup
  */
-client.connect().then(() => {
+// client.connect().then(() => {
+//     console.log("MongoDB Client Connected");
+
+//     app.listen(process.env.PORT, () => {
+//         console.log("Listening on port: " + process.env.PORT);
+//     });
+// }).catch(err => {
+//     console.error(err);
+//     client.close();
+// });
+
+const serverReady = client.connect().then(() => {
     console.log("MongoDB Client Connected");
 
-    app.listen(process.env.PORT, () => {
-        console.log("Listening on port " + process.env.PORT);
+    return new Promise((resolve) => {
+        const server = app.listen(process.env.PORT, () => {
+            console.log("Listening on port " + process.env.PORT);
+            resolve(server);
+        });
     });
 }).catch(err => {
     console.error(err);
     client.close();
 });
+
+export { app, serverReady, cronResetAttendance }
