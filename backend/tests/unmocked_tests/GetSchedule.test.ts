@@ -15,7 +15,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    await client.db("get2class").collection("schedules").deleteMany({
+    await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
     })
     await client.db("get2class").collection("users").deleteOne({
@@ -59,6 +59,5 @@ describe("Unmocked: GET /schedule", () => {
         const res = await request(app).get("/schedule")
             .query({sub: sub, term: term});
         expect(res.statusCode).toBe(200);
-        // expect(res.body).toBe(mySchedule);
     });
 });

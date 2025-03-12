@@ -9,6 +9,8 @@ let server: Server;
 beforeAll(async () => {
     server = await serverReady;  // Wait for the server to be ready
     await client.db("get2class").collection("users").insertOne(myUser);
+    let dbScheduleItem = myDBScheduleItem;
+    dbScheduleItem.fallCourseList = mySchedule.courses;
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
 });
 
@@ -31,20 +33,31 @@ afterAll(async () => {
 });
 
 
-describe("Unmocked: PUT /schedule", () => {
+describe("Unmocked: DELETE /schedule", () => {
     test("Empty request body", async () => {
-        const res = await request(app).put("/schedule").send({});
+        const sub = "";
+        const term = "";
+
+        const res = await request(app).delete("/schedule")
+            .send({sub: sub, term: term});
+        expect(res.statusCode).toBe(400);
+    });
+    
+    test("Invalid term string", async () => {
+        const sub = myUser.sub;
+        const term = "springCourseList";
+
+        const res = await request(app).delete("/schedule")
+            .send({sub: sub, term: term});
         expect(res.statusCode).toBe(400);
     });
 
     test("Valid request", async () => {
-        const req = {
-            sub: myUser.sub,
-            fallCourseList: mySchedule.courses
-        };
+        const sub = myUser.sub;
+        const term = "fallCourseList";
 
-        
-        const res = await request(app).put("/schedule").send(req);
+        const res = await request(app).delete("/schedule")
+            .send({sub: sub, term: term});
         expect(res.statusCode).toBe(200);
     });
 });
