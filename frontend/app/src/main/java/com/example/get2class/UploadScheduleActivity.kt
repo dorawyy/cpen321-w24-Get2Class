@@ -93,7 +93,6 @@ class UploadScheduleActivity : AppCompatActivity() {
             finish()
             return
         }
-
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             data.data?.let { uri ->
                 schedule = readExcelFromUri(uri)
