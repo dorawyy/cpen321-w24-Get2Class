@@ -55,23 +55,23 @@ class CalendarAdapter(private val context: Context,
         }
     }
 
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val (dayOfWeek, halfHourIndex) = cells[position]
         when (holder) {
+            // Set the day headers
             is DayHeaderViewHolder -> {
                 val dayNames = listOf("Mon", "Tue", "Wed", "Thu", "Fri")
                 holder.dayHeaderText.text = if (dayOfWeek in 1..5) dayNames[dayOfWeek - 1] else ""
             }
+            // Set the time labels
             is TimeLabelViewHolder -> {
-                val hour = 8 + (halfHourIndex / 2) // Example: Start at 8 AM
+                val hour = 8 + (halfHourIndex / 2) // Starts at 8 AM
                 val minute = if (halfHourIndex % 2 == 0) "00" else "30"
                 holder.timeLabelText.text = if (hour < 10) "  $hour:$minute" else "$hour:$minute"
             }
+            // Set course cells
             is CalendarCellViewHolder -> {
-
                 val course = eventsMap[dayOfWeek to halfHourIndex]
-
                 if (course != null) {
                     createCourseCell(holder, course, position, dayOfWeek, halfHourIndex)
                 } else {
@@ -84,7 +84,9 @@ class CalendarAdapter(private val context: Context,
     }
 
     private fun createCourseCell(holder: CalendarCellViewHolder, course: Course, position: Int, dayOfWeek: Int, halfHourIndex: Int) {
+        // Set the text to be the course name
         holder.cellText.text = course.name.substringBefore("-")
+        // Check if this is not the first block of the course
         if (position > 0) {
             val prevCourse = eventsMap[dayOfWeek to halfHourIndex - 1]
             if (prevCourse != null && prevCourse.name == course.name && prevCourse.format == course.format) {
@@ -95,7 +97,6 @@ class CalendarAdapter(private val context: Context,
         holder.cellFrame.setBackgroundColor(Color.parseColor("#B2FF59"))
         holder.cellFrame.setOnClickListener {
             Log.d(TAG, "Course was clicked: $course")
-
             val intent = Intent(context, ClassInfoActivity::class.java)
             intent.putExtra("course", course)
             context.startActivity(intent)
@@ -103,11 +104,13 @@ class CalendarAdapter(private val context: Context,
     }
 
     private fun setCellText(holder: CalendarCellViewHolder, course: Course, position: Int, dayOfWeek: Int, halfHourIndex: Int) {
+        // Set the text to be the format in the second cell
         holder.cellText.text = course.format
         holder.topBorder.visibility = View.GONE
         if (position > 1) {
             val prevPrevCourse = eventsMap[dayOfWeek to halfHourIndex - 2]
             if (prevPrevCourse != null && prevPrevCourse.name == course.name && prevPrevCourse.format == course.format) {
+                // For the rest of the cells set the text to be empty
                 holder.cellText.text = ""
                 holder.topBorder.visibility = View.GONE
             }
@@ -119,9 +122,9 @@ class CalendarAdapter(private val context: Context,
 
 class CalendarCellViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val cellText: TextView = itemView.findViewById(R.id.cellTextView)
-    val cellFrame: View = itemView.findViewById(R.id.cellFrame) // Added this line
-    val bottomBorder: View = itemView.findViewById(R.id.bottomBorder) // Added border reference
-    val topBorder: View = itemView.findViewById(R.id.topBorder) // Added border reference
+    val cellFrame: View = itemView.findViewById(R.id.cellFrame)
+    val bottomBorder: View = itemView.findViewById(R.id.bottomBorder)
+    val topBorder: View = itemView.findViewById(R.id.topBorder)
 }
 
 class DayHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

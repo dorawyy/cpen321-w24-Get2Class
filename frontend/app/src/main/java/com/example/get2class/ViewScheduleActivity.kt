@@ -56,13 +56,14 @@ class ViewScheduleActivity : AppCompatActivity() {
             insets
         }
 
+        // Set title to include the term
         val term = intent.getStringExtra("term")
         val scheduleName = findViewById<TextView>(R.id.schedule_name)
         scheduleName.text = "$term Schedule: "
 
+        // Fetch the schedule data from the BE
         getSchedule(BuildConfig.BASE_API_URL + "/schedule?sub=" + LoginActivity.GoogleIdTokenSub + "&term=" + ScheduleListActivity.term) { result ->
             Log.d(TAG, "$result")
-
             runOnUiThread {
                 try {
                     Log.d(TAG, "${result.getJSONArray("courseList")}")
@@ -75,8 +76,8 @@ class ViewScheduleActivity : AppCompatActivity() {
                             it
                         )
                     }}")
-
                     jsonArrayToCourseList(result.getJSONArray("courseList"))?.let { Schedule(it) }
+                        // If successful, load the calendar, otherwise load a blank calendar
                         ?.let { loadCalendar(it) }
                 } catch (e: JSONException) {
                     Log.e(TAG, "Error parsing JSON: ${e.message}", e)
@@ -94,7 +95,7 @@ class ViewScheduleActivity : AppCompatActivity() {
             try {
                 val intent = Intent(this, UploadScheduleActivity::class.java)
                 intent.putExtra("term", term)
-                scheduleLauncher.launch(intent) // Start activity for result
+                scheduleLauncher.launch(intent)
             } catch (e: JSONException) {
                 Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT).show()
             }
@@ -131,12 +132,12 @@ class ViewScheduleActivity : AppCompatActivity() {
     }
 
     private fun loadCalendar(schedule: Schedule = Schedule(mutableListOf())) {
-        val cells = mutableListOf<Pair<Int, Int>>()  // (dayOfWeek, halfHourIndex)
+        val cells = mutableListOf<Pair<Int, Int>>()  // (dayOfWeek (column) to halfHourIndex (row))
         for (day in 0..5) {  // 0 represents the header row, 1-5 are weekdays
             cells.add(day to -1) // -1 represents a header cell
         }
-        // dayOfWeek: 1..5 (Mon=1, Tue=2, etc.)
-        // halfHourIndex: 0..27 (0=8:00, 1=8:30, 2=9:00, etc.)
+        // dayOfWeek: 1-5 (Mon=1, Tue=2, etc.)
+        // halfHourIndex: 0-27 (0=8:00, 1=8:30, 2=9:00, etc.)
         for (index in 0 until 28) {
             cells.add(0 to index)
             for (day in 1..5) {
@@ -157,7 +158,6 @@ class ViewScheduleActivity : AppCompatActivity() {
         // Create the calendar view
         val recyclerView = findViewById<RecyclerView>(R.id.calendarRecyclerView)
         val layoutManager = GridLayoutManager(this, 17, GridLayoutManager.VERTICAL, false)
-
         setSpanSize(layoutManager, cells)
         recyclerView.layoutManager = layoutManager
         recyclerView.itemAnimator = null
