@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
 import androidx.test.espresso.action.ViewActions.*
 
 
-val userName = "Lucas"
+val userName = "Hardy Huang"
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -127,10 +127,10 @@ class E2EEspressoTest {
 
         // 3. The user sees their current location and destination location together with the optimal route on the screen
         onView(withId(R.id.navigation_view)).check(matches(isDisplayed()))
-        onView(withId(R.id.navigation_view)).perform(swipeUp())
+        onView(withId(R.id.navigation_view)).perform(swipeUp()).perform(swipeRight())
         Thread.sleep(2000)
         onView(withText("Re-center")).check(matches(isDisplayed()))
-
+        ui_click("Re-center")
         pressBack()
     }
 }
