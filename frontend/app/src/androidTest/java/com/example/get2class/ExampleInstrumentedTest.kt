@@ -1,12 +1,9 @@
 package com.example.get2class
 
-import android.os.IBinder
 import android.util.Log
-import android.view.WindowManager
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
-import androidx.test.espresso.Root
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -22,8 +19,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import junit.framework.TestCase.assertTrue
-import org.hamcrest.Description
-import org.hamcrest.TypeSafeMatcher
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -101,9 +97,12 @@ class E2EEspressoTest {
 
         // 2a. The user does not grant location permissions
         ui_click("Don’t allow")
+        Thread.sleep(1000)
 
         // 2a1. If the user denies twice, the app shows a toast to tell the user to enable location permissions in the settings first
-//        onView(withText("Please grant Location permissions in Settings to view your routes :/")).inRoot(ToastMatcher()).check(matches(isDisplayed()))
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val e = device.findObject(UiSelector().text("Please grant Location permissions in Settings to view your routes :/"))
+        assertNotNull("Toast should show up", e)
 
         // 2a2. The app routes the user back to the previous screen
         onView(withId(R.id.route_button)).check(matches(isDisplayed()))
@@ -210,25 +209,5 @@ private fun testScheduleLoaded(loaded: Boolean) {
         onView(withText("Lecture")).check(doesNotExist())
         onView(withText("Laboratory")).check(doesNotExist())
         onView(withText("Discussion")).check(doesNotExist())
-    }
-}
-
-// matcher that verifies the toast’s window is used
-class ToastMatcher : TypeSafeMatcher<Root?>() {
-
-    override fun matchesSafely(item: Root?): Boolean {
-        val type: Int? = item?.getWindowLayoutParams2()?.type
-        if (type == WindowManager.LayoutParams.FIRST_APPLICATION_WINDOW) {
-            val windowToken: IBinder = item.decorView.windowToken
-            val appToken: IBinder = item.decorView.applicationWindowToken
-            if (windowToken === appToken) { // means this window isn't contained by any other windows.
-                return true
-            }
-        }
-        return false
-    }
-
-    override fun describeTo(description: Description?) {
-        description?.appendText("is toast")
     }
 }
