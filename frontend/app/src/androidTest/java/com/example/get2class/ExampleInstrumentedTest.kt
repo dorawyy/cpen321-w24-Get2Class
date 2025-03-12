@@ -123,7 +123,7 @@ class E2EEspressoTest {
             ui_click("GOT IT")
         }
 
-        Thread.sleep(8000)
+        Thread.sleep(12000)
 
         // 3. The user sees their current location and destination location together with the optimal route on the screen
         onView(withId(R.id.navigation_view)).check(matches(isDisplayed()))
@@ -148,7 +148,7 @@ private fun logInAndLoadWinterSchedule(){
     onView(withId(R.id.login_button)).perform(click())
     Thread.sleep(3000)
     ui_click(userName)
-    Thread.sleep(3000)
+    Thread.sleep(5000)
     onView(withId(R.id.schedules_button)).perform(click())
 
     // upload schedule
