@@ -149,6 +149,7 @@ class E2EEspressoTest {
         setTime(3, 55, "PM")
         onView(withId(R.id.check_attendance_button)).perform(click())
         Thread.sleep(1000)
+        Espresso.onIdle()
         onView(withId(R.id.error_message)).check(matches(withText("You gained 34 Karma!")))
         pressBack()
 
@@ -314,7 +315,5 @@ private fun grantLocationPermissions() {
     Thread.sleep(1000)
     if (device.findObject(UiSelector().text("While using the app")).exists()) {
         device.findObject(UiSelector().text("While using the app")).click()
-        // TODO: should not need this, this is hiding a bug
-        //onView(withId(R.id.check_attendance_button)).perform(click())
     }
 }

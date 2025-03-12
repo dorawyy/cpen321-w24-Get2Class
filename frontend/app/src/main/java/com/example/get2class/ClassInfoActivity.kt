@@ -260,7 +260,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 if (classStartTime < clientTime - 2 * MINUTES) {
                     val lateness = clientTime - classStartTime
                     Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
-                    Toast.makeText(this@ClassInfoActivity, "You were late by ${(lateness * 60).toInt()} minutes!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ClassInfoActivity, "You were late by ${(lateness * 60).toInt()} minutes!", Toast.LENGTH_SHORT).show()
                     val classLength = classEndTime - classStartTime
                     val karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
                     runOnUiThread {
