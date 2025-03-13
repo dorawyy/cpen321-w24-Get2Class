@@ -103,31 +103,17 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         findViewById<Button>(R.id.check_attendance_button).setOnClickListener {
             Log.d(TAG, "Check attendance button clicked")
 
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    1_000,
-                    0f,
-                    this
-                )
-                Log.d(
-                    TAG,
-                    "OnCreate: Location updates requested"
-                )
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1_000, 0f, this)
+                Log.d(TAG, "OnCreate: Location updates requested")
             }
 
             // Format the current date and time and the class time
             val clientDate = getCurrentTime().split(" ") // day of week, hour, minute
             val clientDay = clientDate[0].toInt()
             val clientTime = clientDate[1].toDouble().plus(clientDate[2].toDouble() / 60)
-            val classStartTime =
-                course.startTime.first.toDouble() + course.startTime.second.toDouble() / 60
-            val classEndTime =
-                course.endTime.first.toDouble() + (course.endTime.second.toDouble() - 10) / 60
+            val classStartTime = course.startTime.first.toDouble() + course.startTime.second.toDouble() / 60
+            val classEndTime = course.endTime.first.toDouble() + (course.endTime.second.toDouble() - 10) / 60
 
             Log.d(TAG, "Start: $classStartTime, end: $classEndTime, client: $clientTime")
 
@@ -136,30 +122,16 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 // Check if the course is today
                 if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
                     Log.d(TAG, "You don't have this class today")
-                    Toast.makeText(
-                        this,
-                        "You don't have this class today",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "You don't have this class today", Toast.LENGTH_SHORT).show()
                     findViewById<TextView>(R.id.error_message).text = "You don't have this class today"
                 } else if (checkTime(course, clientTime, classStartTime, classEndTime)) {
                     lifecycleScope.launch {
                         if (checkLocation(course)) {
                             // Check if you're late
                             if (classStartTime < clientTime - 2 * MINUTES) {
-                                calculateKarma(
-                                    arrayOf(clientTime, classStartTime, classEndTime),
-                                    course,
-                                    true,
-                                    this@ClassInfoActivity
-                                )
+                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, true, this@ClassInfoActivity)
                             } else {
-                                calculateKarma(
-                                    arrayOf(clientTime, classStartTime, classEndTime),
-                                    course,
-                                    false,
-                                    this@ClassInfoActivity
-                                )
+                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, false, this@ClassInfoActivity)
                             }
                         }
                     }
