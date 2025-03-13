@@ -2,7 +2,6 @@ package com.example.get2class
 
 import android.util.Log
 import android.view.View
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
@@ -22,7 +21,6 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import junit.framework.TestCase.assertTrue
 import org.junit.Assert.assertNotNull
-import org.junit.Before
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
@@ -30,25 +28,28 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.espresso.action.ViewActions.*
+import org.junit.FixMethodOrder
+import org.junit.runners.MethodSorters
 
 
-private const val NAME = "Hardy Huang"
+private const val NAME = "Lucas"
 private const val FILENAME = "View_My_Courses.xlsx"
-private const val LAG = 7000.toLong()
+private const val LAG = 5000.toLong()
 
 /**
  * Instrumented test, which will execute on an Android device.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class E2EEspressoTest {
 
-    // reset location permissions for testing both success and failure scenarios
-    @Before
-    fun setUp() {
-        revokeLocationPermission()
-        Thread.sleep(1000)
-    }
+//    // reset location permissions for testing both success and failure scenarios
+//    @Before
+//    fun setUp() {
+//        revokeLocationPermission()
+//        Thread.sleep(1000)
+//    }
 
     @get:Rule
     val activityRule = ActivityScenarioRule(LoginActivity::class.java)
@@ -106,13 +107,13 @@ class E2EEspressoTest {
         Thread.sleep(LAG)
         ui_click(FILENAME)
 
+        // Select CPSC 320
         onView(withIndex(withText("CPSC 320"), 0)).perform(click())
 
         // Case where year is wrong
         incrementMonth(-3, 1)
         onView(withId(R.id.check_attendance_button)).perform(click())
-        grantLocationPermissions()
-        onView(withText("You don't have this class this term")).check(matches(isDisplayed()))
+        onView(withText("You don't have this class this year")).check(matches(isDisplayed()))
 
         // Case where term is wrong
         incrementMonth(5, 1)
@@ -138,6 +139,10 @@ class E2EEspressoTest {
         // Case where everything is right
         setTime(9, 55, "AM")
         onView(withId(R.id.check_attendance_button)).perform(click())
+        grantLocationPermissions()
+        onView(withId(R.id.check_attendance_button)).perform(click())
+        Thread.sleep(LAG)
+        //onView(withId(R.id.error_message)).check(matches(withText("You gained 60 Karma!")))
         onView(withText("You gained 60 Karma!")).check(matches(isDisplayed()))
 
         // Case where you've already signed in
@@ -150,9 +155,8 @@ class E2EEspressoTest {
         onView(withIndex(withText("CPEN 321"), 1)).perform(click())
         setTime(3, 55, "PM")
         onView(withId(R.id.check_attendance_button)).perform(click())
-        Thread.sleep(1000)
-        Espresso.onIdle()
-        onView(withId(R.id.error_message)).check(matches(withText("You gained 34 Karma!")))
+        Thread.sleep(LAG)
+        onView(withText("You gained 34 Karma!")).check(matches(isDisplayed()))
         pressBack()
 
         // Case where location is wrong

@@ -145,6 +145,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                         "You don't have this class today",
                         Toast.LENGTH_SHORT
                     ).show()
+                    findViewById<TextView>(R.id.error_message).text = "You don't have this class today"
                 } else if (checkTime(course, clientTime, classStartTime, classEndTime)) {
                     lifecycleScope.launch {
                         if (checkLocation(course)) {
@@ -180,20 +181,16 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         // Check if the course has been attended yet
         if (course.attended) {
             Log.d(TAG, "You already checked into this class today!")
-            Toast.makeText(this, "You already checked into this class today!", Toast.LENGTH_LONG)
-                .show()
-            findViewById<TextView>(R.id.error_message).text =
-                "You already checked into this class today!"
+            Toast.makeText(this, "You already checked into this class today!", Toast.LENGTH_LONG).show()
+            findViewById<TextView>(R.id.error_message).text = "You already checked into this class today!"
             return false
         }
 
         // Check if it's too early
         if (clientTime < classStartTime - 10 * MINUTES) {
             Log.d(TAG, "You are too early to check into this class!")
-            Toast.makeText(this, "You are too early to check into this class!", Toast.LENGTH_SHORT)
-                .show()
-            findViewById<TextView>(R.id.error_message).text =
-                "You are too early to check into this class!"
+            Toast.makeText(this, "You are too early to check into this class!", Toast.LENGTH_SHORT).show()
+            findViewById<TextView>(R.id.error_message).text = "You are too early to check into this class!"
             return false
         }
 
@@ -412,6 +409,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 "You don't have this class this year",
                 Toast.LENGTH_SHORT
             ).show()
+            findViewById<TextView>(R.id.error_message).text = "You don't have this class this year"
             return false
         }
 
@@ -428,6 +426,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             "You don't have this class this term",
             Toast.LENGTH_SHORT
         ).show()
+        findViewById<TextView>(R.id.error_message).text = "You don't have this class this term"
         return false
     }
 
@@ -619,6 +618,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             ).show()
             val classLength = classEndTime - classStartTime
             karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
+            findViewById<TextView>(R.id.error_message).text = "You gained $karma Karma!"
             updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
                 Log.d(TAG, "$result")
             }
@@ -637,6 +637,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
                 Log.d(TAG, "$result")
             }
+            findViewById<TextView>(R.id.error_message).text = "You gained $karma Karma!"
             updateAttendance(
                 BuildConfig.BASE_API_URL + "/attendance",
                 course.name,
