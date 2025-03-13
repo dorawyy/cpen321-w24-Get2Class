@@ -55,6 +55,30 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         save_button.setOnClickListener() {
+            val minutesText = edit_minutes.text.toString().trim()
+
+            // check if the input is empty
+            if (minutesText.isEmpty()) {
+                Toast.makeText(this, "Time cannot be empty", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // parse the input as an integer
+            val minutes = minutesText.toIntOrNull()
+            if (minutes == null) {
+                Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show()
+                edit_minutes.setText("")
+                return@setOnClickListener
+            }
+
+            // check if minutes exceed one day
+            if (minutes > 1440) {
+                Toast.makeText(this, "Maximum reminder time is one day", Toast.LENGTH_SHORT).show()
+                edit_minutes.setText("")
+                return@setOnClickListener
+            }
+
+            // if validation passes, proceed to save settings
             saveNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings") { result ->
                 Log.d(TAG, "Saving notification settings...")
                 Log.d(TAG, "$result")
