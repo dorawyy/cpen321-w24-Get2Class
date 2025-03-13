@@ -1,18 +1,14 @@
 package com.example.get2class
 
-import android.os.IBinder
 import android.util.Log
 import android.view.View
-import android.view.WindowManager
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.NoMatchingViewException
-import androidx.test.espresso.Root
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -34,8 +30,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.espresso.action.ViewActions.*
-import org.hamcrest.Matchers.not
 
+
+private const val NAME = "Hardy Huang"
+private const val FILENAME = "View_My_Courses.xlsx"
+private const val LAG = 7000.toLong()
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -53,15 +52,9 @@ class E2EEspressoTest {
 
     @get:Rule
     val activityRule = ActivityScenarioRule(LoginActivity::class.java)
-    
-    companion object {
-        private const val NAME = "Lucas"
-        private const val FILENAME = "View_My_Courses.xlsx"
-        private const val LAG = 7000.toLong()
-    }
 
     @Test
-    fun uploadScheduleTest() {
+    fun t1_uploadScheduleTest() {
 
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
@@ -99,7 +92,7 @@ class E2EEspressoTest {
     }
     
     @Test
-    fun attendanceTest() {
+    fun t2_attendanceTest() {
         // Log in and navigate to winter schedule
         onView(withId(R.id.login_button)).perform(click())
         Thread.sleep(LAG)
@@ -171,17 +164,18 @@ class E2EEspressoTest {
         onView(withText("You're too far from your class!")).check(matches(isDisplayed()))
     }
 
-    @Test fun t2_viewRouteTest(){
+    @Test fun t3_viewRouteTest(){
         logInAndLoadWinterSchedule()
 
         // 1. The user clicks on View Route
         ui_click("CPEN 321")
         Thread.sleep(2000)
         ui_click("View route to class")
-        Thread.sleep(5000)
+        Thread.sleep(3000)
 
         // 2. The app prompts the user to grant location permissions if not already granted
         assertTrue("Permission dialog should pop up", uiExistWithText("While using the app"))
+        Thread.sleep(2000)
 
         // 2a. The user does not grant location permissions
         ui_click("Don’t allow")
@@ -218,6 +212,7 @@ class E2EEspressoTest {
         Thread.sleep(2000)
         onView(withText("Re-center")).check(matches(isDisplayed()))
         ui_click("Re-center")
+        Thread.sleep(2000)
         pressBack()
     }
 }
@@ -234,7 +229,7 @@ private fun logInAndLoadWinterSchedule(){
     // log in
     onView(withId(R.id.login_button)).perform(click())
     Thread.sleep(3000)
-    ui_click(userName)
+    ui_click(NAME)
     Thread.sleep(5000)
     onView(withId(R.id.schedules_button)).perform(click())
 

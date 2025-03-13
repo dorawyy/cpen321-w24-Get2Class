@@ -237,7 +237,7 @@ class NavigationManager(
                     // delay navigation to ensure the navigator has the user location
                     android.os.Handler(Looper.getMainLooper()).postDelayed({
                         activity.navigateToPlace(destinationPlaceId, mNavigator)
-                    }, 5000) // 5-second delay
+                    }, 5000)
                 }
 
                 override fun onError(@NavigationApi.ErrorCode errorCode: Int) {

@@ -41,7 +41,6 @@ import java.time.LocalDate
 import java.time.Month
 
 private const val TAG = "ClassInfoActivity"
-var i=0
 
 class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
@@ -363,7 +362,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 Log.d(TAG, "onRequestPermissionsResult: Location received: $location")
             }
         } else {
-            Toast.makeText(this, "${i++} Please grant Location permissions in Settings to view your routes :/", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Please grant Location permissions in Settings to view your routes :/", Toast.LENGTH_LONG).show()
             Log.d(TAG, "onRequestPermissionsResult: Permission denied")
         }
     }
