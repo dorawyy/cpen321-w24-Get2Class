@@ -46,7 +46,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
     companion object {
         private const val MINUTES = 1.0 / 60.0
-
     }
 
     // For accessing the current location
@@ -55,9 +54,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
     private lateinit var locationManager: LocationManager
     private var current_location: Pair<Double, Double>? = null
     private var isOnCreate: Boolean = true
-
-    private var class_latitude: Double? = null
-    private var class_longitude: Double? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -207,7 +203,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
     private suspend fun checkLocation(course: Course): Boolean {
         val clientLocation = requestCurrentLocation()
-        val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim())
+        val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim(), this)
 
         if (clientLocation.first == null) {
             Toast.makeText(
@@ -230,33 +226,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             return false
         }
         return true
-    }
-
-    private fun getClassLocation(classAddress: String): Pair<Double?, Double?> {
-        val geocoder = Geocoder(this, Locale.getDefault())
-        var addresses = geocoder.getFromLocationName(classAddress, 1)
-        if (!addresses.isNullOrEmpty()) {
-            val location = addresses[0]
-            class_latitude = location.latitude
-            class_longitude = location.longitude
-            Log.d(
-                TAG,
-                "getClassLocation: class location ($classAddress) is : ($class_latitude, $class_longitude)"
-            )
-            return class_latitude to class_longitude
-        } else {
-            // if no address found, set class to ubc book store
-            addresses = geocoder.getFromLocationName("UBC Bookstore", 1)
-            val location = addresses?.get(0)
-            class_latitude = location?.latitude
-            class_longitude = location?.longitude
-            Log.d(TAG, "getClassLocation: class address not found")
-            Log.d(
-                TAG,
-                "getClassLocation: using UBC Bookstore : ($class_latitude, $class_longitude)"
-            )
-            return class_latitude to class_longitude
-        }
     }
 
     private suspend fun requestCurrentLocation(): Pair<Double?, Double?> {
@@ -383,16 +352,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             else -> hour % 12
         }
         return String.format("%d:%02d %s", hour12, minute, amPm)
-    }
-
-    private fun getCurrentTime(): String {
-        val currentTime = LocalDateTime.now()
-        val dayOfWeek = currentTime.dayOfWeek.value // 1 = Monday, ..., 7 = Sunday
-        val formatter = DateTimeFormatter.ofPattern("HH mm")
-        val current_time = "$dayOfWeek ${currentTime.format(formatter)}"
-
-        Log.d("ClassInfoActivity", "getCurrentTime: $current_time")
-        return current_time
     }
 
     private fun checkTermAndYear(course: Course, context: Context): Boolean {
@@ -650,4 +609,41 @@ fun updateAttendance(
             }
         }
     })
+}
+
+private fun getClassLocation(classAddress: String, context: Context): Pair<Double?, Double?> {
+    val geocoder = Geocoder(context, Locale.getDefault())
+    var addresses = geocoder.getFromLocationName(classAddress, 1)
+    if (!addresses.isNullOrEmpty()) {
+        val location = addresses[0]
+        val class_latitude = location.latitude
+        val class_longitude = location.longitude
+        Log.d(
+            TAG,
+            "getClassLocation: class location ($classAddress) is : ($class_latitude, $class_longitude)"
+        )
+        return class_latitude to class_longitude
+    } else {
+        // if no address found, set class to ubc book store
+        addresses = geocoder.getFromLocationName("UBC Bookstore", 1)
+        val location = addresses?.get(0)
+        val class_latitude = location?.latitude
+        val class_longitude = location?.longitude
+        Log.d(TAG, "getClassLocation: class address not found")
+        Log.d(
+            TAG,
+            "getClassLocation: using UBC Bookstore : ($class_latitude, $class_longitude)"
+        )
+        return class_latitude to class_longitude
+    }
+}
+
+private fun getCurrentTime(): String {
+    val currentTime = LocalDateTime.now()
+    val dayOfWeek = currentTime.dayOfWeek.value // 1 = Monday, ..., 7 = Sunday
+    val formatter = DateTimeFormatter.ofPattern("HH mm")
+    val current_time = "$dayOfWeek ${currentTime.format(formatter)}"
+
+    Log.d("ClassInfoActivity", "getCurrentTime: $current_time")
+    return current_time
 }
