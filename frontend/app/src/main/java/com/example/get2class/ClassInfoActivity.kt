@@ -209,7 +209,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         val clientLocation = requestCurrentLocation()
         val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim())
 
-        if (clientLocation.first == null || clientLocation.second == null || classLocation.first == null || classLocation.second == null) {
+        if (clientLocation.first == null) {
             Toast.makeText(
                 this@ClassInfoActivity,
                 "Location data not available",
@@ -430,179 +430,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         return false
     }
 
-    fun updateKarma(url: String, karma: Int, callback: (JSONObject) -> Unit) {
-        // Create JSONObject to send
-        val jsonObject = JSONObject()
-        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
-        jsonObject.put("karma", karma)
-
-        // Create RequestBody and Request for OkHttp3
-        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
-        val request = Request.Builder().url(url).put(body).build()
-
-        // Make call
-        ApiService.client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.d("ClassInfoActivity", "Error: $e")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val result = response.body()?.string()
-                if (result != null) {
-                    try {
-                        val jsonObject = JSONObject(result)
-                        callback(jsonObject)
-                    } catch (_: Exception) {
-                        val badJsonObject = JSONObject()
-                        callback(badJsonObject)
-                    }
-                }
-            }
-        })
-    }
-
-    fun coordinatesToDistance(
-        coord1: Pair<Double?, Double?>,
-        coord2: Pair<Double?, Double?>
-    ): Double {
-        val r = 6378.137 // Radius of Earth in km
-        val lat1 = coord1.first
-        val lon1 = coord1.second
-        val lat2 = coord2.first
-        val lon2 = coord2.second
-        if (lat1 == null) {
-            return Double.MAX_VALUE
-        }
-        if (lon1 == null) {
-            return Double.MAX_VALUE
-        }
-        if (lat2 == null) {
-            return Double.MAX_VALUE
-        }
-        if (lon2 == null) {
-            return Double.MAX_VALUE
-        }
-
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-
-        val a = sin(dLat / 2).pow(2) +
-                cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
-                sin(dLon / 2).pow(2)
-
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        val distance = r * c * 1000 // Convert km to meters
-
-        Log.d("ClassInfoActivity", "Distance from you to the class: $distance")
-
-        return distance
-    }
-
-    fun getAttendance(url: String, callback: (JSONObject) -> Unit) {
-        // Create GET request for OkHttp3
-        val request = Request.Builder().url(url).get().build()
-
-        // Make call
-        ApiService.client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.d(TAG, "Error: $e")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val result = response.body()?.string()
-                if (result != null) {
-                    try {
-                        val jsonObject = JSONObject()
-                        jsonObject.put("attended", JSONObject(result).getBoolean("attended"))
-                        callback(jsonObject)
-                    } catch (_: Exception) {
-                        val badJsonObject = JSONObject()
-                        callback(badJsonObject)
-                    }
-                }
-            }
-        })
-    }
-
-    fun updateAttendance(
-        url: String,
-        className: String,
-        classFormat: String,
-        callback: (JSONObject) -> Unit
-    ) {
-        // Create JSONObject to send
-        val jsonObject = JSONObject()
-        jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
-        jsonObject.put("className", className)
-        jsonObject.put("classFormat", classFormat)
-        jsonObject.put("term", ScheduleListActivity.term)
-
-        // Create RequestBody and Request for OkHttp3
-        val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
-        val request = Request.Builder().url(url).put(body).build()
-
-        // Make call
-        ApiService.client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.d(TAG, "Error: $e")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val result = response.body()?.string()
-                if (result != null) {
-                    try {
-                        val jsonObject = JSONObject(result)
-                        callback(jsonObject)
-                    } catch (_: Exception) {
-                        val badJsonObject = JSONObject()
-                        callback(badJsonObject)
-                    }
-                }
-            }
-        })
-    }
-
-    fun daysToString(course: Course): String {
-        var days = ""
-        var first = true
-        if (course.days[0]) {
-            days += "Mon"
-            first = false
-        }
-        if (course.days[1]) {
-            if (first) {
-                days += "Tue"
-                first = false
-            } else {
-                days += ", Tue"
-            }
-        }
-        if (course.days[2]) {
-            if (first) {
-                days += "Wed"
-                first = false
-            } else {
-                days += ", Wed"
-            }
-        }
-        if (course.days[3]) {
-            if (first) {
-                days += "Thu"
-                first = false
-            } else {
-                days += ", Thu"
-            }
-        }
-        if (course.days[4]) {
-            if (first) {
-                days += "Fri"
-            } else {
-                days += ", Fri"
-            }
-        }
-        return days
-    }
-
     fun calculateKarma(times: Array<Double>, course: Course, late: Boolean, context: Context) {
         val karma: Int
         if (late) {
@@ -650,4 +477,177 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         Log.d(TAG, "You gained $karma Karma!")
         Toast.makeText(context, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
     }
+}
+
+fun daysToString(course: Course): String {
+    var days = ""
+    var first = true
+    if (course.days[0]) {
+        days += "Mon"
+        first = false
+    }
+    if (course.days[1]) {
+        if (first) {
+            days += "Tue"
+            first = false
+        } else {
+            days += ", Tue"
+        }
+    }
+    if (course.days[2]) {
+        if (first) {
+            days += "Wed"
+            first = false
+        } else {
+            days += ", Wed"
+        }
+    }
+    if (course.days[3]) {
+        if (first) {
+            days += "Thu"
+            first = false
+        } else {
+            days += ", Thu"
+        }
+    }
+    if (course.days[4]) {
+        if (first) {
+            days += "Fri"
+        } else {
+            days += ", Fri"
+        }
+    }
+    return days
+}
+
+fun updateKarma(url: String, karma: Int, callback: (JSONObject) -> Unit) {
+    // Create JSONObject to send
+    val jsonObject = JSONObject()
+    jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+    jsonObject.put("karma", karma)
+
+    // Create RequestBody and Request for OkHttp3
+    val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+    val request = Request.Builder().url(url).put(body).build()
+
+    // Make call
+    ApiService.client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Log.d("ClassInfoActivity", "Error: $e")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            val result = response.body()?.string()
+            if (result != null) {
+                try {
+                    val jsonObject = JSONObject(result)
+                    callback(jsonObject)
+                } catch (_: Exception) {
+                    val badJsonObject = JSONObject()
+                    callback(badJsonObject)
+                }
+            }
+        }
+    })
+}
+
+fun coordinatesToDistance(
+    coord1: Pair<Double?, Double?>,
+    coord2: Pair<Double?, Double?>
+): Double {
+    val r = 6378.137 // Radius of Earth in km
+    val lat1 = coord1.first
+    val lon1 = coord1.second
+    val lat2 = coord2.first
+    val lon2 = coord2.second
+    if (lat1 == null) {
+        return Double.MAX_VALUE
+    }
+    if (lon1 == null) {
+        return Double.MAX_VALUE
+    }
+    if (lat2 == null) {
+        return Double.MAX_VALUE
+    }
+    if (lon2 == null) {
+        return Double.MAX_VALUE
+    }
+
+    val dLat = Math.toRadians(lat2 - lat1)
+    val dLon = Math.toRadians(lon2 - lon1)
+
+    val a = sin(dLat / 2).pow(2) +
+            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) *
+            sin(dLon / 2).pow(2)
+
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    val distance = r * c * 1000 // Convert km to meters
+
+    Log.d("ClassInfoActivity", "Distance from you to the class: $distance")
+
+    return distance
+}
+
+fun getAttendance(url: String, callback: (JSONObject) -> Unit) {
+    // Create GET request for OkHttp3
+    val request = Request.Builder().url(url).get().build()
+
+    // Make call
+    ApiService.client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Log.d(TAG, "Error: $e")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            val result = response.body()?.string()
+            if (result != null) {
+                try {
+                    val jsonObject = JSONObject()
+                    jsonObject.put("attended", JSONObject(result).getBoolean("attended"))
+                    callback(jsonObject)
+                } catch (_: Exception) {
+                    val badJsonObject = JSONObject()
+                    callback(badJsonObject)
+                }
+            }
+        }
+    })
+}
+
+fun updateAttendance(
+    url: String,
+    className: String,
+    classFormat: String,
+    callback: (JSONObject) -> Unit
+) {
+    // Create JSONObject to send
+    val jsonObject = JSONObject()
+    jsonObject.put("sub", LoginActivity.GoogleIdTokenSub)
+    jsonObject.put("className", className)
+    jsonObject.put("classFormat", classFormat)
+    jsonObject.put("term", ScheduleListActivity.term)
+
+    // Create RequestBody and Request for OkHttp3
+    val body = RequestBody.create(ApiService.JSON, jsonObject.toString())
+    val request = Request.Builder().url(url).put(body).build()
+
+    // Make call
+    ApiService.client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            Log.d(TAG, "Error: $e")
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            val result = response.body()?.string()
+            if (result != null) {
+                try {
+                    val jsonObject = JSONObject(result)
+                    callback(jsonObject)
+                } catch (_: Exception) {
+                    val badJsonObject = JSONObject()
+                    callback(badJsonObject)
+                }
+            }
+        }
+    })
 }
