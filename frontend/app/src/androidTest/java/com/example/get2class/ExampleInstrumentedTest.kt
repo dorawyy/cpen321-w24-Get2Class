@@ -24,13 +24,16 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
+import junit.framework.TestCase.assertTrue
+import org.junit.Assert.assertNotNull
+import org.junit.Before
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-
+import androidx.test.espresso.action.ViewActions.*
 import org.hamcrest.Matchers.not
 
 
@@ -41,9 +44,16 @@ import org.hamcrest.Matchers.not
 @LargeTest
 class E2EEspressoTest {
 
+    // reset location permissions for testing both success and failure scenarios
+    @Before
+    fun setUp() {
+        revokeLocationPermission()
+        Thread.sleep(1000)
+    }
+
     @get:Rule
     val activityRule = ActivityScenarioRule(LoginActivity::class.java)
-
+    
     companion object {
         private const val NAME = "Lucas"
         private const val FILENAME = "View_My_Courses.xlsx"
@@ -87,8 +97,7 @@ class E2EEspressoTest {
         onView(withId(R.id.clear_schedule_button)).perform(click())
         testScheduleLoaded(false)
     }
-
-
+    
     @Test
     fun attendanceTest() {
         // Log in and navigate to winter schedule
@@ -161,12 +170,97 @@ class E2EEspressoTest {
         Thread.sleep(1000)
         onView(withText("You're too far from your class!")).check(matches(isDisplayed()))
     }
+
+    @Test fun t2_viewRouteTest(){
+        logInAndLoadWinterSchedule()
+
+        // 1. The user clicks on View Route
+        ui_click("CPEN 321")
+        Thread.sleep(2000)
+        ui_click("View route to class")
+        Thread.sleep(5000)
+
+        // 2. The app prompts the user to grant location permissions if not already granted
+        assertTrue("Permission dialog should pop up", uiExistWithText("While using the app"))
+
+        // 2a. The user does not grant location permissions
+        ui_click("Don’t allow")
+        Thread.sleep(2000)
+
+        // 2a1. If the user denies twice, the app shows a toast to tell the user to enable location permissions in the settings first
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val e = device.findObject(UiSelector().text("Please grant Location permissions in Settings to view your routes :/"))
+        assertNotNull("Toast should show up", e)
+
+        // 2a2. The app routes the user back to the previous screen
+        onView(withId(R.id.route_button)).check(matches(isDisplayed()))
+        onView(withId(R.id.check_attendance_button)).check(matches(isDisplayed()))
+
+        // retry step 1 for the success scenario
+        ui_click("View route to class")
+        Thread.sleep(3000)
+
+        // retry step 2
+        assertTrue("Permission dialog should pop up again", uiExistWithText("Don’t allow"))
+        ui_click("Only this time")
+        Thread.sleep(2000)
+
+        // a navigation dialog will show up if this is the first run
+        if(uiExistWithText("Welcome to Google Maps navigation")){
+            ui_click("GOT IT")
+        }
+
+        Thread.sleep(12000)
+
+        // 3. The user sees their current location and destination location together with the optimal route on the screen
+        onView(withId(R.id.navigation_view)).check(matches(isDisplayed()))
+        onView(withId(R.id.navigation_view)).perform(swipeUp()).perform(swipeRight())
+        Thread.sleep(2000)
+        onView(withText("Re-center")).check(matches(isDisplayed()))
+        ui_click("Re-center")
+        pressBack()
+    }
+}
+
+private fun uiExistWithText(text: String): Boolean{
+    // get UI element with the given text
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    val e = device.findObject(UiSelector().text(text))
+
+    return e.exists()
+}
+
+private fun logInAndLoadWinterSchedule(){
+    // log in
+    onView(withId(R.id.login_button)).perform(click())
+    Thread.sleep(3000)
+    ui_click(userName)
+    Thread.sleep(5000)
+    onView(withId(R.id.schedules_button)).perform(click())
+
+    // upload schedule
+    onView(withId(R.id.winter_schedule)).perform(click())
+    onView(withId(R.id.upload_schedule_button)).perform(click())
+    Thread.sleep(3000)
+    ui_click("View_My_Courses.xlsx")
+    Thread.sleep(3000)
+}
+
+private fun revokeLocationPermission(){
+    val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+
+    uiAutomation.executeShellCommand("pm revoke com.example.get2class android.permission.ACCESS_FINE_LOCATION")
+    uiAutomation.executeShellCommand("pm revoke com.example.get2class android.permission.ACCESS_COARSE_LOCATION")
 }
 
 // Use UIAutomator to click on the file in the system file picker
 private fun ui_click(elementText: String) {
     val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     val element = device.findObject(UiSelector().text(elementText))
+    Log.d(
+        "ui_click on $elementText",
+        "ui_click: exist - ${element.exists()}; enable - ${element.isEnabled}"
+    )
     if (element.exists() && element.isEnabled) {
         element.click()
     } else {
