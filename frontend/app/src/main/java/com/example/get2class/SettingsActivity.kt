@@ -56,41 +56,34 @@ class SettingsActivity : AppCompatActivity() {
 
         save_button.setOnClickListener() {
             val minutesText = edit_minutes.text.toString().trim()
+            val minutes = minutesText.toIntOrNull()
 
             // check if the input is empty
             if (minutesText.isEmpty()) {
                 Toast.makeText(this, "Time cannot be empty", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
-            }
-
-            // parse the input as an integer
-            val minutes = minutesText.toIntOrNull()
-            if (minutes == null) {
+            }else if (minutes == null) { // parse the input as an integer
                 Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show()
                 edit_minutes.setText("")
                 return@setOnClickListener
-            }
-
-            // check if minutes exceed one day
-            if (minutes > 1440) {
+            }else if (minutes > 1440) { // check if minutes exceed one day
                 Toast.makeText(this, "Maximum reminder time is one day", Toast.LENGTH_SHORT).show()
                 edit_minutes.setText("")
                 return@setOnClickListener
-            }
+            }else{ // if validation passes, proceed to save settings
+                saveNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings") { result ->
+                    Log.d(TAG, "Saving notification settings...")
+                    Log.d(TAG, "$result")
 
-            // if validation passes, proceed to save settings
-            saveNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings") { result ->
-                Log.d(TAG, "Saving notification settings...")
-                Log.d(TAG, "$result")
-
-                try {
-                    val message = result.getString("message")
-                    this@SettingsActivity.runOnUiThread {
-                        Toast.makeText(this@SettingsActivity, message, Toast.LENGTH_SHORT).show()
-                    }
-                } catch (_: Exception) {
-                    this@SettingsActivity.runOnUiThread {
-                        Toast.makeText(this@SettingsActivity, "No notification changes made", Toast.LENGTH_SHORT).show()
+                    try {
+                        val message = result.getString("message")
+                        this@SettingsActivity.runOnUiThread {
+                            Toast.makeText(this@SettingsActivity, message, Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (_: Exception) {
+                        this@SettingsActivity.runOnUiThread {
+                            Toast.makeText(this@SettingsActivity, "No notification changes made", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
