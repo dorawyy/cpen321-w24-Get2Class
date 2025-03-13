@@ -13,4 +13,5 @@
     <string name="course_credits_text"></string>
     <string name="route_button_text">View route to class</string>
     <string name="check_attendance_button_text">Check in to class</string>
+    <string name="error">TextView</string>
 </resources>

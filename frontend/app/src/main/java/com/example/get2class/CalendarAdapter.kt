@@ -85,7 +85,7 @@ class CalendarAdapter(private val context: Context,
 
     private fun createCourseCell(holder: CalendarCellViewHolder, course: Course, position: Int, dayOfWeek: Int, halfHourIndex: Int) {
         // Set the text to be the course name
-        holder.cellText.text = course.name.substringBefore("-")
+        holder.cellText.text = course.name.substringBefore("-").trim()
         // Check if this is not the first block of the course
         if (position > 0) {
             val prevCourse = eventsMap[dayOfWeek to halfHourIndex - 1]
