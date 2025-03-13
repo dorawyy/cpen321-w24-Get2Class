@@ -14,7 +14,7 @@ app.use(morgan('tiny'));
 /**
  * Cron Scheduler: resets attendance at the end of each day (PST) for all users
  */
-const resetAttendanceJob = cron.schedule('0 0 * * *', async () => {
+const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
     try {
         const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
         console.log(allSchedules);
@@ -183,13 +183,24 @@ app.post('/get2class', (req: Request, res: Response) => {
 /**
  * Mongo and Express connection setup
  */
+// client.connect().then(() => {
+//     console.log("MongoDB Client Connected");
+
+//     app.listen(process.env.PORT, () => {
+//         console.log("Listening on port: " + process.env.PORT);
+//     });
+// }).catch(err => {
+//     console.error(err);
+//     client.close();
+// });
+
 const serverReady = client.connect().then(() => {
     console.log("MongoDB Client Connected");
 
     return new Promise((resolve) => {
         const server = app.listen(process.env.PORT, () => {
             console.log("Listening on port " + process.env.PORT);
-            resolve(server); // Export the server for cleanup
+            resolve(server);
         });
     });
 }).catch(err => {
@@ -197,5 +208,4 @@ const serverReady = client.connect().then(() => {
     client.close();
 });
 
-export { app, serverReady, client };
-export { resetAttendanceJob };
+export { app, serverReady, cronResetAttendance }
