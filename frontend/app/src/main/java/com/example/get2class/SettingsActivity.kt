@@ -59,12 +59,14 @@ class SettingsActivity : AppCompatActivity() {
                 Log.d(TAG, "Saving notification settings...")
                 Log.d(TAG, "$result")
 
-                val acknowledgement = result.getBoolean("acknowledged")
-                runOnUiThread {
-                    if (acknowledgement) {
-                        Toast.makeText(this, result.getString("message"), Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT).show()
+                try {
+                    val message = result.getString("message")
+                    this@SettingsActivity.runOnUiThread {
+                        Toast.makeText(this@SettingsActivity, message, Toast.LENGTH_SHORT).show()
+                    }
+                } catch (_: Exception) {
+                    this@SettingsActivity.runOnUiThread {
+                        Toast.makeText(this@SettingsActivity, "No notification changes made", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
