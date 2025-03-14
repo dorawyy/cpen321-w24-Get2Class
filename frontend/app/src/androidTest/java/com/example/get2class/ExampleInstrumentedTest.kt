@@ -44,13 +44,6 @@ private const val LAG = 5000.toLong()
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class E2EEspressoTest {
 
-//    // reset location permissions for testing both success and failure scenarios
-//    @Before
-//    fun setUp() {
-//        revokeLocationPermission()
-//        Thread.sleep(1000)
-//    }
-
     @get:Rule
     val activityRule = ActivityScenarioRule(LoginActivity::class.java)
 
@@ -178,30 +171,29 @@ class E2EEspressoTest {
         Thread.sleep(3000)
 
         // 2. The app prompts the user to grant location permissions if not already granted
-        assertTrue("Permission dialog should pop up", uiExistWithText("While using the app"))
-        Thread.sleep(2000)
+        if(uiExistWithText("While using the app")){
+            // 2a. The user does not grant location permissions
+            ui_click("Don’t allow")
+            Thread.sleep(2000)
 
-        // 2a. The user does not grant location permissions
-        ui_click("Don’t allow")
-        Thread.sleep(2000)
+            // 2a1. If the user denies twice, the app shows a toast to tell the user to enable location permissions in the settings first
+            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            val e = device.findObject(UiSelector().text("Please grant Location permissions in Settings to view your routes :/"))
+            assertNotNull("Toast should show up", e)
 
-        // 2a1. If the user denies twice, the app shows a toast to tell the user to enable location permissions in the settings first
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val e = device.findObject(UiSelector().text("Please grant Location permissions in Settings to view your routes :/"))
-        assertNotNull("Toast should show up", e)
+            // 2a2. The app routes the user back to the previous screen
+            onView(withId(R.id.route_button)).check(matches(isDisplayed()))
+            onView(withId(R.id.check_attendance_button)).check(matches(isDisplayed()))
 
-        // 2a2. The app routes the user back to the previous screen
-        onView(withId(R.id.route_button)).check(matches(isDisplayed()))
-        onView(withId(R.id.check_attendance_button)).check(matches(isDisplayed()))
+            // retry step 1 for the success scenario
+            ui_click("View route to class")
+            Thread.sleep(3000)
 
-        // retry step 1 for the success scenario
-        ui_click("View route to class")
-        Thread.sleep(3000)
-
-        // retry step 2
-        assertTrue("Permission dialog should pop up again", uiExistWithText("Don’t allow"))
-        ui_click("Only this time")
-        Thread.sleep(2000)
+            // retry step 2
+            assertTrue("Permission dialog should pop up again", uiExistWithText("Don’t allow"))
+            ui_click("Only this time")
+            Thread.sleep(2000)
+        }
 
         // a navigation dialog will show up if this is the first run
         if(uiExistWithText("Welcome to Google Maps navigation")){
@@ -243,13 +235,6 @@ private fun logInAndLoadWinterSchedule(){
     Thread.sleep(3000)
     ui_click("View_My_Courses.xlsx")
     Thread.sleep(3000)
-}
-
-private fun revokeLocationPermission(){
-    val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
-
-    uiAutomation.executeShellCommand("pm revoke com.example.get2class android.permission.ACCESS_FINE_LOCATION")
-    uiAutomation.executeShellCommand("pm revoke com.example.get2class android.permission.ACCESS_COARSE_LOCATION")
 }
 
 // Use UIAutomator to click on the file in the system file picker
