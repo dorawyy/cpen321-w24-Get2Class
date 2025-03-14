@@ -55,16 +55,32 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         save_button.setOnClickListener() {
-            saveNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings") { result ->
-                Log.d(TAG, "Saving notification settings...")
-                Log.d(TAG, "$result")
+            val minutesText = edit_minutes.text.toString().trim()
+            val minutes = minutesText.toIntOrNull()
 
-                val acknowledgement = result.getBoolean("acknowledged")
-                runOnUiThread {
-                    if (acknowledgement) {
-                        Toast.makeText(this, result.getString("message"), Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT).show()
+            // check if the input is empty
+            if (minutesText.isEmpty()) {
+                Toast.makeText(this, "Time cannot be empty", Toast.LENGTH_SHORT).show()
+            }else if (minutes == null) { // parse the input as an integer
+                Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show()
+                edit_minutes.setText("")
+            }else if (minutes > 1440) { // check if minutes exceed one day
+                Toast.makeText(this, "Maximum reminder time is one day", Toast.LENGTH_SHORT).show()
+                edit_minutes.setText("")
+            }else{ // if validation passes, proceed to save settings
+                saveNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings") { result ->
+                    Log.d(TAG, "Saving notification settings...")
+                    Log.d(TAG, "$result")
+
+                    try {
+                        val message = result.getString("message")
+                        this@SettingsActivity.runOnUiThread {
+                            Toast.makeText(this@SettingsActivity, message, Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (_: Exception) {
+                        this@SettingsActivity.runOnUiThread {
+                            Toast.makeText(this@SettingsActivity, "No notification changes made", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
