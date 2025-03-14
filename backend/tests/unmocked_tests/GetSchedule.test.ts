@@ -43,21 +43,21 @@ describe("Unmocked: GET /schedule", () => {
         expect(res.statusCode).toBe(400);
     });
     
-    // test("Invalid term string", async () => {
-    //     const sub = myUser.sub;
-    //     const term = "springCourseList";
+    test("Invalid term string", async () => {
+        const sub = myUser.sub;
+        const term = "springCourseList";
 
-    //     const res = await request(app).get("/schedule")
-    //         .query({sub: sub, term: term});
-    //     expect(res.statusCode).toBe(400);
-    // });
+        const res = await request(app).get("/schedule")
+            .query({sub: sub, term: term});
+        expect(res.statusCode).toBe(400);
+    });
 
-    // test("Valid request", async () => {
-    //     const sub = myUser.sub;
-    //     const term = "fallCourseList";
+    test("Valid request", async () => {
+        const sub = myUser.sub;
+        const term = "fallCourseList";
 
-    //     const res = await request(app).get("/schedule")
-    //         .query({sub: sub, term: term});
-    //     expect(res.statusCode).toBe(200);
-    // });
+        const res = await request(app).get("/schedule")
+            .query({sub: sub, term: term});
+        expect(res.statusCode).toBe(200);
+    });
 });

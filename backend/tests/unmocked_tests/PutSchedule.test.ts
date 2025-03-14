@@ -37,14 +37,33 @@ describe("Unmocked: PUT /schedule", () => {
         expect(res.statusCode).toBe(400);
     });
 
-    // test("Valid request", async () => {
-    //     const req = {
-    //         sub: myUser.sub,
-    //         fallCourseList: mySchedule.courses
-    //     };
+    test("Valid request 'fallCourseList'", async () => {
+        const req = {
+            sub: myUser.sub,
+            fallCourseList: mySchedule.courses
+        };
 
-        
-    //     const res = await request(app).put("/schedule").send(req);
-    //     expect(res.statusCode).toBe(200);
-    // });
+        const res = await request(app).put("/schedule").send(req);
+        expect(res.statusCode).toBe(200);
+    });
+
+    test("Valid request 'winterCourseList'", async () => {
+        const req = {
+            sub: myUser.sub,
+            winterCourseList: mySchedule.courses
+        };
+
+        const res = await request(app).put("/schedule").send(req);
+        expect(res.statusCode).toBe(200);
+    });
+
+    test("Valid request 'summerCourseList'", async () => {
+        const req = {
+            sub: myUser.sub,
+            summerCourseList: mySchedule.courses
+        };
+
+        const res = await request(app).put("/schedule").send(req);
+        expect(res.statusCode).toBe(200);
+    });
 });

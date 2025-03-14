@@ -33,6 +33,51 @@ afterAll(async () => {
 });
 
 describe("Unmocked: GET /attendance", () => {
+    test("Valid request", async () => {
+        const req = {
+            sub: myUser.sub,
+            className: mySchedule.courses[0]["name"],
+            classFormat: mySchedule.courses[0]["format"],
+            term: "fallCourseList"
+        }
+
+        const res = await request(app).get("/attendance")
+            .query(req);
+        expect(res.statusCode).toBe(200);
+    });
+
+    test("Invalid course name", async () => {
+        const sub = myUser.sub;
+        const term = "fallCourseList";
+
+        const req = {
+            sub: myUser.sub,
+            className: "Introduction to Conspiracy Theories",
+            classFormat: mySchedule.courses[0]["format"],
+            term: "fallCourseList"
+        }
+
+        const res = await request(app).get("/attendance")
+            .query(req);
+        expect(res.statusCode).toBe(400);
+    });
+
+    test("Invalid user sub", async () => {
+        const sub = myUser.sub;
+        const term = "fallCourseList";
+
+        const req = {
+            sub: "Ryan Gosling",
+            className: mySchedule.courses[0]["name"],
+            classFormat: mySchedule.courses[0]["format"],
+            term: "fallCourseList"
+        }
+
+        const res = await request(app).get("/attendance")
+            .query(req);
+        expect(res.statusCode).toBe(400);
+    });
+
     test("Empty request body", async () => {
         const sub = "";
         const term = "";
@@ -41,22 +86,4 @@ describe("Unmocked: GET /attendance", () => {
             .query({sub: sub, term: term});
         expect(res.statusCode).toBe(400);
     });
-    
-    // test("Invalid term string", async () => {
-    //     const sub = myUser.sub;
-    //     const term = "springCourseList";
-
-    //     const res = await request(app).get("/attendance")
-    //         .query({sub: sub, term: term});
-    //     expect(res.statusCode).toBe(400);
-    // });
-
-    // test("Valid request", async () => {
-    //     const sub = myUser.sub;
-    //     const term = "fallCourseList";
-
-    //     const res = await request(app).get("/attendance")
-    //         .query({sub: sub, term: term});
-    //     expect(res.statusCode).toBe(200);
-    // });
 });

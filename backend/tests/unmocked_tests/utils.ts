@@ -31,7 +31,8 @@ export const mySchedule = {
             "endDate": "2024-12-10",
             "location": "BuildingA - Room 101",
             "credits": 3.0,
-            "format": "Lecture"
+            "format": "Lecture",
+            "attended": "false"
         }
     ]
 };

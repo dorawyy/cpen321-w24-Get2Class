@@ -7,7 +7,10 @@ import { Server } from "http";
 let server: Server;
 
 beforeAll(async () => {
-    server = await serverReady;  // Wait for the server to be ready
+    // Wait for the server to be ready
+    server = await serverReady;  
+
+    // Initialize DB for tests
     await client.db("get2class").collection("users").insertOne(myUser);
     let dbScheduleItem = myDBScheduleItem;
     dbScheduleItem.fallCourseList = mySchedule.courses;
@@ -15,12 +18,15 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    // Clear DB
     await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
     })
     await client.db("get2class").collection("users").deleteOne({
         sub: myUser.sub
     });
+
+    // Shut down server
     if (cronResetAttendance) {
         cronResetAttendance.stop(); // Stop the cron job to prevent Jest from hanging
     }
@@ -34,30 +40,44 @@ afterAll(async () => {
 
 
 describe("Unmocked: DELETE /schedule", () => {
-    test("Empty request body", async () => {
-        const sub = "";
-        const term = "";
-
+    test("Valid request 'fallCourseList'", async () => {
+        const req = {sub: myUser.sub, fallCourseList: "fallCourseList"}
+        
         const res = await request(app).delete("/schedule")
-            .send({sub: sub, term: term});
-        expect(res.statusCode).toBe(400);
+        .send(req);
+        expect(res.statusCode).toBe(200);
+    });
+
+    test("Valid request 'winterCourseList'", async () => {
+        const req = {sub: myUser.sub, winterCourseList: "winterCourseList"}
+        
+        const res = await request(app).delete("/schedule")
+        .send(req);
+        expect(res.statusCode).toBe(200);
+    });
+
+    test("Valid request 'summerCourseList'", async () => {
+        const req = {sub: myUser.sub, summerCourseList: "summerCourseList"}
+        
+        const res = await request(app).delete("/schedule")
+        .send(req);
+        expect(res.statusCode).toBe(200);
     });
     
-    // test("Invalid term string", async () => {
-    //     const sub = myUser.sub;
-    //     const term = "springCourseList";
-
+    // test("Invalid term string 'springCourseList'", async () => {
+    //     const req = {sub: myUser.sub, springCourseList: "springCourseList"}
+        
     //     const res = await request(app).delete("/schedule")
-    //         .send({sub: sub, term: term});
+    //     .send(req);
+    //     // console.log(res);
     //     expect(res.statusCode).toBe(400);
     // });
+    
+    test("Empty request body", async () => {
+        const req = {sub: "", fallCourseList: ""};
 
-    // test("Valid request", async () => {
-    //     const sub = myUser.sub;
-    //     const term = "fallCourseList";
-
-    //     const res = await request(app).delete("/schedule")
-    //         .send({sub: sub, term: term});
-    //     expect(res.statusCode).toBe(200);
-    // });
+        const res = await request(app).delete("/schedule")
+            .send(req);
+        expect(res.statusCode).toBe(400);
+    });
 });

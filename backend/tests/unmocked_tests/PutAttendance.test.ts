@@ -34,20 +34,34 @@ afterAll(async () => {
 
 
 describe("Unmocked: PUT /attendance", () => {
+    test("Valid request 'fallCourseList'", async () => {
+        const req = {
+            sub: myUser.sub,
+            className: mySchedule.courses[0]["name"],
+            classFormat: mySchedule.courses[0]["format"],
+            term: "fallCourseList"
+        }
+
+        const res = await request(app).put("/attendance")
+            .query(req);
+        expect(res.statusCode).toBe(200);
+    });
+
+    test("Invalid sub", async () => {
+        const req = {
+            sub: "Ryan Gosling",
+            className: mySchedule.courses[0]["name"],
+            classFormat: mySchedule.courses[0]["format"],
+            term: "fallCourseList"
+        }
+
+        const res = await request(app).put("/attendance")
+            .query(req);
+        expect(res.statusCode).toBe(400);
+    });
+    
     test("Empty request body", async () => {
         const res = await request(app).put("/attendance").send({});
         expect(res.statusCode).toBe(400);
     });
-
-    // test("Valid request", async () => {
-    //     const req = {
-    //         sub: myUser.sub,
-    //         className: mySchedule.courses[0]["name"],
-    //         classFormat: mySchedule.courses[0]["format"],
-    //         term: "fallCourseList"
-    //     };
-        
-    //     const res = await request(app).put("/attendance").send(req);
-    //     expect(res.statusCode).toBe(200);
-    // });
 });
