@@ -1,4 +1,4 @@
-// const { serverReady, resetAttendanceJob } = require("../../index");
+// const { serverReady, cronResetAttendance } = require("../../index");
 // import { client } from '../../services';
 // import { Server } from "http";
 
@@ -52,8 +52,8 @@ export const mySchedule = {
 //         await client.db("get2class").collection("users").deleteOne({
 //             sub: myUser.sub
 //         });
-//         if (resetAttendanceJob) {
-//             resetAttendanceJob.stop(); // Stop the cron job to prevent Jest from hanging
+//         if (cronResetAttendance) {
+//             cronResetAttendance.stop(); // Stop the cron job to prevent Jest from hanging
 //         }
 //         if (client) {
 //             await client.close();
