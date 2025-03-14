@@ -54,16 +54,24 @@ describe("Unmocked: PUT /karma", () => {
             sub: "123"
         });
 
-        console.log(res.text);
-
         expect(res.statusCode).toBe(400);
         expect(res.body).toHaveProperty('errors');
     });
+
+    test("Updating karma with 0 points", async () => {
+        const res = await request(server).put("/karma").send({
+            sub: "123",
+            karma: 0
+        });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.text).toBe("Unable to update karma")
+    })
 
     test("No body in request", async () => {
         const res = await request(server).put("/karma").send({});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toHaveProperty('errors');
-    })
+    });
 });
