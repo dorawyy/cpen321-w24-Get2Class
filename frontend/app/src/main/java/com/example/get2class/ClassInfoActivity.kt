@@ -18,7 +18,6 @@ import java.time.format.DateTimeFormatter
 import android.Manifest
 import android.app.Activity
 import android.location.Geocoder
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -28,9 +27,10 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import com.example.get2class.ClassInfoActivity.Companion.MINUTES
+import android.view.View
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.material.snackbar.Snackbar
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -44,18 +44,18 @@ import java.time.Month
 private const val TAG = "ClassInfoActivity"
 
 // For accessing the current location
-lateinit var fusedLocationClient: FusedLocationProviderClient
-val LOCATION_PERMISSION_REQUEST_CODE = 666
-lateinit var locationManager: LocationManager
-var current_location: Pair<Double, Double>? = null
-var isOnCreate: Boolean = true
+private lateinit var fusedLocationClient: FusedLocationProviderClient
+private const val LOCATION_PERMISSION_REQUEST_CODE = 666
+private lateinit var locationManager: LocationManager
+private var current_location: Pair<Double, Double>? = null
+private var isOnCreate: Boolean = true
 
 class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
     companion object {
         private const val MINUTES = 1.0 / 60.0
     }
-
+    lateinit var mainView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +66,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        mainView = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.main)
 
         // Get the course from the intent and return if it's null
         val course: Course = intent.getParcelableExtra("course") ?: return
@@ -124,8 +125,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 // Check if the course is today
                 if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
                     Log.d(TAG, "You don't have this class today")
-                    Toast.makeText(this, "You don't have this class today", Toast.LENGTH_SHORT).show()
-                    findViewById<TextView>(R.id.error_message).text = "You don't have this class today"
+                    Snackbar.make(mainView, "You don't have this class today", Snackbar.LENGTH_SHORT).show()
                 } else if (checkTime(course, clientTime, classStartTime, classEndTime)) {
                     lifecycleScope.launch {
                         if (checkLocation(course)) {
@@ -151,24 +151,21 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         // Check if the course has been attended yet
         if (course.attended) {
             Log.d(TAG, "You already checked into this class today!")
-            Toast.makeText(this, "You already checked into this class today!", Toast.LENGTH_LONG).show()
-            findViewById<TextView>(R.id.error_message).text = "You already checked into this class today!"
+            Snackbar.make(mainView, "You already checked into this class today!", Snackbar.LENGTH_SHORT).show()
             return false
         }
 
         // Check if it's too early
         if (clientTime < classStartTime - 10 * MINUTES) {
             Log.d(TAG, "You are too early to check into this class!")
-            Toast.makeText(this, "You are too early to check into this class!", Toast.LENGTH_SHORT).show()
-            findViewById<TextView>(R.id.error_message).text = "You are too early to check into this class!"
+            Snackbar.make(mainView, "You are too early to check into this class!", Snackbar.LENGTH_SHORT).show()
             return false
         }
 
         // Check if it's too late
         if (classEndTime <= clientTime) {
             Log.d(TAG, "You missed your class!")
-            Toast.makeText(this, "You missed your class!", Toast.LENGTH_SHORT).show()
-            findViewById<TextView>(R.id.error_message).text = "You missed your class!"
+            Snackbar.make(mainView, "You missed your class!", Snackbar.LENGTH_SHORT).show()
             return false
         }
         return true
@@ -179,23 +176,13 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim(), this)
 
         if (clientLocation.first == null) {
-            Toast.makeText(
-                this@ClassInfoActivity,
-                "Location data not available",
-                Toast.LENGTH_SHORT
-            ).show()
-            findViewById<TextView>(R.id.error_message).text = "Location data not available"
+            Snackbar.make(mainView, "Location data not available", Snackbar.LENGTH_SHORT).show()
             return false
         }
 
         if (coordinatesToDistance(clientLocation, classLocation) > 75) {
             Log.d(TAG, "You're too far from your class!")
-            Toast.makeText(
-                this@ClassInfoActivity,
-                "You're too far from your class!",
-                Toast.LENGTH_SHORT
-            ).show()
-            findViewById<TextView>(R.id.error_message).text = "You're too far from your class!"
+            Snackbar.make(mainView, "You're too far from your class!", Snackbar.LENGTH_SHORT).show()
             return false
         }
         return true
@@ -232,7 +219,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 Log.d(TAG, "onRequestPermissionsResult: Location received: $location")
             }
         } else {
-            Toast.makeText(this, "Please grant Location permissions in Settings to view your routes :/", Toast.LENGTH_LONG).show()
+            Snackbar.make(mainView, "Please grant Location permissions in Settings to view your routes :/", Snackbar.LENGTH_SHORT).show()
             Log.d(TAG, "onRequestPermissionsResult: Permission denied")
         }
     }
@@ -250,12 +237,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         // Ensure the current year matches the course's start year
         if (curr.year != start.year) {
             Log.d("ClassInfoActivity", "You don't have this class this year")
-            Toast.makeText(
-                context,
-                "You don't have this class this year",
-                Toast.LENGTH_SHORT
-            ).show()
-            findViewById<TextView>(R.id.error_message).text = "You don't have this class this year"
+            Snackbar.make(mainView, "You don't have this class this year", Snackbar.LENGTH_SHORT).show()
             return false
         }
 
@@ -267,12 +249,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         if (ret) return true
 
         Log.d("ClassInfoActivity", "You don't have this class this term")
-        Toast.makeText(
-            context,
-            "You don't have this class this term",
-            Toast.LENGTH_SHORT
-        ).show()
-        findViewById<TextView>(R.id.error_message).text = "You don't have this class this term"
+        Snackbar.make(mainView, "You don't have this class this term", Snackbar.LENGTH_SHORT).show()
         return false
     }
 
@@ -284,14 +261,9 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             val classEndTime = times[2]
             val lateness = clientTime - classStartTime
             Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
-            Toast.makeText(
-                context,
-                "You were late by ${(lateness * 60).toInt()} minutes!",
-                Toast.LENGTH_SHORT
-            ).show()
+            Snackbar.make(mainView, "You were late by ${(lateness * 60).toInt()} minutes!", Snackbar.LENGTH_SHORT).show()
             val classLength = classEndTime - classStartTime
             karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
-            findViewById<TextView>(R.id.error_message).text = "You gained $karma Karma!"
             updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
                 Log.d(TAG, "$result")
             }
@@ -310,7 +282,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
                 Log.d(TAG, "$result")
             }
-            findViewById<TextView>(R.id.error_message).text = "You gained $karma Karma!"
             updateAttendance(
                 BuildConfig.BASE_API_URL + "/attendance",
                 course.name,
@@ -321,7 +292,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             }
         }
         Log.d(TAG, "You gained $karma Karma!")
-        Toast.makeText(context, "You gained $karma Karma!", Toast.LENGTH_SHORT).show()
+        Snackbar.make(mainView, "You gained $karma Karma!", Snackbar.LENGTH_SHORT).show()
     }
 }
 

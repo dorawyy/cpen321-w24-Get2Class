@@ -3,9 +3,9 @@ package com.example.get2class
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -25,13 +26,12 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-var uploadDone = false
-
 class ViewScheduleActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "ViewScheduleActivity"
     }
+    lateinit var mainView: View
 
     private val scheduleLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -42,8 +42,11 @@ class ViewScheduleActivity : AppCompatActivity() {
                 Log.d(TAG, "Received schedule: $schedule")
 
                 loadCalendar(schedule)
-
-                Toast.makeText(this, "Successfully uploaded schedule", Toast.LENGTH_SHORT).show()
+                if (schedule.courses == listOf<Course>()) {
+                    Snackbar.make(mainView, "This schedule is not for this term!", Snackbar.LENGTH_SHORT).show()
+                } else {
+                    Snackbar.make(mainView, "Successfully uploaded schedule!", Snackbar.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -57,6 +60,7 @@ class ViewScheduleActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        mainView = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.main)
 
         // Set title to include the term
         val term = intent.getStringExtra("term")
@@ -99,7 +103,7 @@ class ViewScheduleActivity : AppCompatActivity() {
                 intent.putExtra("term", term)
                 scheduleLauncher.launch(intent)
             } catch (e: JSONException) {
-                Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT).show()
+                Snackbar.make(mainView, "An error has occurred", Snackbar.LENGTH_SHORT).show()
             }
         }
 
@@ -120,12 +124,12 @@ class ViewScheduleActivity : AppCompatActivity() {
 
                         if (acknowledged) {
                             loadCalendar()
-                            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                            Snackbar.make(mainView, "$message!", Snackbar.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(this, "Clear schedule has failed", Toast.LENGTH_SHORT).show()
+                            Snackbar.make(mainView, "Clear schedule has failed", Snackbar.LENGTH_SHORT).show()
                         }
                     } catch (e: JSONException) {
-                        Toast.makeText(this, "Error parsing response data", Toast.LENGTH_SHORT).show()
+                        Snackbar.make(mainView, "Error parsing response data", Snackbar.LENGTH_SHORT).show()
                         Log.e(TAG, "JSONException: ${e.message}", e)
                     }
                 }

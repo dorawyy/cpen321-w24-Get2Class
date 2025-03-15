@@ -2,14 +2,15 @@ package com.example.get2class
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.snackbar.Snackbar
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -23,6 +24,7 @@ class SettingsActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "SettingsActivity"
     }
+    lateinit var mainView: View
 
     private lateinit var notification_switch: Switch
     private lateinit var edit_minutes: EditText
@@ -37,6 +39,7 @@ class SettingsActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        mainView = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.settings)
 
         notification_switch = findViewById(R.id.notifications_switch)
         edit_minutes = findViewById(R.id.edit_minutes)
@@ -62,9 +65,9 @@ class SettingsActivity : AppCompatActivity() {
                 val acknowledgement = result.getBoolean("acknowledged")
                 runOnUiThread {
                     if (acknowledgement) {
-                        Toast.makeText(this, result.getString("message"), Toast.LENGTH_SHORT).show()
+                        Snackbar.make(mainView, result.getString("message"), Snackbar.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(this, "An error has occurred", Toast.LENGTH_SHORT).show()
+                        Snackbar.make(mainView, "An error has occurred", Snackbar.LENGTH_SHORT).show()
                     }
                 }
             }

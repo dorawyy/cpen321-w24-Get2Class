@@ -28,6 +28,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.espresso.action.ViewActions.*
+import androidx.test.uiautomator.UiObjectNotFoundException
 import org.junit.FixMethodOrder
 import org.junit.runners.MethodSorters
 
@@ -63,6 +64,7 @@ class E2EEspressoTest {
         onView(withId(R.id.upload_schedule_button)).perform(click())
         waitForUIClick(FILENAME)
         testScheduleLoaded(false)
+        onView(withText("This schedule is not for this term!")).check(matches(isDisplayed()))
         Log.d(TAG, "Test 1: Successfully get an empty schedule after uploading a winter schedule to the fall schedule!")
 
         pressBack()
@@ -75,6 +77,7 @@ class E2EEspressoTest {
         ui_click(FILENAME)
         waitForUI("CPSC 320")
         testScheduleLoaded(true)
+        onView(withText("Successfully uploaded schedule!")).check(matches(isDisplayed()))
         val t2  = System.currentTimeMillis()
         assertTrue("Schedule upload took more than 4s", t2 - t1 < 4000)
         Log.d(TAG, "Test 1: Successfully upload a winter schedule in ${t2 - t1}ms!")
@@ -89,6 +92,7 @@ class E2EEspressoTest {
         // Test that clearing the schedule works
         onView(withId(R.id.clear_schedule_button)).perform(click())
         testScheduleLoaded(false)
+        onView(withText("Successfully cleared schedule!")).check(matches(isDisplayed()))
         Log.d(TAG, "Test 1: Successfully clear the winter schedule!")
 
         Log.d(TAG, "Test 1: t1_uploadScheduleTest is finishing ......")
@@ -257,6 +261,8 @@ fun waitForUIClick(expectedText: String, timeout: Long = LAG) {
             return // Exit if click succeeded
         } catch (e: AssertionError) {
             Thread.sleep(100) // Wait and retry
+        } catch (e: UiObjectNotFoundException){
+            Thread.sleep(100) // Wait and retry
         }
     }
     throw AssertionError("Text was not found within timeout")
@@ -375,9 +381,9 @@ private fun incrementMonth(months: Int, day: Int) {
     device.findObject(UiSelector().text("Settings")).click()
 
     // Navigate to "Date & time"
-    for (i in 0..3) {
+    for (i in 0..5) {
         try {
-            waitForUIClick("System", 2000)
+            waitForUIClick("System", 1000)
             break
         } catch (e: AssertionError) {
             device.swipe(
@@ -419,9 +425,9 @@ private fun setTime(hour: Int, minute: Int, specifier: String) {
     device.findObject(UiSelector().text("Settings")).click()
 
     // Navigate to "Date & time"
-    for (i in 0..3) {
+    for (i in 0..5) {
         try {
-            waitForUIClick("System", 2000)
+            waitForUIClick("System", 1000)
             break
         } catch (e: AssertionError) {
             device.swipe(
