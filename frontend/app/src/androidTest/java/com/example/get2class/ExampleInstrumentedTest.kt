@@ -37,7 +37,7 @@ private const val FILENAME = "View_My_Courses.xlsx"
 private const val LAG = 5000.toLong()
 
 /**
- * Instrumented test, which will execute on an Android device.
+ * Instrumented test, which will execute on the emulated Pixel 9.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
