@@ -59,6 +59,8 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 | **Schedule Upload Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt:78`](#) |
 | **Attendance Check Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt:157`](#) |
 
+We directly integrated these tests into our frontend tests.<br>Instructions for running them can be found in section 4.1.
+
 ### 3.2. Test Verification and Logs
 
 - **Schedule Upload Time**
@@ -83,6 +85,17 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 ### 4.1. Location in Git of Front-end Test Suite:
 
 `frontend/src/androidTest/java/com/studygroupfinder/`
+
+#### Explanation on How to Run the Tests
+
+1. Make sure the settings app is on your emulated device's home screen.
+2. Make sure the device's date is set to March 2025.
+3. Turn off Window animation scale, Transition animation scale, and Animator duration scale in the device's developer settings.
+3. Copy the file get2class/documentation/View_My_Courses.xlsx to the device's downloads folder without changing its name.
+4. Open the test in frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt.
+5. Change the NAME variable to the name that shows up when you sign in with Google
+6. Run the test. If it fails due to emulator lag, manually upload and clear a schedule the rerun the test. 
+
 
 ### 4.2. Tests
 
@@ -118,23 +131,23 @@ _(Placeholder for Jest coverage screenshot without mocks)_
     | **Scenario Steps** | **Test Case Steps** |
     | ------------------ | ------------------- |
     | 1. User clicks on the "Check in to class" button. | Log in and navigate to the class's info page. <br>Click on the button with ID check_attendance_button. |
-    | 1a. The class is not from this year. | Change the phone's year to 2024.<br>Click on the button with ID check_attendance_button. |
-    | 1a1. The user receives a toast explaining the error. | Check that the message is visible. |
-    | 1b. The class is not from this term. | Change the phone's month to May 2025.<br>Click on the button with ID check_attendance_button. |
-    | 1b1. The user receives a toast explaining the error. | Check that the message is visible. |
-    | 1c. The class is not on this day of the week. | Change the phone's day to Tuesday, March 4.<br>Click on the button with ID check_attendance_button. |
-    | 1c1. The user receives a toast explaining the error. | Check that the message is visible. |
-    | 1d. It's too early in the day to check in to the class. | Change the phone's day to Monday, March 10.<br>Change the phone's time to 9:45 AM<br>Click on the button with ID check_attendance_button. |
-    | 1d1. The user receives a toast explaining the error. | Check that the message is visible. |
-    | 1e. It's too late in the day to check in to the class. | Change the phone's time to 10:55 AM<br>Click on the button with ID check_attendance_button. |
-    | 1e1. The user receives a toast explaining the error. | Check that the message is visible. |
-    | 1f. The user already checked into class today. | Click on the button with ID check_attendance_button. |
-    | 1f1. The user receives a toast explaining the error. | Check that the message is visible. |
-    | 1g. The user went to class, but they were not on time. | Navigate to a different class.<br>Change the phone's time to 3:55 PM<br>Click on the button with ID check_attendance_button. |
-    | 1g1. The user receives a toast telling them how late they were.<br>The user receives a toast telling them how much Karma they gained. | Check that the message is visible with the right amount of Karma. |
-    | 1h. The user is in the wrong location. | Navigate to a different class.<br>Change the phone's time to 4:55 PM<br>Click on the button with ID check_attendance_button. |
-    | 1h1. The user receives a toast explaining the error. | Check that the message is visible. |
-    | 2. The user was in their class on time. | Change the phone's time to 9:55 AM<br>Click on the button with ID check_attendance_button.<br>The user receives a toast telling them they got 60 Karma.<br> Check that the message is visible. |
+    | 2. The user receives a toast telling them they got 60 Karma.<br>Note that for technical reasons, in the script this scenario is tested between 2e and 2f. | Change the phone's time to 9:55 AM<br>Click on the button with ID check_attendance_button.<br> Check that the message is visible. |
+    | 2a. The class is not from this year. | Change the phone's year to 2024.<br>Click on the button with ID check_attendance_button. |
+    | 2a1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 2b. The class is not from this term. | Change the phone's month to May 2025.<br>Click on the button with ID check_attendance_button. |
+    | 2b1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 2c. The class is not on this day of the week. | Change the phone's day to Tuesday, March 4.<br>Click on the button with ID check_attendance_button. |
+    | 2c1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 2d. It's too early in the day to check in to the class. | Change the phone's day to Monday, March 10.<br>Change the phone's time to 9:45 AM<br>Click on the button with ID check_attendance_button. |
+    | 2d1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 2e. It's too late in the day to check in to the class. | Change the phone's time to 10:55 AM<br>Click on the button with ID check_attendance_button. |
+    | 2e1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 2f. The user already checked into class today. | Click on the button with ID check_attendance_button. |
+    | 2f1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 2g. The user went to class, but they were not on time. | Navigate to a different class.<br>Change the phone's time to 3:55 PM<br>Click on the button with ID check_attendance_button. |
+    | 2g1. The user receives a toast telling them how late they were.<br>The user receives a toast telling them how much Karma they gained. | Check that the message is visible with the right amount of Karma. |
+    | 2h. The user is in the wrong location. | Navigate to a different class.<br>Change the phone's time to 4:55 PM<br>Click on the button with ID check_attendance_button. |
+    | 2h1. The user receives a toast explaining the error. | Check that the message is visible. |
 
   - **Test Logs:**
     ```
