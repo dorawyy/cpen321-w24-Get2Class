@@ -63,17 +63,17 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 
 - **Schedule Upload Time**
 
-  - **Verification:** This test simulates a user uploading their schedule from an xlsx file in their phone's downloads. The focus is on ensuring that the process of uploading the file, parsing it, storing it on the database, and rendering it for the user completes within the target response time of 5 seconds under normal load. We use Espresso's onView().check() to ensure the timer does not stop until the component is displayed for the user. We use Espresso's onView().perform(click()) to ensure the timer does not stop until the component is displayed for the user. The test logs let us know if the system meets our requirement. 
+  - **Verification:** This test simulates a user uploading their schedule from an xlsx file in their phone's downloads. The focus is on ensuring that the process of uploading the file, parsing it, storing it on the database, and rendering it for the user completes within the target response time of 4 seconds under normal load. We use Espresso's onView().check() to ensure the timer does not stop until the component is displayed for the user. We use Espresso's onView().perform(click()) to ensure the timer does not stop until the component is displayed for the user. The test logs let us know if the system meets our requirement. 
   - **Log Output**
     ```
-    Schedule upload passed in less than 5 seconds!
+    Test 1: Successfully upload a winter schedule in 1762ms!
     ```
 
 - **Attendance Check Time**
-  - **Verification:** This test simulates a user clicking on the "Check in to class" button with the help of Espresso. The focus is to ensure that the process of checking the time and location of the user, checking the starting time and location of the next class, calculating, updating and showing the Karma points the user gains completes within the target response time of 5 seconds under normal load. We use Espresso's onView().perform(click()) and onView().check() to perform the click action and check if the user receives the response from the app. The test logs capture the processing time and let us know if the system meets our requirement.
+  - **Verification:** This test simulates a user clicking on the "Check in to class" button with the help of Espresso. The focus is to ensure that the process of checking the time and location of the user, checking the starting time and location of the next class, calculating, updating and showing the Karma points the user gains completes within the target response time of 3 seconds under normal load. We use Espresso's onView().perform(click()) and onView().check() to perform the click action and check if the user receives the response from the app. The test logs capture the processing time and let us know if the system meets our requirement.
   - **Log Output**
     ```
-    Attendance check passed in less than 5 seconds!
+    Test 2: Successfully check the user in when they are late and award appropriate amount of points in 481ms!
     ```
 
 ---
@@ -104,7 +104,7 @@ _(Placeholder for Jest coverage screenshot without mocks)_
     2025-03-11 16:57:01.348  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: t1_uploadScheduleTest is starting ......
     2025-03-11 16:57:13.700  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully log in and navigate to the schedule list!
     2025-03-11 16:57:24.035  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully get an empty schedule after uploading a winter schedule to the fall schedule!
-    2025-03-11 16:57:32.125  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully upload a winter schedule!
+    2025-03-11 16:57:32.125  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully upload a winter schedule in 1762ms!
     2025-03-11 16:57:33.161  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully load the winter schedule after pressing back and clicking Winter Schedule again!
     2025-03-11 16:57:34.120  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully clear the winter schedule!
     2025-03-11 16:57:34.122  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: t1_uploadScheduleTest is finishing ......
@@ -150,7 +150,7 @@ _(Placeholder for Jest coverage screenshot without mocks)_
     2025-03-10 10:55:04.018  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in when it is too late!
     2025-03-10 09:55:13.472  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully check the user in and award appropriate amount of points when everything is right!
     2025-03-10 09:55:13.767  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in more than once!
-    2025-03-10 15:55:08.312  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully check the user in when they are late and award appropriate amount of points!
+    2025-03-10 15:55:08.312  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully check the user in when they are late and award appropriate amount of points in 481ms!
     2025-03-11 16:55:04.986  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in when they are too far away from the class!
     2025-03-11 16:55:04.986  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: t2_attendanceTest is finishing ......
     2025-03-11 16:55:04.996  7783-7800  TestRunner              com.example.get2class                I  finished: t2_attendanceTest(com.example.get2class.E2EEspressoTest)
