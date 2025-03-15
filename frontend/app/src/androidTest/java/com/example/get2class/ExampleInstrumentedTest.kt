@@ -239,7 +239,7 @@ class E2EEspressoTest {
         // a navigation dialog will show up if this is the first run
         if(uiExistWithText("Welcome to Google Maps navigation")){
             ui_click("GOT IT")
-            Log.d(TAG, "Test 3: Successfully agree on Google Maps navigation terms and conditions!!")
+            Log.d(TAG, "Test 3: Successfully agree on Google Maps navigation terms and conditions!")
         }
 
         Thread.sleep(12000)
