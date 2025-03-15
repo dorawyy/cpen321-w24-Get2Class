@@ -70,9 +70,13 @@ class E2EEspressoTest {
         onView(withId(R.id.winter_schedule)).perform(click())
         onView(withId(R.id.upload_schedule_button)).perform(click())
         Thread.sleep(LAG)
+        val t1  = System.currentTimeMillis()
         ui_click(FILENAME)
-        Thread.sleep(LAG)
+        Thread.sleep(1000)
         testScheduleLoaded(true)
+        val t2  = System.currentTimeMillis()
+        assertTrue("Schedule upload took more than 5s", t2 - t1 < 5000)
+
 
         pressBack()
 
@@ -133,8 +137,7 @@ class E2EEspressoTest {
         setTime(9, 55, "AM")
         onView(withId(R.id.check_attendance_button)).perform(click())
         grantLocationPermissions()
-        onView(withId(R.id.check_attendance_button)).perform(click())
-        Thread.sleep(4000)
+        Thread.sleep(LAG)
         onView(withText("You gained 60 Karma!")).check(matches(isDisplayed()))
 
         // Case where you've already signed in
@@ -146,9 +149,12 @@ class E2EEspressoTest {
         // Case where you were late
         onView(withIndex(withText("CPEN 321"), 1)).perform(click())
         setTime(3, 55, "PM")
+        val t1  = System.currentTimeMillis()
         onView(withId(R.id.check_attendance_button)).perform(click())
-        Thread.sleep(LAG)
+        Thread.sleep(4000)
         onView(withText("You gained 34 Karma!")).check(matches(isDisplayed()))
+        val t2  = System.currentTimeMillis()
+        assertTrue("Attendance check took more than 5s", t2 - t1 < 5000)
         pressBack()
 
         // Case where location is wrong
@@ -390,7 +396,8 @@ private fun setTime(hour: Int, minute: Int, specifier: String) {
 private fun grantLocationPermissions() {
     val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     Thread.sleep(1000)
-    if (device.findObject(UiSelector().text("While using the app")).exists()) {
-        device.findObject(UiSelector().text("While using the app")).click()
+    if (device.findObject(UiSelector().text("Only this time")).exists()) {
+        device.findObject(UiSelector().text("Only this time")).click()
+        onView(withId(R.id.check_attendance_button)).perform(click())
     }
 }

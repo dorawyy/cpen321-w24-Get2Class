@@ -175,7 +175,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
     }
 
     private suspend fun checkLocation(course: Course): Boolean {
-        val clientLocation = requestCurrentLocation(this)
+        val clientLocation = requestCurrentLocation(this@ClassInfoActivity)
         val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim(), this)
 
         if (clientLocation.first == null) {
@@ -228,7 +228,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             }
 
             lifecycleScope.launch {
-                val location = getLastLocation(this as Context)
+                val location = getLastLocation(this@ClassInfoActivity)
                 Log.d(TAG, "onRequestPermissionsResult: Location received: $location")
             }
         } else {
@@ -552,7 +552,7 @@ fun Pair<Int, Int>.to12HourTime(end: Boolean): String {
     return String.format("%d:%02d %s", hour12, minute, amPm)
 }
 
-private suspend fun requestCurrentLocation(context: Context): Pair<Double?, Double?> {
+private suspend fun requestCurrentLocation(context: Activity): Pair<Double?, Double?> {
     return if (ActivityCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -562,7 +562,7 @@ private suspend fun requestCurrentLocation(context: Context): Pair<Double?, Doub
         getLastLocation(context)
     } else {
         ActivityCompat.requestPermissions(
-            context as Activity,
+            context,
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
             LOCATION_PERMISSION_REQUEST_CODE
         )
