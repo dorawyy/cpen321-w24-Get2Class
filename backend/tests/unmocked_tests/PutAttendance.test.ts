@@ -11,6 +11,7 @@ beforeAll(async () => {
     await client.db("get2class").collection("users").insertOne(myUser);
     let dbScheduleItem = myDBScheduleItem;
     dbScheduleItem.fallCourseList = mySchedule.courses;
+    dbScheduleItem.summerCourseList = mySchedule.courses;
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
 });
 
@@ -43,8 +44,47 @@ describe("Unmocked: PUT /attendance", () => {
         }
 
         const res = await request(app).put("/attendance")
-            .query(req);
+            .send(req);
         expect(res.statusCode).toBe(200);
+    });
+
+    test("Empty schedule 'winterCourseList'", async () => {
+        const req = {
+            sub: myUser.sub,
+            className: mySchedule.courses[0]["name"],
+            classFormat: mySchedule.courses[0]["format"],
+            term: "winterCourseList"
+        }
+
+        const res = await request(app).put("/attendance")
+            .send(req);
+        expect(res.statusCode).toBe(400);
+    });
+
+    test("Valid request 'summerCourseList'", async () => {
+        const req = {
+            sub: myUser.sub,
+            className: mySchedule.courses[0]["name"],
+            classFormat: mySchedule.courses[0]["format"],
+            term: "summerCourseList"
+        }
+
+        const res = await request(app).put("/attendance")
+            .send(req);
+        expect(res.statusCode).toBe(200);
+    });
+
+    test("Invalid request 'springCourseList'", async () => {
+        const req = {
+            sub: myUser.sub,
+            className: mySchedule.courses[0]["name"],
+            classFormat: mySchedule.courses[0]["format"],
+            term: "springCourseList"
+        }
+
+        const res = await request(app).put("/attendance")
+            .send(req);
+        expect(res.statusCode).toBe(400);
     });
 
     test("Invalid sub", async () => {
@@ -56,7 +96,7 @@ describe("Unmocked: PUT /attendance", () => {
         }
 
         const res = await request(app).put("/attendance")
-            .query(req);
+            .send(req);
         expect(res.statusCode).toBe(400);
     });
     
