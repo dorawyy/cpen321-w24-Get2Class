@@ -120,7 +120,6 @@ class RouteActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
-
         navView.onSaveInstanceState(savedInstanceState)
     }
 
@@ -140,8 +139,8 @@ class RouteActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        navView.onPause()
         super.onPause()
+        navView.onPause()
     }
 
     override fun onConfigurationChanged(configuration: Configuration) {
@@ -150,11 +149,12 @@ class RouteActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        navView.onStop()
         super.onStop()
+        navView.onStop()
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         navView.onDestroy()
         navigationManager.withNavigatorAsync {
             // unregister event listeners to avoid memory leaks.
@@ -168,7 +168,6 @@ class RouteActivity : AppCompatActivity() {
             navigator.simulator?.unsetUserLocation()
             navigator.cleanup()
         }
-        super.onDestroy()
     }
 }
 
