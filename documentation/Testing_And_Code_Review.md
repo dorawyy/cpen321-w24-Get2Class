@@ -175,7 +175,7 @@ _(Placeholder for Jest coverage screenshot without mocks)_
     2025-03-11 16:55:05.531  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: t3_viewRouteTest is starting ......
     2025-03-11 16:55:22.692  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: Successfully log in and upload a winter schedule!
     2025-03-11 16:55:29.493  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: Successfully click CPEN 321 and the button labelled "View route to class"!
-    2025-03-11 16:55:30.038  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: Successfully agree on Google Maps navigation terms and conditions!!
+    2025-03-11 16:55:30.038  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: Successfully agree on Google Maps navigation terms and conditions!
     2025-03-11 16:55:47.455  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: Successfully see, swiping and re-centering the navigation view!
     2025-03-11 16:55:47.455  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: t3_viewRouteTest is finishing ......
     2025-03-11 16:55:47.460  7783-7800  TestRunner              com.example.get2class                I  finished: t3_viewRouteTest(com.example.get2class.E2EEspressoTest)
