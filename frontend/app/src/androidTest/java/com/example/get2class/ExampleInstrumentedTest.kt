@@ -34,7 +34,7 @@ import org.junit.runners.MethodSorters
 
 private const val NAME = "Lucas"
 private const val FILENAME = "View_My_Courses.xlsx"
-private const val LAG = 5000.toLong()
+private const val LAG: Long = 8000
 private const val TAG = "E2EEspressoTest"
 
 /**
@@ -54,17 +54,14 @@ class E2EEspressoTest {
 
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
-        Thread.sleep(LAG)
-        ui_click(NAME)
-        Thread.sleep(LAG)
-        onView(withId(R.id.schedules_button)).perform(click())
+        waitForUIClick(NAME)
+        waitForUIClick("Schedules")
         Log.d(TAG, "Test 1: Successfully log in and navigate to the schedule list!")
 
         // Test that uploading to the wrong term returns an empty schedule
         onView(withId(R.id.fall_schedule)).perform(click())
         onView(withId(R.id.upload_schedule_button)).perform(click())
-        Thread.sleep(LAG)
-        ui_click(FILENAME)
+        waitForUIClick(FILENAME)
         testScheduleLoaded(false)
         Log.d(TAG, "Test 1: Successfully get an empty schedule after uploading a winter schedule to the fall schedule!")
 
@@ -73,15 +70,14 @@ class E2EEspressoTest {
         // Test that uploading to the right term works
         onView(withId(R.id.winter_schedule)).perform(click())
         onView(withId(R.id.upload_schedule_button)).perform(click())
-        Thread.sleep(LAG)
+        waitForUI(FILENAME)
         val t1  = System.currentTimeMillis()
         ui_click(FILENAME)
-        Thread.sleep(1000)
+        waitForUI("CPSC 320")
         testScheduleLoaded(true)
         val t2  = System.currentTimeMillis()
-        assertTrue("Schedule upload took more than 5s", t2 - t1 < 5000)
-        Log.d(TAG, "Test 1: Successfully upload a winter schedule!")
-
+        assertTrue("Schedule upload took more than 4s", t2 - t1 < 4000)
+        Log.d(TAG, "Test 1: Successfully upload a winter schedule in ${t2 - t1}ms!")
 
         pressBack()
 
@@ -104,17 +100,14 @@ class E2EEspressoTest {
 
         // Log in and navigate to winter schedule
         onView(withId(R.id.login_button)).perform(click())
-        Thread.sleep(LAG)
-        ui_click(NAME)
-        Thread.sleep(LAG)
-        onView(withId(R.id.schedules_button)).perform(click())
+        waitForUIClick(NAME)
+        waitForUIClick("Schedules")
         onView(withId(R.id.winter_schedule)).perform(click())
         Log.d(TAG, "Test 2: Successfully log in and navigate to the winter schedule!")
 
         // Upload the schedule
         onView(withId(R.id.upload_schedule_button)).perform(click())
-        Thread.sleep(LAG)
-        ui_click(FILENAME)
+        waitForUIClick(FILENAME)
         Log.d(TAG, "Test 2: Successfully upload a winter schedule!")
 
         // Select CPSC 320
@@ -156,8 +149,7 @@ class E2EEspressoTest {
         setTime(9, 55, "AM")
         onView(withId(R.id.check_attendance_button)).perform(click())
         grantLocationPermissions()
-        Thread.sleep(LAG)
-        onView(withText("You gained 60 Karma!")).check(matches(isDisplayed()))
+        waitForUI("You gained 60 Karma!")
         Log.d(TAG, "Test 2: Successfully check the user in and award appropriate amount of points when everything is right!")
 
         // Case where you've already signed in
@@ -172,20 +164,18 @@ class E2EEspressoTest {
         setTime(3, 55, "PM")
         val t1  = System.currentTimeMillis()
         onView(withId(R.id.check_attendance_button)).perform(click())
-        Thread.sleep(4000)
-        onView(withText("You gained 34 Karma!")).check(matches(isDisplayed()))
+        waitForUI("You gained 34 Karma!")
         val t2  = System.currentTimeMillis()
-        assertTrue("Attendance check took more than 5s", t2 - t1 < 5000)
+        assertTrue("Attendance check took more than 3s", t2 - t1 < 3000)
         pressBack()
-        Log.d(TAG, "Test 2: Successfully check the user in when they are late and award appropriate amount of points!")
+        Log.d(TAG, "Test 2: Successfully check the user in when they are late and award appropriate amount of points in ${t2 - t1}ms!")
 
         // Case where location is wrong
         onView(withIndex(withText("CPSC 322"), 0)).perform(click())
         incrementMonth(0, 11)
         setTime(4, 55, "PM")
         onView(withId(R.id.check_attendance_button)).perform(click())
-        Thread.sleep(1000)
-        onView(withText("You're too far from your class!")).check(matches(isDisplayed()))
+        waitForUI("You're too far from your class!")
         Log.d(TAG, "Test 2: Successfully detect that the user tries to check in when they are too far away from the class!")
 
         Log.d(TAG, "Test 2: t2_attendanceTest is finishing ......")
@@ -258,10 +248,38 @@ class E2EEspressoTest {
     }
 }
 
-private fun uiExistWithText(text: String): Boolean{
+// Waits for expectedText to appear, then clicks on it
+fun waitForUIClick(expectedText: String, timeout: Long = LAG) {
+    val startTime = System.currentTimeMillis()
+    while (System.currentTimeMillis() - startTime < timeout) {
+        try {
+            ui_click(expectedText)
+            return // Exit if click succeeded
+        } catch (e: AssertionError) {
+            Thread.sleep(100) // Wait and retry
+        }
+    }
+    throw AssertionError("Text was not found within timeout")
+}
+
+// Waits for expectedText to appear
+fun waitForUI(expectedText: String, timeout: Long = LAG) {
+    val startTime = System.currentTimeMillis()
+    while (System.currentTimeMillis() - startTime < timeout) {
+        if (uiExistWithText(expectedText)) {
+            return // Exit if found
+        } else {
+            Thread.sleep(100) // Wait and retry
+        }
+    }
+    throw AssertionError("Text was not found within timeout")
+}
+
+// Check if expectedText exists
+private fun uiExistWithText(expectedText: String): Boolean{
     // get UI element with the given text
     val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-    val e = device.findObject(UiSelector().text(text))
+    val e = device.findObject(UiSelector().text(expectedText))
 
     return e.exists()
 }
@@ -324,10 +342,12 @@ private fun testScheduleLoaded(loaded: Boolean) {
         countOccurrences("Lecture", 7)
         countOccurrences("Laboratory", 1)
         countOccurrences("Discussion", 1)
+        onView(withText("APSC 450")).check(doesNotExist())
     } else {
         onView(withText("CPSC 320")).check(doesNotExist())
         onView(withText("CPEN 321")).check(doesNotExist())
         onView(withText("CPSC 322")).check(doesNotExist())
+        onView(withText("APSC 450")).check(doesNotExist())
         onView(withText("Lecture")).check(doesNotExist())
         onView(withText("Laboratory")).check(doesNotExist())
         onView(withText("Discussion")).check(doesNotExist())
@@ -355,18 +375,24 @@ private fun incrementMonth(months: Int, day: Int) {
     device.findObject(UiSelector().text("Settings")).click()
 
     // Navigate to "Date & time"
-    Thread.sleep(2000)
-    device.swipe(device.displayWidth / 2,      // Start X: middle of screen
-        device.displayHeight * 3 / 4, // Start Y: 3/4 down the screen
-        device.displayWidth / 2,      // End X: same horizontal position
-        device.displayHeight / 4,     // End Y: 1/4 down the screen
-        4                           // Steps: controls speed/smoothness
-    )
-    device.findObject(UiSelector().text("System")).click()
-    device.findObject(UiSelector().text("Date & time")).click()
+    for (i in 0..3) {
+        try {
+            waitForUIClick("System", 2000)
+            break
+        } catch (e: AssertionError) {
+            device.swipe(
+                device.displayWidth / 2,      // Start X: middle of screen
+                device.displayHeight * 3 / 4, // Start Y: 3/4 down the screen
+                device.displayWidth / 2,      // End X: same horizontal position
+                device.displayHeight / 4,     // End Y: 1/4 down the screen
+                4                           // Steps: controls speed/smoothness
+            )
+        }
+    }
 
+    device.findObject(UiSelector().text("Date & time")).click()
+    device.findObject(UiSelector().text("Date")).click()
     if (months < 0) {
-        device.findObject(UiSelector().text("Date")).click()
         val leftArrow = device.findObject(UiSelector().resourceId("android:id/prev"))
         for (i in 1..-months) {
             leftArrow.click()
@@ -374,7 +400,6 @@ private fun incrementMonth(months: Int, day: Int) {
         device.findObject(UiSelector().text(day.toString())).click()
         device.findObject(UiSelector().text("OK")).click()
     } else {
-        device.findObject(UiSelector().text("Date")).click()
         val rightArrow = device.findObject(UiSelector().resourceId("android:id/next"))
         for (i in 1..months) {
             rightArrow.click()
@@ -385,7 +410,7 @@ private fun incrementMonth(months: Int, day: Int) {
 
     device.pressRecentApps()
     device.pressRecentApps()
-    Thread.sleep(3000)
+    waitForUI("Check in to class")
 }
 
 private fun setTime(hour: Int, minute: Int, specifier: String) {
@@ -394,15 +419,20 @@ private fun setTime(hour: Int, minute: Int, specifier: String) {
     device.findObject(UiSelector().text("Settings")).click()
 
     // Navigate to "Date & time"
-    Thread.sleep(2000)
-    device.swipe(device.displayWidth / 2,      // Start X: middle of screen
-        device.displayHeight * 3 / 4, // Start Y: 3/4 down the screen
-        device.displayWidth / 2,      // End X: same horizontal position
-        device.displayHeight / 4,     // End Y: 1/4 down the screen
-        4                           // Steps: controls speed/smoothness
-    )
-
-    device.findObject(UiSelector().text("System")).click()
+    for (i in 0..3) {
+        try {
+            waitForUIClick("System", 2000)
+            break
+        } catch (e: AssertionError) {
+            device.swipe(
+                device.displayWidth / 2,      // Start X: middle of screen
+                device.displayHeight * 3 / 4, // Start Y: 3/4 down the screen
+                device.displayWidth / 2,      // End X: same horizontal position
+                device.displayHeight / 4,     // End Y: 1/4 down the screen
+                4                           // Steps: controls speed/smoothness
+            )
+        }
+    }
     device.findObject(UiSelector().text("Date & time")).click()
     device.findObject(UiSelector().text("Time")).click()
     Thread.sleep(250)
@@ -430,14 +460,16 @@ private fun setTime(hour: Int, minute: Int, specifier: String) {
 
     device.pressRecentApps()
     device.pressRecentApps()
-    Thread.sleep(3000)
+    waitForUI("Check in to class")
 }
 
 private fun grantLocationPermissions() {
     val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-    Thread.sleep(1000)
-    if (device.findObject(UiSelector().text("Only this time")).exists()) {
+    try {
+        waitForUI("Only this time", 4000)
         device.findObject(UiSelector().text("Only this time")).click()
         onView(withId(R.id.check_attendance_button)).perform(click())
+    } catch (e: AssertionError) {
+        // Pass
     }
 }
