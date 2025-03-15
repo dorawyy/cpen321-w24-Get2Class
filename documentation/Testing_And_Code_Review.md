@@ -50,30 +50,30 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 
 ---
 
-## 3. Back-end Test Specification: Tests of Non-Functional Requirements
+## 3. Tests of Non-Functional Requirements
 
 ### 3.1. Test Locations in Git
 
 | **Non-Functional Requirement**  | **Location in Git**                              |
-| ------------------------------- | ------------------------------------------------ |
-| **Performance (Response Time)** | [`tests/nonfunctional/response_time.test.js`](#) |
-| **Chat Data Security**          | [`tests/nonfunctional/chat_security.test.js`](#) |
+| ------------------------------- | ----------------------------- |
+| **Schedule Upload Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt:78`](#) |
+| **Attendance Check Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt:157`](#) |
 
 ### 3.2. Test Verification and Logs
 
-- **Performance (Response Time)**
+- **Schedule Upload Time**
 
-  - **Verification:** This test suite simulates multiple concurrent API calls using Jest along with a load-testing utility to mimic real-world user behavior. The focus is on key endpoints such as user login and study group search to ensure that each call completes within the target response time of 2 seconds under normal load. The test logs capture metrics such as average response time, maximum response time, and error rates. These logs are then analyzed to identify any performance bottlenecks, ensuring the system can handle expected traffic without degradation in user experience.
+  - **Verification:** This test simulates a user uploading their schedule from an xlsx file in their phone's downloads. The focus is on ensuring that the process of uploading the file, parsing it, storing it on the database, and rendering it for the user completes within the target response time of 5 seconds under normal load. We use Espresso's onView().check() to ensure the timer does not stop until the component is displayed for the user. We use Espresso's onView().perform(click()) to ensure the timer does not stop until the component is displayed for the user. The test logs let us know if the system meets our requirement. 
   - **Log Output**
     ```
-    [Placeholder for response time test logs]
+    Schedule upload passed in less than 5 seconds!
     ```
 
-- **Chat Data Security**
-  - **Verification:** ...
+- **Attendance Check Time**
+  - **Verification:** This test simulates a user clicking on the "Check in to class" button with the help of Espresso. The focus is to ensure that the process of checking the time and location of the user, checking the starting time and location of the next class, calculating, updating and showing the Karma points the user gains completes within the target response time of 5 seconds under normal load. We use Espresso's onView().perform(click()) and onView().check() to perform the click action and check if the user receives the response from the app. The test logs capture the processing time and let us know if the system meets our requirement.
   - **Log Output**
     ```
-    [Placeholder for chat security test logs]
+    Attendance check passed in less than 5 seconds!
     ```
 
 ---
@@ -86,39 +86,69 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 
 ### 4.2. Tests
 
-- **Use Case: Login**
+- **Use Case: Upload Schedule**
 
   - **Expected Behaviors:**
     | **Scenario Steps** | **Test Case Steps** |
     | ------------------ | ------------------- |
-    | 1. The user opens â€œAdd Todo Itemsâ€ screen. | Open â€œAdd Todo Itemsâ€ screen. |
-    | 2. The app shows an input text field and an â€œAddâ€ button. The add button is disabled. | Check that the text field is present on screen.<br>Check that the button labelled â€œAddâ€ is present on screen.<br>Check that the â€œAddâ€ button is disabled. |
-    | 3a. The user inputs an ill-formatted string. | Input â€œ_^_^^OQ#$â€ in the text field. |
-    | 3a1. The app displays an error message prompting the user for the expected format. | Check that a dialog is opened with the text: â€œPlease use only alphanumeric charactersâ€. |
-    | 3. The user inputs a new item for the list and the add button becomes enabled. | Input â€œbuy milkâ€ in the text field.<br>Check that the button labelled â€œaddâ€ is enabled. |
-    | 4. The user presses the â€œAddâ€ button. | Click the button labelled â€œaddâ€. |
-    | 5. The screen refreshes and the new item is at the bottom of the todo list. | Check that a text box with the text â€œbuy milkâ€ is present on screen.<br>Input â€œbuy chocolateâ€ in the text field.<br>Click the button labelled â€œaddâ€.<br>Check that two text boxes are present on the screen with â€œbuy milkâ€ on top and â€œbuy chocolateâ€ at the bottom. |
-    | 5a. The list exceeds the maximum todo-list size. | Repeat steps 3 to 5 ten times.<br>Check that a dialog is opened with the text: â€œYou have too many items, try completing one firstâ€. |
+    | 1. The user chooses which schedule they want to set (Fall, Winter, Summer). | Log in and navigate to the schedule. |
+    | 2. The user will then click on the Upload Schedule button. | Click on the button with ID upload_schedule_button. |
+    | 4. A page reroute will occur requesting the user to upload the .xlsx file they got from Workday. | Click on the file titled "View_My_Courses.xlsx". |
+    | 4a. The schedule was not for this term. | Check none of the classes were uploaded. |
+    | 4a1. The user received a toast telling them to upload it to the correct term. | Check that the message is visible. |
+    | 5. The schedule was properly uploaded. | Check that the classes display the right number of lectures, labs, and discussions. <br>Check classes without a meeting time are not displayed. |
 
   - **Test Logs:**
     ```
     [Placeholder for Espresso test execution logs]
     ```
 
-- **Use Case: ...**
+- **Use Case: Check Attendance**
 
   - **Expected Behaviors:**
 
     | **Scenario Steps** | **Test Case Steps** |
     | ------------------ | ------------------- |
-    | ...                | ...                 |
+    | 1. User clicks on the "Check in to class" button. | Log in and navigate to the class's info page. <br>Click on the button with ID check_attendance_button. |
+    | 1a. The class is not from this year. | Change the phone's year to 2024.<br>Click on the button with ID check_attendance_button. |
+    | 1a1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 1b. The class is not from this term. | Change the phone's month to May 2025.<br>Click on the button with ID check_attendance_button. |
+    | 1b1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 1c. The class is not on this day of the week. | Change the phone's day to Tuesday, March 4.<br>Click on the button with ID check_attendance_button. |
+    | 1c1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 1d. It's too early in the day to check in to the class. | Change the phone's day to Monday, March 10.<br>Change the phone's time to 9:45 AM<br>Click on the button with ID check_attendance_button. |
+    | 1d1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 1e. It's too late in the day to check in to the class. | Change the phone's time to 10:55 AM<br>Click on the button with ID check_attendance_button. |
+    | 1e1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 1f. The user already checked into class today. | Click on the button with ID check_attendance_button. |
+    | 1f1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 1g. The user went to class, but they were not on time. | Navigate to a different class.<br>Change the phone's time to 3:55 PM<br>Click on the button with ID check_attendance_button. |
+    | 1g1. The user receives a toast telling them how late they were.<br>The user receives a toast telling them how much Karma they gained. | Check that the message is visible with the right amount of Karma. |
+    | 1h. The user is in the wrong location. | Navigate to a different class.<br>Change the phone's time to 4:55 PM<br>Click on the button with ID check_attendance_button. |
+    | 1h1. The user receives a toast explaining the error. | Check that the message is visible. |
+    | 2. The user was in their class on time. | Change the phone's time to 9:55 AM<br>Click on the button with ID check_attendance_button.<br>The user receives a toast telling them they got 60 Karma.<br> Check that the message is visible. |
 
   - **Test Logs:**
     ```
     [Placeholder for Espresso test execution logs]
     ```
 
-- **...**
+- **Use Case: View Route To class**
+
+  - **Expected Behaviors:**
+
+    | **Scenario Steps** | **Test Case Steps** |
+    | ------------------ | ------------------- |
+    | 1. The user clicks on View Route. | Click the button labelled "View route to class". |
+    | 2. The app prompts the user to grant location permissions if not already granted. | Check if "While using the app" option from the permission request dialog is present on the screen. |
+    | 2a. The user does not grant location permissions. | Click the option labelled "Don’t allow" in the dialog. |
+    | 2a1. If the user denies, the app shows a toast to tell the user to enable location permissions in the settings first. | Check if the text "Please grant Location permissions in Settings to view your routes :/" is present on the screen. |
+    | 2a2. The app routes the user back to the previous screen. | Check if the buttons labelled "View route to class" and "Check in to class" are present on the screen. |
+    | 3. The user sees their current location and destination location together with the optimal route on the screen. | Check if the navigation layout is present on the screen. <br> Swipe the screen up and then to the right. <br> Check if the button labelled "Re-center" is present on the screen. <br> Click the button labelled "Re-center". |
+
+  - **Test Logs:**
+    ```
+    [Placeholder for Espresso test execution logs]
 
 ---
 
