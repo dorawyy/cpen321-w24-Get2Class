@@ -11,8 +11,8 @@ export class UserController {
             audience: req.body["audience"]
         });
         
-        const payload = ticket.getPayload();
-        res.status(200).json({ "sub": payload?.sub })
+        const payload: any = ticket.getPayload();
+        res.status(200).json({ sub: payload.sub })
     }
 
     async findUser(req: Request, res: Response, nextFunction: NextFunction) {
@@ -103,7 +103,7 @@ export class UserController {
         if (userData != null) {
             currKarma = userData["karma"];
         } else {
-            res.status(400).send("User not found");
+            return res.status(400).send("User not found");
         }
 
         const filter = {
@@ -123,7 +123,7 @@ export class UserController {
         const updateData = await client.db("get2class").collection("users").updateOne(filter, document, options);
 
         if (!updateData.acknowledged || updateData.modifiedCount == 0) {
-            res.status(400).send("Unable to update karma");
+            return res.status(400).send("Unable to update karma");
         } else {
             res.status(200).json({ acknowledged: updateData.acknowledged, message: "Successfully gained karma" });
         }
