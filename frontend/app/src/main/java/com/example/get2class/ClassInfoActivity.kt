@@ -16,6 +16,7 @@ import com.google.android.gms.location.LocationServices
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import android.Manifest
+import android.app.Activity
 import android.location.Geocoder
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -42,18 +43,19 @@ import java.time.Month
 
 private const val TAG = "ClassInfoActivity"
 
+// For accessing the current location
+lateinit var fusedLocationClient: FusedLocationProviderClient
+val LOCATION_PERMISSION_REQUEST_CODE = 666
+lateinit var locationManager: LocationManager
+var current_location: Pair<Double, Double>? = null
+var isOnCreate: Boolean = true
+
 class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
     companion object {
         private const val MINUTES = 1.0 / 60.0
     }
 
-    // For accessing the current location
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private val LOCATION_PERMISSION_REQUEST_CODE = 666
-    private lateinit var locationManager: LocationManager
-    private var current_location: Pair<Double, Double>? = null
-    private var isOnCreate: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +79,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         findViewById<TextView>(R.id.course_credits).text = "Credits: ${course.credits}"
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
 
         // Get the current "attended" value from the DB
         getAttendance(BuildConfig.BASE_API_URL + "/attendance?sub=" + LoginActivity.GoogleIdTokenSub + "&className=" + course.name + "&classFormat=" + course.format + "&term=" + ScheduleListActivity.term) { result ->
@@ -169,12 +171,11 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             findViewById<TextView>(R.id.error_message).text = "You missed your class!"
             return false
         }
-
         return true
     }
 
     private suspend fun checkLocation(course: Course): Boolean {
-        val clientLocation = requestCurrentLocation()
+        val clientLocation = requestCurrentLocation(this)
         val classLocation = getClassLocation("UBC " + course.location.split("-")[0].trim(), this)
 
         if (clientLocation.first == null) {
@@ -198,75 +199,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             return false
         }
         return true
-    }
-
-    private suspend fun requestCurrentLocation(): Pair<Double?, Double?> {
-        return if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            getLastLocation()
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST_CODE
-            )
-            Log.d(TAG, "requestCurrentLocation: Permission requested, returning null until granted")
-            Pair(null, null) // Cannot proceed until user grants permission
-        }
-    }
-
-    private suspend fun getLastLocation(): Pair<Double?, Double?> {
-        return if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            try {
-                val location: Location
-
-                // call getCurrentLocation() for the first time, and use the updated location afterwards
-                if (isOnCreate) {
-                    val cancellationTokenSource = CancellationTokenSource()
-                    // request the current location with high accuracy
-                    location = fusedLocationClient.getCurrentLocation(
-                        Priority.PRIORITY_HIGH_ACCURACY,
-                        cancellationTokenSource.token
-                    ).await()
-                    isOnCreate = false
-                } else {
-                    location = Location("gps")
-                    location.latitude = current_location?.first!!
-                    location.longitude = current_location?.second!!
-                }
-
-                val latitude = location.latitude
-                val longitude = location.longitude
-                Log.d(TAG, "getLastLocation: lastLocation is ($latitude, $longitude)")
-                Pair(latitude, longitude)
-
-            } catch (e: SecurityException) {
-                Log.e(TAG, "getLastLocation: Location permission not granted", e)
-                Pair(null, null)
-            } catch (e: IllegalStateException) {
-                Log.e(
-                    TAG,
-                    "getLastLocation: Illegal state encountered while retrieving location",
-                    e
-                )
-                Pair(null, null)
-            } catch (e: IOException) {
-                Log.e(TAG, "getLastLocation: IO error while retrieving location", e)
-                Pair(null, null)
-            }
-        } else {
-            Log.d(TAG, "getLastLocation: Permission denied")
-            Pair(null, null)
-        }
     }
 
     override fun onRequestPermissionsResult(
@@ -296,7 +228,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             }
 
             lifecycleScope.launch {
-                val location = getLastLocation()
+                val location = getLastLocation(this as Context)
                 Log.d(TAG, "onRequestPermissionsResult: Location received: $location")
             }
         } else {
@@ -307,23 +239,6 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
 
     override fun onLocationChanged(p0: Location) {
         current_location = p0.latitude to p0.longitude
-    }
-
-    fun Pair<Int, Int>.to12HourTime(end: Boolean): String {
-        var (hour, minute) = this
-        if (end) {
-            if (minute == 30) minute = 20
-            else {
-                minute = 50
-                hour--
-            }
-        }
-        val amPm = if (hour < 12) "AM" else "PM"
-        val hour12 = when (hour % 12) {
-            0 -> 12  // 12-hour format should show 12 instead of 0 for AM/PM
-            else -> hour % 12
-        }
-        return String.format("%d:%02d %s", hour12, minute, amPm)
     }
 
     private fun checkTermAndYear(course: Course, context: Context): Boolean {
@@ -618,4 +533,85 @@ private fun getCurrentTime(): String {
 
     Log.d("ClassInfoActivity", "getCurrentTime: $current_time")
     return current_time
+}
+
+fun Pair<Int, Int>.to12HourTime(end: Boolean): String {
+    var (hour, minute) = this
+    if (end) {
+        if (minute == 30) minute = 20
+        else {
+            minute = 50
+            hour--
+        }
+    }
+    val amPm = if (hour < 12) "AM" else "PM"
+    val hour12 = when (hour % 12) {
+        0 -> 12  // 12-hour format should show 12 instead of 0 for AM/PM
+        else -> hour % 12
+    }
+    return String.format("%d:%02d %s", hour12, minute, amPm)
+}
+
+private suspend fun requestCurrentLocation(context: Context): Pair<Double?, Double?> {
+    return if (ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        == PackageManager.PERMISSION_GRANTED
+    ) {
+        getLastLocation(context)
+    } else {
+        ActivityCompat.requestPermissions(
+            context as Activity,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            LOCATION_PERMISSION_REQUEST_CODE
+        )
+        Log.d(TAG, "requestCurrentLocation: Permission requested, returning null until granted")
+        Pair(null, null) // Cannot proceed until user grants permission
+    }
+}
+
+private suspend fun getLastLocation(context: Context): Pair<Double?, Double?> {
+    return if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        try {
+            val location: Location
+
+            // call getCurrentLocation() for the first time, and use the updated location afterwards
+            if (isOnCreate) {
+                val cancellationTokenSource = CancellationTokenSource()
+                // request the current location with high accuracy
+                location = fusedLocationClient.getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    cancellationTokenSource.token
+                ).await()
+                isOnCreate = false
+            } else {
+                location = Location("gps")
+                location.latitude = current_location?.first!!
+                location.longitude = current_location?.second!!
+            }
+
+            val latitude = location.latitude
+            val longitude = location.longitude
+            Log.d(TAG, "getLastLocation: lastLocation is ($latitude, $longitude)")
+            Pair(latitude, longitude)
+
+        } catch (e: SecurityException) {
+            Log.e(TAG, "getLastLocation: Location permission not granted", e)
+            Pair(null, null)
+        } catch (e: IllegalStateException) {
+            Log.e(
+                TAG,
+                "getLastLocation: Illegal state encountered while retrieving location",
+                e
+            )
+            Pair(null, null)
+        } catch (e: IOException) {
+            Log.e(TAG, "getLastLocation: IO error while retrieving location", e)
+            Pair(null, null)
+        }
+    } else {
+        Log.d(TAG, "getLastLocation: Permission denied")
+        Pair(null, null)
+    }
 }

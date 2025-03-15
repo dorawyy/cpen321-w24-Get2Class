@@ -134,8 +134,7 @@ class E2EEspressoTest {
         onView(withId(R.id.check_attendance_button)).perform(click())
         grantLocationPermissions()
         onView(withId(R.id.check_attendance_button)).perform(click())
-        Thread.sleep(LAG)
-        //onView(withId(R.id.error_message)).check(matches(withText("You gained 60 Karma!")))
+        Thread.sleep(4000)
         onView(withText("You gained 60 Karma!")).check(matches(isDisplayed()))
 
         // Case where you've already signed in
