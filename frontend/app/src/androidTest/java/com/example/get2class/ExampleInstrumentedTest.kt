@@ -35,6 +35,7 @@ import org.junit.runners.MethodSorters
 private const val NAME = "Lucas"
 private const val FILENAME = "View_My_Courses.xlsx"
 private const val LAG = 5000.toLong()
+private const val TAG = "E2EEspressoTest"
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -49,6 +50,7 @@ class E2EEspressoTest {
 
     @Test
     fun t1_uploadScheduleTest() {
+        Log.d(TAG, "Test 1: t1_uploadScheduleTest is starting ......")
 
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
@@ -56,6 +58,7 @@ class E2EEspressoTest {
         ui_click(NAME)
         Thread.sleep(LAG)
         onView(withId(R.id.schedules_button)).perform(click())
+        Log.d(TAG, "Test 1: Successfully log in and navigate to the schedule list!")
 
         // Test that uploading to the wrong term returns an empty schedule
         onView(withId(R.id.fall_schedule)).perform(click())
@@ -63,6 +66,7 @@ class E2EEspressoTest {
         Thread.sleep(LAG)
         ui_click(FILENAME)
         testScheduleLoaded(false)
+        Log.d(TAG, "Test 1: Successfully get an empty schedule after uploading a winter schedule to the fall schedule!")
 
         pressBack()
 
@@ -76,6 +80,7 @@ class E2EEspressoTest {
         testScheduleLoaded(true)
         val t2  = System.currentTimeMillis()
         assertTrue("Schedule upload took more than 5s", t2 - t1 < 5000)
+        Log.d(TAG, "Test 1: Successfully upload a winter schedule!")
 
 
         pressBack()
@@ -83,14 +88,20 @@ class E2EEspressoTest {
         // Test that the schedule is loaded when returning to the page
         onView(withId(R.id.winter_schedule)).perform(click())
         testScheduleLoaded(true)
+        Log.d(TAG, "Test 1: Successfully load the winter schedule after pressing back and clicking Winter Schedule again!")
 
         // Test that clearing the schedule works
         onView(withId(R.id.clear_schedule_button)).perform(click())
         testScheduleLoaded(false)
+        Log.d(TAG, "Test 1: Successfully clear the winter schedule!")
+
+        Log.d(TAG, "Test 1: t1_uploadScheduleTest is finishing ......")
     }
     
     @Test
     fun t2_attendanceTest() {
+        Log.d(TAG, "Test 2: t2_attendanceTest is starting ......")
+
         // Log in and navigate to winter schedule
         onView(withId(R.id.login_button)).perform(click())
         Thread.sleep(LAG)
@@ -98,40 +109,48 @@ class E2EEspressoTest {
         Thread.sleep(LAG)
         onView(withId(R.id.schedules_button)).perform(click())
         onView(withId(R.id.winter_schedule)).perform(click())
+        Log.d(TAG, "Test 2: Successfully log in and navigate to the winter schedule!")
 
         // Upload the schedule
         onView(withId(R.id.upload_schedule_button)).perform(click())
         Thread.sleep(LAG)
         ui_click(FILENAME)
+        Log.d(TAG, "Test 2: Successfully upload a winter schedule!")
 
         // Select CPSC 320
         onView(withIndex(withText("CPSC 320"), 0)).perform(click())
+        Log.d(TAG, "Test 2: Successfully find and click CPSC 320!")
 
         // Case where year is wrong
         incrementMonth(-3, 1)
         onView(withId(R.id.check_attendance_button)).perform(click())
         onView(withText("You don't have this class this year")).check(matches(isDisplayed()))
+        Log.d(TAG, "Test 2: Successfully detect that the user tries to check in in a wrong year!")
 
         // Case where term is wrong
         incrementMonth(5, 1)
         onView(withId(R.id.check_attendance_button)).perform(click())
         onView(withText("You don't have this class this term")).check(matches(isDisplayed()))
+        Log.d(TAG, "Test 2: Successfully detect that the user tries to check in in a wrong term!")
 
         // Case where day is wrong
         incrementMonth(-2, 4)
         onView(withId(R.id.check_attendance_button)).perform(click())
         onView(withText("You don't have this class today")).check(matches(isDisplayed()))
+        Log.d(TAG, "Test 2: Successfully detect that the user tries to check in in a wrong day!")
 
         // Case where too early
         incrementMonth(0, 10)
         setTime(9, 45, "AM")
         onView(withId(R.id.check_attendance_button)).perform(click())
         onView(withText("You are too early to check into this class!")).check(matches(isDisplayed()))
+        Log.d(TAG, "Test 2: Successfully detect that the user tries to check in when it is too early!")
 
         // Case where too late
         setTime(10, 55, "AM")
         onView(withId(R.id.check_attendance_button)).perform(click())
         onView(withText("You missed your class!")).check(matches(isDisplayed()))
+        Log.d(TAG, "Test 2: Successfully detect that the user tries to check in when it is too late!")
 
         // Case where everything is right
         setTime(9, 55, "AM")
@@ -139,10 +158,12 @@ class E2EEspressoTest {
         grantLocationPermissions()
         Thread.sleep(LAG)
         onView(withText("You gained 60 Karma!")).check(matches(isDisplayed()))
+        Log.d(TAG, "Test 2: Successfully check the user in and award appropriate amount of points when everything is right!")
 
         // Case where you've already signed in
         onView(withId(R.id.check_attendance_button)).perform(click())
         onView(withText("You already checked into this class today!")).check(matches(isDisplayed()))
+        Log.d(TAG, "Test 2: Successfully detect that the user tries to check in more than once!")
 
         pressBack()
 
@@ -156,6 +177,7 @@ class E2EEspressoTest {
         val t2  = System.currentTimeMillis()
         assertTrue("Attendance check took more than 5s", t2 - t1 < 5000)
         pressBack()
+        Log.d(TAG, "Test 2: Successfully check the user in when they are late and award appropriate amount of points!")
 
         // Case where location is wrong
         onView(withIndex(withText("CPSC 322"), 0)).perform(click())
@@ -164,45 +186,60 @@ class E2EEspressoTest {
         onView(withId(R.id.check_attendance_button)).perform(click())
         Thread.sleep(1000)
         onView(withText("You're too far from your class!")).check(matches(isDisplayed()))
+        Log.d(TAG, "Test 2: Successfully detect that the user tries to check in when they are too far away from the class!")
+
+        Log.d(TAG, "Test 2: t2_attendanceTest is finishing ......")
     }
 
     @Test fun t3_viewRouteTest(){
+        Log.d(TAG, "Test 3: t3_viewRouteTest is starting ......")
+
         logInAndLoadWinterSchedule()
+        Log.d(TAG, "Test 3: Successfully log in and upload a winter schedule!")
 
         // 1. The user clicks on View Route
         ui_click("CPEN 321")
         Thread.sleep(2000)
         ui_click("View route to class")
         Thread.sleep(3000)
+        Log.d(TAG, "Test 3: Successfully click CPEN 321 and the button labelled \"View route to class\"!")
 
         // 2. The app prompts the user to grant location permissions if not already granted
         if(uiExistWithText("While using the app")){
+            Log.d(TAG, "Test 3: Successfully detect the permission request dialog!")
+
             // 2a. The user does not grant location permissions
             ui_click("Don’t allow")
             Thread.sleep(2000)
+            Log.d(TAG, "Test 3: Successfully deny the permission request!")
 
-            // 2a1. If the user denies twice, the app shows a toast to tell the user to enable location permissions in the settings first
+            // 2a1. If the user denies, the app shows a toast to tell the user to enable location permissions in the settings first
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             val e = device.findObject(UiSelector().text("Please grant Location permissions in Settings to view your routes :/"))
             assertNotNull("Toast should show up", e)
+            Log.d(TAG, "Test 3: Successfully warn the user to enable location permissions!")
 
             // 2a2. The app routes the user back to the previous screen
             onView(withId(R.id.route_button)).check(matches(isDisplayed()))
             onView(withId(R.id.check_attendance_button)).check(matches(isDisplayed()))
+            Log.d(TAG, "Test 3: Successfully go back to the CPEN 321 info screen!")
 
             // retry step 1 for the success scenario
             ui_click("View route to class")
             Thread.sleep(3000)
+            Log.d(TAG, "Test 3: Successfully click the button labelled \"View route to class\" again!")
 
             // retry step 2
             assertTrue("Permission dialog should pop up again", uiExistWithText("Don’t allow"))
             ui_click("Only this time")
             Thread.sleep(2000)
+            Log.d(TAG, "Test 3: Successfully pop up the request dialog again and grant location permissions!")
         }
 
         // a navigation dialog will show up if this is the first run
         if(uiExistWithText("Welcome to Google Maps navigation")){
             ui_click("GOT IT")
+            Log.d(TAG, "Test 3: Successfully agree on Google Maps navigation terms and conditions!!")
         }
 
         Thread.sleep(12000)
@@ -215,6 +252,9 @@ class E2EEspressoTest {
         ui_click("Re-center")
         Thread.sleep(2000)
         pressBack()
+        Log.d(TAG, "Test 3: Successfully see, swiping and re-centering the navigation view!")
+
+        Log.d(TAG, "Test 3: t3_viewRouteTest is finishing ......")
     }
 }
 
