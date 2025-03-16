@@ -202,7 +202,7 @@ class E2EEspressoTest {
         // 1. The user clicks on View Route
         waitForUIClick("CPEN 321")
         waitForUIClick("View route to class")
-        Thread.sleep(3000)
+        Thread.sleep(5000)
         Log.d(TAG, "Test 3: Successfully click CPEN 321 and the button labelled \"View route to class\"!")
 
         // 2. The app prompts the user to grant location permissions if not already granted
@@ -231,7 +231,7 @@ class E2EEspressoTest {
 
             // retry step 2
             waitForUIClick("Only this time")
-            Thread.sleep(2000)
+            Thread.sleep(5000)
             Log.d(TAG, "Test 3: Successfully pop up the request dialog again and grant location permissions!")
         }
 
@@ -242,9 +242,11 @@ class E2EEspressoTest {
         }
 
         // 3. The user sees their current location and destination location together with the optimal route on the screen
-        waitForUI("", 12000, R.id.navigation_view)
-        onView(withId(R.id.navigation_view)).perform(swipeUp()).perform(swipeRight())
-        waitForUIClick("Re-center")
+        waitForUI("", 5000, R.id.navigation_view)
+        Thread.sleep(LAG)
+        onView(withId(R.id.navigation_view)).perform(swipeUp())
+        onView(withId(R.id.navigation_view)).perform(swipeRight())
+        waitForUIClick("Re-center", 5000)
         Thread.sleep(2000)
         pressBack()
         Log.d(TAG, "Test 3: Successfully see, swiping and re-centering the navigation view!")
