@@ -22,7 +22,7 @@ afterAll(async () => {
         sub: "123"
     });
     await client.close();
-    cronResetAttendance.stop();
+    await cronResetAttendance.stop();
     await server.close();
 });
 

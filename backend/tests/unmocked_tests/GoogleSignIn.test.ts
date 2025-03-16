@@ -17,8 +17,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
     await client.close();
-    cronResetAttendance.stop();
+    await cronResetAttendance.stop();
     await server.close();
+    jest.resetAllMocks();
 });
 
 describe("Unmocked: POST /tokensignin", () => {

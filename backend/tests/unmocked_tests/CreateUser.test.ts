@@ -14,9 +14,9 @@ afterAll(async () => {
     });
     await client.db("get2class").collection("schedules").deleteOne({
         sub: "123"
-    })
+    });
     await client.close();
-    cronResetAttendance.stop();
+    await cronResetAttendance.stop();
     await server.close();
 });
 
