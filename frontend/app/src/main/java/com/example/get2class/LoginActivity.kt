@@ -102,6 +102,7 @@ class LoginActivity : AppCompatActivity() {
         ApiService.client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.d(TAG, "Error: $e")
+                Snackbar.make(mainView, "Error verifying token", Snackbar.LENGTH_SHORT).show()
             }
 
             override fun onResponse(call: Call, response: Response) {
