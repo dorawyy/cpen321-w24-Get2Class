@@ -56,6 +56,10 @@ class E2EEspressoTest {
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
         waitForUIClick(NAME)
+        Thread.sleep(2000)
+        if(uiExistWithText("Agree and share")){
+            ui_click("Agree and share")
+        }
         waitForUIClick("Schedules")
         Log.d(TAG, "Test 1: Successfully log in and navigate to the schedule list!")
 
@@ -105,6 +109,10 @@ class E2EEspressoTest {
         // Log in and navigate to winter schedule
         onView(withId(R.id.login_button)).perform(click())
         waitForUIClick(NAME)
+        Thread.sleep(2000)
+        if(uiExistWithText("Agree and share")){
+            ui_click("Agree and share")
+        }
         waitForUIClick("Schedules")
         onView(withId(R.id.winter_schedule)).perform(click())
         Log.d(TAG, "Test 2: Successfully log in and navigate to the winter schedule!")
@@ -192,9 +200,8 @@ class E2EEspressoTest {
         Log.d(TAG, "Test 3: Successfully log in and upload a winter schedule!")
 
         // 1. The user clicks on View Route
-        ui_click("CPEN 321")
-        Thread.sleep(2000)
-        ui_click("View route to class")
+        waitForUIClick("CPEN 321")
+        waitForUIClick("View route to class")
         Thread.sleep(3000)
         Log.d(TAG, "Test 3: Successfully click CPEN 321 and the button labelled \"View route to class\"!")
 
@@ -220,12 +227,10 @@ class E2EEspressoTest {
 
             // retry step 1 for the success scenario
             ui_click("View route to class")
-            Thread.sleep(3000)
             Log.d(TAG, "Test 3: Successfully click the button labelled \"View route to class\" again!")
 
             // retry step 2
-            assertTrue("Permission dialog should pop up again", uiExistWithText("Don’t allow"))
-            ui_click("Only this time")
+            waitForUIClick("Only this time")
             Thread.sleep(2000)
             Log.d(TAG, "Test 3: Successfully pop up the request dialog again and grant location permissions!")
         }
@@ -236,14 +241,10 @@ class E2EEspressoTest {
             Log.d(TAG, "Test 3: Successfully agree on Google Maps navigation terms and conditions!")
         }
 
-        Thread.sleep(12000)
-
         // 3. The user sees their current location and destination location together with the optimal route on the screen
-        onView(withId(R.id.navigation_view)).check(matches(isDisplayed()))
+        waitForUI("", 12000, R.id.navigation_view)
         onView(withId(R.id.navigation_view)).perform(swipeUp()).perform(swipeRight())
-        Thread.sleep(2000)
-        onView(withText("Re-center")).check(matches(isDisplayed()))
-        ui_click("Re-center")
+        waitForUIClick("Re-center")
         Thread.sleep(2000)
         pressBack()
         Log.d(TAG, "Test 3: Successfully see, swiping and re-centering the navigation view!")
@@ -253,7 +254,7 @@ class E2EEspressoTest {
 }
 
 // Waits for expectedText to appear, then clicks on it
-fun waitForUIClick(expectedText: String, timeout: Long = LAG) {
+private fun waitForUIClick(expectedText: String, timeout: Long = LAG) {
     val startTime = System.currentTimeMillis()
     while (System.currentTimeMillis() - startTime < timeout) {
         try {
@@ -269,13 +270,22 @@ fun waitForUIClick(expectedText: String, timeout: Long = LAG) {
 }
 
 // Waits for expectedText to appear
-fun waitForUI(expectedText: String, timeout: Long = LAG) {
+private fun waitForUI(expectedText: String, timeout: Long = LAG, expectedId: Int? = null) {
     val startTime = System.currentTimeMillis()
     while (System.currentTimeMillis() - startTime < timeout) {
-        if (uiExistWithText(expectedText)) {
-            return // Exit if found
-        } else {
-            Thread.sleep(100) // Wait and retry
+        if(expectedId != null){
+            try {
+                onView(withId(expectedId)).check(matches(isDisplayed()))
+                return
+            } catch (e: NoMatchingViewException) {
+                Thread.sleep(100)
+            }
+        }else{
+            if (uiExistWithText(expectedText)) {
+                return // Exit if found
+            } else {
+                Thread.sleep(100) // Wait and retry
+            }
         }
     }
     throw AssertionError("Text was not found within timeout")
@@ -293,17 +303,17 @@ private fun uiExistWithText(expectedText: String): Boolean{
 private fun logInAndLoadWinterSchedule(){
     // log in
     onView(withId(R.id.login_button)).perform(click())
-    Thread.sleep(3000)
-    ui_click(NAME)
-    Thread.sleep(5000)
-    onView(withId(R.id.schedules_button)).perform(click())
+    waitForUIClick(NAME)
+    Thread.sleep(2000)
+    if(uiExistWithText("Agree and share")){
+        ui_click("Agree and share")
+    }
+    waitForUIClick("Schedules")
 
     // upload schedule
     onView(withId(R.id.winter_schedule)).perform(click())
     onView(withId(R.id.upload_schedule_button)).perform(click())
-    Thread.sleep(3000)
-    ui_click("View_My_Courses.xlsx")
-    Thread.sleep(3000)
+    waitForUIClick(FILENAME)
 }
 
 // Use UIAutomator to click on the file in the system file picker
@@ -321,7 +331,7 @@ private fun ui_click(elementText: String) {
     }
 }
 
-fun countOccurrences(text: String, expectedCount: Int) {
+private fun countOccurrences(text: String, expectedCount: Int) {
     var actualCount = 0
     try {
         // Iterate over all views on the screen
@@ -361,7 +371,7 @@ private fun testScheduleLoaded(loaded: Boolean) {
 }
 
 // Custom Matcher
-fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
+private fun withIndex(matcher: Matcher<View>, index: Int): Matcher<View> {
     return object : TypeSafeMatcher<View>() {
         var currentIndex = 0
         override fun describeTo(description: Description) {
