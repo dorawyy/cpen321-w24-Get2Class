@@ -18,7 +18,7 @@ export const UserRoutes = [
         route: "/user",
         action: controller.findUser,
         validation: [
-            query("sub").exists().isString()
+            query("sub").exists().isAlphanumeric()
         ]
     },
     {
@@ -27,7 +27,7 @@ export const UserRoutes = [
         action: controller.createUser,
         validation: [
             body("email").isString(),
-            body("sub").exists().isString(),
+            body("sub").exists().isAlphanumeric(),
             body("name").isString()
         ]
     },
@@ -36,7 +36,7 @@ export const UserRoutes = [
         route: "/notification_settings",
         action: controller.getNotifications,
         validation: [
-            query("sub").exists().isString()
+            query("sub").exists().isAlphanumeric()
         ]
     },
     {
@@ -44,7 +44,7 @@ export const UserRoutes = [
         route: "/notification_settings",
         action: controller.updateNotifications,
         validation: [
-            body("sub").exists().isString(),
+            body("sub").exists().isAlphanumeric(),
             body("notificationsEnabled").isBoolean(),
             body("notificationTime").toInt()
         ]
@@ -54,7 +54,7 @@ export const UserRoutes = [
         route: "/karma",
         action: controller.updateKarma,
         validation: [
-            body("sub").exists().isString(),
+            body("sub").exists().isAlphanumeric(),
             body("karma").isInt()
         ]
     }
