@@ -1,5 +1,5 @@
-const { app, serverReady, cronResetAttendance } = require("../../index");
-const { mySchedule, myUser, myDBScheduleItem, Init } = require("./utils");
+const { serverReady, cronResetAttendance } = require("../../index");
+const { mySchedule, myUser, myDBScheduleItem } = require("../utils");
 import { client } from '../../services';
 import request from 'supertest';
 import { Server } from "http";
@@ -8,32 +8,23 @@ let server: Server;
 
 beforeAll(async () => {
     server = await serverReady;  // Wait for the server to be ready
-    await client.db("get2class").collection("users").insertOne(myUser);
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
 });
 
 afterAll(async () => {
     await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
-    })
-    await client.db("get2class").collection("users").deleteOne({
-        sub: myUser.sub
     });
-    if (cronResetAttendance) {
-        cronResetAttendance.stop(); // Stop the cron job to prevent Jest from hanging
-    }
-    if (client) {
-        await client.close();
-    }
-    if (server) {
-        await new Promise((resolve) => server.close(resolve));
-    }
+
+    await client.close();
+    cronResetAttendance.stop();
+    await server.close();
 });
 
 
 describe("Unmocked: PUT /schedule", () => {
     test("Empty request body", async () => {
-        const res = await request(app).put("/schedule").send({});
+        const res = await request(server).put("/schedule").send({});
         expect(res.statusCode).toBe(400);
     });
 
@@ -43,7 +34,7 @@ describe("Unmocked: PUT /schedule", () => {
             fallCourseList: mySchedule.courses
         };
 
-        const res = await request(app).put("/schedule").send(req);
+        const res = await request(server).put("/schedule").send(req);
         expect(res.statusCode).toBe(200);
     });
 
@@ -53,7 +44,7 @@ describe("Unmocked: PUT /schedule", () => {
             winterCourseList: mySchedule.courses
         };
 
-        const res = await request(app).put("/schedule").send(req);
+        const res = await request(server).put("/schedule").send(req);
         expect(res.statusCode).toBe(200);
     });
 
@@ -63,7 +54,7 @@ describe("Unmocked: PUT /schedule", () => {
             summerCourseList: mySchedule.courses
         };
 
-        const res = await request(app).put("/schedule").send(req);
+        const res = await request(server).put("/schedule").send(req);
         expect(res.statusCode).toBe(200);
     });
 });

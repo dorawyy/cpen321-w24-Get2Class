@@ -1,5 +1,5 @@
-const { app, serverReady, cronResetAttendance } = require("../../index");
-const { mySchedule, myUser, myDBScheduleItem, Init } = require("./utils");
+const { serverReady, cronResetAttendance } = require("../../index");
+const { mySchedule, myUser, myDBScheduleItem, Init } = require("../utils");
 import { client } from '../../services';
 import request from 'supertest';
 import { Server } from "http";
@@ -7,8 +7,7 @@ import { Server } from "http";
 let server: Server;
 
 beforeAll(async () => {
-    server = await serverReady;  // Wait for the server to be ready
-    await client.db("get2class").collection("users").insertOne(myUser);
+    server = await serverReady;
     let dbScheduleItem = myDBScheduleItem;
     dbScheduleItem.fallCourseList = mySchedule.courses;
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
@@ -17,28 +16,20 @@ beforeAll(async () => {
 afterAll(async () => {
     await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
-    })
-    await client.db("get2class").collection("users").deleteOne({
-        sub: myUser.sub
     });
-    if (cronResetAttendance) {
-        cronResetAttendance.stop(); // Stop the cron job to prevent Jest from hanging
-    }
-    if (client) {
-        await client.close();
-    }
-    if (server) {
-        await new Promise((resolve) => server.close(resolve));
-    }
+
+    await client.close();
+    cronResetAttendance.stop();
+    await server.close();
 });
 
-
+// Interface GET /schedule
 describe("Unmocked: GET /schedule", () => {
     test("Empty request body", async () => {
         const sub = "";
         const term = "";
 
-        const res = await request(app).get("/schedule")
+        const res = await request(server).get("/schedule")
             .query({sub: sub, term: term});
         expect(res.statusCode).toBe(400);
     });
@@ -47,7 +38,7 @@ describe("Unmocked: GET /schedule", () => {
         const sub = myUser.sub;
         const term = "springCourseList";
 
-        const res = await request(app).get("/schedule")
+        const res = await request(server).get("/schedule")
             .query({sub: sub, term: term});
         expect(res.statusCode).toBe(400);
     });
@@ -56,7 +47,7 @@ describe("Unmocked: GET /schedule", () => {
         const sub = myUser.sub;
         const term = "fallCourseList";
 
-        const res = await request(app).get("/schedule")
+        const res = await request(server).get("/schedule")
             .query({sub: sub, term: term});
         expect(res.statusCode).toBe(200);
     });

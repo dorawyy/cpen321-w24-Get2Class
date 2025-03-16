@@ -1,5 +1,5 @@
-const { app, serverReady, cronResetAttendance } = require("../../index");
-const { mySchedule, myUser, myDBScheduleItem, Init } = require("./utils");
+const { serverReady, cronResetAttendance } = require("../../index");
+const { mySchedule, myUser, myDBScheduleItem } = require("../utils");
 import { client } from '../../services';
 import request from 'supertest';
 import { Server } from "http";
@@ -8,29 +8,25 @@ let server: Server;
 
 beforeAll(async () => {
     server = await serverReady;  // Wait for the server to be ready
-    await client.db("get2class").collection("users").insertOne(myUser);
-    let dbScheduleItem = myDBScheduleItem;
-    dbScheduleItem.fallCourseList = mySchedule.courses;
-    dbScheduleItem.summerCourseList = mySchedule.courses;
+});
+
+beforeEach(async() => {
+    let schedule = myDBScheduleItem;
+    schedule.fallCourseList = mySchedule.courses;
+    schedule.summerCourseList = mySchedule.courses;
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
 });
 
-afterAll(async () => {
+afterEach(async() => {
     await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
-    })
-    await client.db("get2class").collection("users").deleteOne({
-        sub: myUser.sub
     });
-    if (cronResetAttendance) {
-        cronResetAttendance.stop(); // Stop the cron job to prevent Jest from hanging
-    }
-    if (client) {
-        await client.close();
-    }
-    if (server) {
-        await new Promise((resolve) => server.close(resolve));
-    }
+});
+
+afterAll(async () => {
+    await client.close();
+    cronResetAttendance.stop();
+    await server.close();
 });
 
 
@@ -43,7 +39,7 @@ describe("Unmocked: PUT /attendance", () => {
             term: "fallCourseList"
         }
 
-        const res = await request(app).put("/attendance")
+        const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(200);
     });
@@ -56,7 +52,7 @@ describe("Unmocked: PUT /attendance", () => {
             term: "winterCourseList"
         }
 
-        const res = await request(app).put("/attendance")
+        const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(400);
     });
@@ -69,7 +65,7 @@ describe("Unmocked: PUT /attendance", () => {
             term: "summerCourseList"
         }
 
-        const res = await request(app).put("/attendance")
+        const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(200);
     });
@@ -82,7 +78,7 @@ describe("Unmocked: PUT /attendance", () => {
             term: "springCourseList"
         }
 
-        const res = await request(app).put("/attendance")
+        const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(400);
     });
@@ -95,13 +91,13 @@ describe("Unmocked: PUT /attendance", () => {
             term: "fallCourseList"
         }
 
-        const res = await request(app).put("/attendance")
+        const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(400);
     });
     
     test("Empty request body", async () => {
-        const res = await request(app).put("/attendance").send({});
+        const res = await request(server).put("/attendance").send({});
         expect(res.statusCode).toBe(400);
     });
 });
