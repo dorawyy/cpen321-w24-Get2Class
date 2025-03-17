@@ -6,20 +6,10 @@ export class ScheduleController {
         const sub = req.query.sub;
         const term = req.query.term;
 
-        let allowedKeys = ["fallCourseList", "winterCourseList", "summerCourseList"];
-
-        let courseList = "";
-        if (term == "fallCourseList") courseList = "fallCourseList";
-        else if (term == "winterCourseList") courseList = "winterCourseList";
-        else courseList = "summerCourseList";
-
         const data = await client.db("get2class").collection("schedules").findOne({ sub });
 
         if (data != null) {
-            if (allowedKeys.includes(courseList)) {
-                const safeCourseList = data?.[courseList] ?? null;
-                res.status(200).json({ "courseList": safeCourseList });
-            }
+            res.status(200).json({ courseList: data[term as string] })
         } else {
             res.status(400).send("User not found");
         }
