@@ -15,8 +15,11 @@ export class ScheduleController {
 
         const data = await client.db("get2class").collection("schedules").findOne({ sub });
 
-        if (allowedKeys.includes(courseList) && data != null) {
-            res.status(200).json({ "courseList": data[courseList] });
+        if (data != null) {
+            if (allowedKeys.includes(courseList)) {
+                const safeCourseList = data?.[courseList] ?? null;
+                res.status(200).json({ "courseList": safeCourseList });
+            }
         } else {
             res.status(400).send("User not found");
         }
@@ -143,7 +146,7 @@ export class ScheduleController {
         const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub });
 
         if (userScheduleData != null) {
-            let classes = userScheduleData[term];
+            let classes = userScheduleData[term as string];
 
             for (let c of classes) {
                 if (c.name == className && c.format == classFormat) {
