@@ -77,7 +77,7 @@ UserRoutes.forEach((route) => {
                     res
                 );
             } catch (err) {
-                console.log(err);
+                console.error(err);
                 return res.sendStatus(500); // Don't expose internal server workings
             }
         },
@@ -104,7 +104,7 @@ ScheduleRoutes.forEach((route) => {
                     res
                 );
             } catch (err) {
-                console.log(err);
+                console.error(err);
                 return res.sendStatus(500); // Don't expose internal server workings
             }
         },
@@ -195,7 +195,7 @@ const serverReady = client.connect().then(() => {
 
     return new Promise((resolve) => {
         const server = app.listen(process.env.PORT, () => {
-            console.log(`Listening on port ${process.env.PORT}`);
+            console.log("Listening on port", process.env.PORT);
             resolve(server);
         });
     });

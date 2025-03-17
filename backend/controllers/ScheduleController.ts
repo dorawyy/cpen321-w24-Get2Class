@@ -14,7 +14,7 @@ export class ScheduleController {
         const data = await client.db("get2class").collection("schedules").findOne({ sub });
 
         if (data != null) {
-            res.status(200).json({ "courseList": data[courseList as string] });
+            res.status(200).json({ "courseList": data[courseList] });
         } else {
             res.status(400).send("User not found");
         }
@@ -66,7 +66,7 @@ export class ScheduleController {
         let document;
 
         const filter = {
-            sub: sub
+            sub
         };
 
         if (req.body.fallCourseList) {
@@ -138,7 +138,7 @@ export class ScheduleController {
         const classFormat = req.body.classFormat;
         const term = req.body.term;
 
-        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub });
 
         if (userScheduleData != null) {
             let classes = userScheduleData[term];
@@ -152,7 +152,7 @@ export class ScheduleController {
             let document;
 
             const filter = {
-                sub: sub
+                sub
             };
 
             if (term == "fallCourseList") {
@@ -173,7 +173,7 @@ export class ScheduleController {
                         summerCourseList: classes
                     }
                 };
-            }; 
+            } 
 
             const options = {
                 upsert: false

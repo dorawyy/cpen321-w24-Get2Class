@@ -57,7 +57,7 @@ export class UserController {
             const notificationsEnabled = data.notificationsEnabled;
             const notificationTime = data.notificationTime;
 
-            res.status(200).json({ notificationsEnabled, notificationTime: notificationTime });
+            res.status(200).json({ notificationsEnabled, notificationTime });
         } else {
             res.status(400).send("User not found");
         }
@@ -69,12 +69,12 @@ export class UserController {
         const notificationTime = req.body.notificationTime;
 
         const filter = {
-            sub: sub
+            sub
         };
 
         const document = {
             $set: {
-                notificationsEnabled: notificationsEnabled,
+                notificationsEnabled,
                 notificationTime: notificationTime
             },
         };
@@ -107,7 +107,7 @@ export class UserController {
         }
 
         const filter = {
-            sub: sub
+            sub
         };
 
         const document = {
