@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import { client } from "../services";
 
 export class ScheduleController {
-    async getSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.query["sub"];
-        const term = req.query["term"];
+    async getSchedule(req: Request, res: Response) {
+        const sub = req.query.sub;
+        const term = req.query.term;
 
         let courseList = "";
         if (term == "fallCourseList") courseList = "fallCourseList";
@@ -20,33 +20,33 @@ export class ScheduleController {
         }
     }
 
-    async saveSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
+    async saveSchedule(req: Request, res: Response) {
+        const sub = req.body.sub;
         let document;
         
         const filter = {
             sub: sub
         };
 
-        if (req.body["fallCourseList"]) {
+        if (req.body.fallCourseList) {
             document = {
                 $set: {
-                    fallCourseList: req.body["fallCourseList"]
+                    fallCourseList: req.body.fallCourseList
                 }
             };
-        } else if (req.body["winterCourseList"]) {
+        } else if (req.body.winterCourseList) {
             document = {
                 $set: {
-                    winterCourseList: req.body["winterCourseList"]
+                    winterCourseList: req.body.winterCourseList
                 }
             };
         } else {
             document = {
                 $set: {
-                    summerCourseList: req.body["summerCourseList"]
+                    summerCourseList: req.body.summerCourseList
                 }
             };
-        };
+        }
 
         const options = {
             upsert: false
@@ -61,30 +61,30 @@ export class ScheduleController {
         }
     }
 
-    async clearSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
+    async clearSchedule(req: Request, res: Response) {
+        const sub = req.body.sub;
         let document;
 
         const filter = {
             sub: sub
         };
 
-        if (req.body["fallCourseList"]) {
+        if (req.body.fallCourseList) {
             document = {
                 $set: {
-                    fallCourseList: req.body["fallCourseList"]
+                    fallCourseList: req.body.fallCourseList
                 }
             };
-        } else if (req.body["winterCourseList"]) {
+        } else if (req.body.winterCourseList) {
             document = {
                 $set: {
-                    winterCourseList: req.body["winterCourseList"]
+                    winterCourseList: req.body.winterCourseList
                 }
             };
         } else {
             document = {
                 $set: {
-                    summerCourseList: req.body["summerCourseList"]
+                    summerCourseList: req.body.summerCourseList
                 }
             };
         };
@@ -102,11 +102,11 @@ export class ScheduleController {
         }
     }
 
-    async getAttendance(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.query["sub"];
-        const className = req.query["className"];
-        const classFormat = req.query["classFormat"];
-        const term = req.query["term"];
+    async getAttendance(req: Request, res: Response) {
+        const sub = req.query.sub;
+        const className = req.query.className;
+        const classFormat = req.query.classFormat;
+        const term = req.query.term;
 
         const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
 
@@ -132,11 +132,11 @@ export class ScheduleController {
         }
     }
 
-    async updateAttendance(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
-        const className = req.body["className"];
-        const classFormat = req.body["classFormat"];
-        const term = req.body["term"];
+    async updateAttendance(req: Request, res: Response) {
+        const sub = req.body.sub;
+        const className = req.body.className;
+        const classFormat = req.body.classFormat;
+        const term = req.body.term;
 
         const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
 
