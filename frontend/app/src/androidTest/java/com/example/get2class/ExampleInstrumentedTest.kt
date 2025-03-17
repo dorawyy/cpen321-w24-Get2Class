@@ -167,9 +167,10 @@ class E2EEspressoTest {
         setTime(3, 55, "PM")
         val t1  = System.currentTimeMillis()
         onView(withId(R.id.check_attendance_button)).perform(click())
-        waitForUI("You gained 34 Karma!")
+        waitForUI("You were late by 24 minutes!")
         val t2  = System.currentTimeMillis()
         assertTrue("Attendance check took more than 3s", t2 - t1 < 3000)
+        waitForUI("You gained 34 Karma!")
         pressBack()
         Log.d(TAG, "Test 2: Successfully check the user in when they are late and award appropriate amount of points in ${t2 - t1}ms!")
 

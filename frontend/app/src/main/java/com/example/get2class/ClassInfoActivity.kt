@@ -261,9 +261,17 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             val classEndTime = times[2]
             val lateness = clientTime - classStartTime
             Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
-            Snackbar.make(mainView, "You were late by ${(lateness * 60).toInt()} minutes!", Snackbar.LENGTH_SHORT).show()
+            val firstSnackbar = Snackbar.make(mainView, "You were late by ${(lateness * 60).toInt()} minutes!", Snackbar.LENGTH_SHORT)
             val classLength = classEndTime - classStartTime
             karma = (10 * (1 - lateness / classLength) * (course.credits + 1)).toInt()
+            firstSnackbar.addCallback(object : Snackbar.Callback() {
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    if (event == DISMISS_EVENT_TIMEOUT || event == DISMISS_EVENT_SWIPE || event == DISMISS_EVENT_ACTION) {
+                        Snackbar.make(mainView, "You gained $karma Karma!", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+            })
+            firstSnackbar.show()
             updateKarma(BuildConfig.BASE_API_URL + "/karma", karma) { result ->
                 Log.d(TAG, "$result")
             }
@@ -290,9 +298,9 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                 Log.d(TAG, "$result")
                 course.attended = true
             }
+            Snackbar.make(mainView, "You gained $karma Karma!", Snackbar.LENGTH_SHORT).show()
         }
         Log.d(TAG, "You gained $karma Karma!")
-        Snackbar.make(mainView, "You gained $karma Karma!", Snackbar.LENGTH_SHORT).show()
     }
 }
 
