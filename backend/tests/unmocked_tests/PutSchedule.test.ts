@@ -26,6 +26,7 @@ describe("Unmocked: PUT /schedule", () => {
     test("Empty request body", async () => {
         const res = await request(server).put("/schedule").send({});
         expect(res.statusCode).toBe(400);
+        expect(res.body).toHaveProperty('errors');
     });
 
     test("Valid request 'fallCourseList'", async () => {
@@ -36,6 +37,8 @@ describe("Unmocked: PUT /schedule", () => {
 
         const res = await request(server).put("/schedule").send(req);
         expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('acknowledged');
+        expect(res.body).toHaveProperty('message');
     });
 
     test("Valid request 'winterCourseList'", async () => {
@@ -46,6 +49,8 @@ describe("Unmocked: PUT /schedule", () => {
 
         const res = await request(server).put("/schedule").send(req);
         expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('acknowledged');
+        expect(res.body).toHaveProperty('message');
     });
 
     test("Valid request 'summerCourseList'", async () => {
@@ -56,5 +61,19 @@ describe("Unmocked: PUT /schedule", () => {
 
         const res = await request(server).put("/schedule").send(req);
         expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('acknowledged');
+        expect(res.body).toHaveProperty('message');
+    });
+
+    test("Invalid user sub", async () => {
+        const req = {
+            sub: "Ryan Gosling",
+            summerCourseList: mySchedule.courses
+        };
+
+        const res = await request(server).put("/schedule").send(req);
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('acknowledged');
+        expect(res.body).toHaveProperty('message');
     });
 });

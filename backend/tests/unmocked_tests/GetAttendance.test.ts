@@ -25,23 +25,7 @@ afterAll(async () => {
 
 // Interface GET /attendance
 describe("Unmocked: GET /attendance", () => {
-    test("Valid request", async () => {
-        const req = {
-            sub: myUser.sub,
-            className: mySchedule.courses[0]["name"],
-            classFormat: mySchedule.courses[0]["format"],
-            term: "fallCourseList"
-        }
-
-        const res = await request(server).get("/attendance")
-            .query(req);
-        expect(res.statusCode).toBe(200);
-    });
-
     test("Invalid course name", async () => {
-        const sub = myUser.sub;
-        const term = "fallCourseList";
-
         const req = {
             sub: myUser.sub,
             className: "Introduction to Conspiracy Theories",
@@ -54,10 +38,21 @@ describe("Unmocked: GET /attendance", () => {
         expect(res.statusCode).toBe(400);
     });
 
-    test("Invalid user sub", async () => {
-        const sub = myUser.sub;
-        const term = "fallCourseList";
+    test("Valid request", async () => {
+        const req = {
+            sub: myUser.sub,
+            className: mySchedule.courses[0]["name"],
+            classFormat: mySchedule.courses[0]["format"],
+            term: "fallCourseList"
+        }
 
+        const res = await request(server).get("/attendance")
+            .query(req);
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('attended');
+    });
+
+    test("Invalid user sub", async () => {
         const req = {
             sub: "Ryan Gosling",
             className: mySchedule.courses[0]["name"],
@@ -71,11 +66,10 @@ describe("Unmocked: GET /attendance", () => {
     });
 
     test("Empty request body", async () => {
-        const sub = "";
-        const term = "";
-
+        const req = {};
         const res = await request(server).get("/attendance")
-            .query({sub: sub, term: term});
+            .query(req);
         expect(res.statusCode).toBe(400);
+        expect(res.body).toHaveProperty('errors');
     });
 });

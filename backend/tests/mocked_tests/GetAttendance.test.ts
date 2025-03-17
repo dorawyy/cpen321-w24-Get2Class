@@ -1,4 +1,4 @@
-const { app, serverReady, cronResetAttendance } = require("../../index");
+const { serverReady, cronResetAttendance } = require("../../index");
 const { mySchedule, myUser, myDBScheduleItem, Init } = require("../utils");
 import { client } from '../../services';
 import request from 'supertest';
@@ -8,7 +8,6 @@ let server: Server;
 
 beforeAll(async () => {
     server = await serverReady;  // Wait for the server to be ready
-    await client.db("get2class").collection("users").insertOne(myUser);
     let dbScheduleItem = myDBScheduleItem;
     dbScheduleItem.fallCourseList = mySchedule.courses;
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
@@ -17,73 +16,60 @@ beforeAll(async () => {
 afterAll(async () => {
     await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
-    })
-    await client.db("get2class").collection("users").deleteOne({
-        sub: myUser.sub
     });
-    if (cronResetAttendance) {
-        cronResetAttendance.stop(); // Stop the cron job to prevent Jest from hanging
-    }
-    if (client) {
-        await client.close();
-    }
-    if (server) {
-        await new Promise((resolve) => server.close(resolve));
-    }
+
+    await client.close();
+    cronResetAttendance.stop();
+    await server.close();
 });
 
+// Interface GET /attendance
 describe("Mocked: GET /attendance", () => {
-    test("Valid request", async () => {
+    test("Unable to reach get2class database when getting user", async () => {
+        const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
+            throw new Error("Database connection error");
+        });
+
         const req = {
             sub: myUser.sub,
             className: mySchedule.courses[0]["name"],
             classFormat: mySchedule.courses[0]["format"],
             term: "fallCourseList"
-        }
+        };
 
-        const res = await request(app).get("/attendance")
+        const res = await request(server).get("/attendance")
             .query(req);
-        expect(res.statusCode).toBe(200);
+
+        expect(res.statusCode).toStrictEqual(500);
+        expect(dbSpy).toHaveBeenCalledWith('get2class');
+        expect(dbSpy).toHaveBeenCalledTimes(1);
+
+        dbSpy.mockRestore();
     });
 
-    // test("Invalid course name", async () => {
-    //     const sub = myUser.sub;
-    //     const term = "fallCourseList";
+    test("Unable to reach schedules collection", async () => {
+        const scheduleCollectionMock = jest.fn().mockImplementationOnce(() => {
+            throw new Error("Database connection error");
+        });
 
-    //     const req = {
-    //         sub: myUser.sub,
-    //         className: "Introduction to Conspiracy Theories",
-    //         classFormat: mySchedule.courses[0]["format"],
-    //         term: "fallCourseList"
-    //     }
+        const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce({
+            collection: scheduleCollectionMock
+        } as any);
 
-    //     const res = await request(app).get("/attendance")
-    //         .query(req);
-    //     expect(res.statusCode).toBe(400);
-    // });
+        const req = {
+            sub: myUser.sub,
+            className: mySchedule.courses[0]["name"],
+            classFormat: mySchedule.courses[0]["format"],
+            term: "fallCourseList"
+        };
 
-    // test("Invalid user sub", async () => {
-    //     const sub = myUser.sub;
-    //     const term = "fallCourseList";
+        const res = await request(server).get("/attendance")
+            .query(req);
 
-    //     const req = {
-    //         sub: "Ryan Gosling",
-    //         className: mySchedule.courses[0]["name"],
-    //         classFormat: mySchedule.courses[0]["format"],
-    //         term: "fallCourseList"
-    //     }
-
-    //     const res = await request(app).get("/attendance")
-    //         .query(req);
-    //     expect(res.statusCode).toBe(400);
-    // });
-
-    // test("Empty request body", async () => {
-    //     const sub = "";
-    //     const term = "";
-
-    //     const res = await request(app).get("/attendance")
-    //         .query({sub: sub, term: term});
-    //     expect(res.statusCode).toBe(400);
-    // });
+        expect(res.statusCode).toStrictEqual(500);
+        expect(scheduleCollectionMock).toHaveBeenCalledWith('schedules');
+        expect(scheduleCollectionMock).toHaveBeenCalledTimes(1);
+        expect(dbSpy).toHaveBeenCalledWith('get2class');
+        expect(dbSpy).toHaveBeenCalledTimes(1);
+    });
 });

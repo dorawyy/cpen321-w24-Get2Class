@@ -1,4 +1,4 @@
-const { app, serverReady, cronResetAttendance } = require("../../index");
+const { serverReady, cronResetAttendance } = require("../../index");
 const { mySchedule, myUser, myDBScheduleItem, Init } = require("../utils");
 import { client } from '../../services';
 import request from 'supertest';
@@ -8,34 +8,31 @@ let server: Server;
 
 beforeAll(async () => {
     server = await serverReady;  // Wait for the server to be ready
-    await client.db("get2class").collection("users").insertOne(myUser);
-    let dbScheduleItem = myDBScheduleItem;
-    dbScheduleItem.fallCourseList = mySchedule.courses;
-    dbScheduleItem.summerCourseList = mySchedule.courses;
+    let schedule = myDBScheduleItem;
+    schedule.fallCourseList = mySchedule.courses;
+    schedule.summerCourseList = mySchedule.courses;
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
 });
 
 afterAll(async () => {
     await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
-    })
-    await client.db("get2class").collection("users").deleteOne({
+    });
+    await client.db("get2class").collection("schedules").deleteMany({
         sub: myUser.sub
     });
-    if (cronResetAttendance) {
-        cronResetAttendance.stop(); // Stop the cron job to prevent Jest from hanging
-    }
-    if (client) {
-        await client.close();
-    }
-    if (server) {
-        await new Promise((resolve) => server.close(resolve));
-    }
+    await client.close();
+    cronResetAttendance.stop();
+    await server.close();
 });
 
 
 describe("Mocked: PUT /attendance", () => {
-    test("Valid request 'fallCourseList'", async () => {
+    test("Unable to reach get2class database", async () => {
+        const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
+            throw new Error("Database connection error");
+        });
+
         const req = {
             sub: myUser.sub,
             className: mySchedule.courses[0]["name"],
@@ -43,65 +40,13 @@ describe("Mocked: PUT /attendance", () => {
             term: "fallCourseList"
         }
 
-        const res = await request(app).put("/attendance")
+        const res = await request(server).put("/attendance")
             .send(req);
-        expect(res.statusCode).toBe(200);
+        
+        expect(res.statusCode).toStrictEqual(500);
+        expect(dbSpy).toHaveBeenCalledWith('get2class');
+        expect(dbSpy).toHaveBeenCalledTimes(1);
+
+        dbSpy.mockRestore();
     });
-
-    // test("Empty schedule 'winterCourseList'", async () => {
-    //     const req = {
-    //         sub: myUser.sub,
-    //         className: mySchedule.courses[0]["name"],
-    //         classFormat: mySchedule.courses[0]["format"],
-    //         term: "winterCourseList"
-    //     }
-
-    //     const res = await request(app).put("/attendance")
-    //         .send(req);
-    //     expect(res.statusCode).toBe(400);
-    // });
-
-    // test("Valid request 'summerCourseList'", async () => {
-    //     const req = {
-    //         sub: myUser.sub,
-    //         className: mySchedule.courses[0]["name"],
-    //         classFormat: mySchedule.courses[0]["format"],
-    //         term: "summerCourseList"
-    //     }
-
-    //     const res = await request(app).put("/attendance")
-    //         .send(req);
-    //     expect(res.statusCode).toBe(200);
-    // });
-
-    // test("Invalid request 'springCourseList'", async () => {
-    //     const req = {
-    //         sub: myUser.sub,
-    //         className: mySchedule.courses[0]["name"],
-    //         classFormat: mySchedule.courses[0]["format"],
-    //         term: "springCourseList"
-    //     }
-
-    //     const res = await request(app).put("/attendance")
-    //         .send(req);
-    //     expect(res.statusCode).toBe(400);
-    // });
-
-    // test("Invalid sub", async () => {
-    //     const req = {
-    //         sub: "Ryan Gosling",
-    //         className: mySchedule.courses[0]["name"],
-    //         classFormat: mySchedule.courses[0]["format"],
-    //         term: "fallCourseList"
-    //     }
-
-    //     const res = await request(app).put("/attendance")
-    //         .send(req);
-    //     expect(res.statusCode).toBe(400);
-    // });
-    
-    // test("Empty request body", async () => {
-    //     const res = await request(app).put("/attendance").send({});
-    //     expect(res.statusCode).toBe(400);
-    // });
 });

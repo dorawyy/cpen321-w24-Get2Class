@@ -1,4 +1,4 @@
-const { app, serverReady, cronResetAttendance } = require("../../index");
+const { serverReady, cronResetAttendance } = require("../../index");
 const { mySchedule, myUser, myDBScheduleItem, Init } = require("../utils");
 import { client } from '../../services';
 import request from 'supertest';
@@ -9,75 +9,35 @@ let server: Server;
 beforeAll(async () => {
     // Wait for the server to be ready
     server = await serverReady;  
-
-    // Initialize DB for tests
-    await client.db("get2class").collection("users").insertOne(myUser);
     let dbScheduleItem = myDBScheduleItem;
     dbScheduleItem.fallCourseList = mySchedule.courses;
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
 });
 
 afterAll(async () => {
-    // Clear DB
+    // Initialize DB for tests
     await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
-    })
-    await client.db("get2class").collection("users").deleteOne({
-        sub: myUser.sub
     });
-
-    // Shut down server
-    if (cronResetAttendance) {
-        cronResetAttendance.stop(); // Stop the cron job to prevent Jest from hanging
-    }
-    if (client) {
-        await client.close();
-    }
-    if (server) {
-        await new Promise((resolve) => server.close(resolve));
-    }
+    await client.close();
+    cronResetAttendance.stop();
+    await server.close();
 });
 
-
+// Interface DELETE /schedule
 describe("Mocked: DELETE /schedule", () => {
-    test("Valid request 'fallCourseList'", async () => {
-        const req = {sub: myUser.sub, fallCourseList: "fallCourseList"}
+    test("Unable to reach get2class database", async () => {
+        const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
+            throw new Error("Database connection error");
+        });
+
+        const req = {sub: myUser.sub, fallCourseList: "fallCourseList"};
+        const res = await request(server).delete("/schedule").send(req);
         
-        const res = await request(app).delete("/schedule")
-        .send(req);
-        expect(res.statusCode).toBe(200);
+        expect(res.statusCode).toStrictEqual(500);
+        expect(dbSpy).toHaveBeenCalledWith('get2class');
+        expect(dbSpy).toHaveBeenCalledTimes(1);
+
+        dbSpy.mockRestore();
     });
-
-    // test("Valid request 'winterCourseList'", async () => {
-    //     const req = {sub: myUser.sub, winterCourseList: "winterCourseList"}
-        
-    //     const res = await request(app).delete("/schedule")
-    //     .send(req);
-    //     expect(res.statusCode).toBe(200);
-    // });
-
-    // test("Valid request 'summerCourseList'", async () => {
-    //     const req = {sub: myUser.sub, summerCourseList: "summerCourseList"}
-        
-    //     const res = await request(app).delete("/schedule")
-    //     .send(req);
-    //     expect(res.statusCode).toBe(200);
-    // });
-    
-    // // test("Invalid term string 'springCourseList'", async () => {
-    // //     const req = {sub: myUser.sub, springCourseList: "springCourseList"}
-        
-    // //     const res = await request(app).delete("/schedule")
-    // //     .send(req);
-    // //     // console.log(res);
-    // //     expect(res.statusCode).toBe(400);
-    // // });
-    
-    // test("Empty request body", async () => {
-    //     const req = {sub: "", fallCourseList: ""};
-
-    //     const res = await request(app).delete("/schedule")
-    //         .send(req);
-    //     expect(res.statusCode).toBe(400);
-    // });
 });
