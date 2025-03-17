@@ -51,8 +51,6 @@ class E2EEspressoTest {
 
     @Test
     fun t1_uploadScheduleTest() {
-        Log.d(TAG, "Test 1: t1_uploadScheduleTest is starting ......")
-
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
         waitForUIClick(NAME)
@@ -98,14 +96,10 @@ class E2EEspressoTest {
         testScheduleLoaded(false)
         onView(withText("Successfully cleared schedule!")).check(matches(isDisplayed()))
         Log.d(TAG, "Test 1: Successfully clear the winter schedule!")
-
-        Log.d(TAG, "Test 1: t1_uploadScheduleTest is finishing ......")
     }
     
     @Test
     fun t2_attendanceTest() {
-        Log.d(TAG, "Test 2: t2_attendanceTest is starting ......")
-
         // Log in and navigate to winter schedule
         onView(withId(R.id.login_button)).perform(click())
         waitForUIClick(NAME)
@@ -115,16 +109,13 @@ class E2EEspressoTest {
         }
         waitForUIClick("Schedules")
         onView(withId(R.id.winter_schedule)).perform(click())
-        Log.d(TAG, "Test 2: Successfully log in and navigate to the winter schedule!")
 
         // Upload the schedule
         onView(withId(R.id.upload_schedule_button)).perform(click())
         waitForUIClick(FILENAME)
-        Log.d(TAG, "Test 2: Successfully upload a winter schedule!")
 
         // Select CPSC 320
         onView(withIndex(withText("CPSC 320"), 0)).perform(click())
-        Log.d(TAG, "Test 2: Successfully find and click CPSC 320!")
 
         // Case where year is wrong
         incrementMonth(-3, 1)
@@ -189,13 +180,9 @@ class E2EEspressoTest {
         onView(withId(R.id.check_attendance_button)).perform(click())
         waitForUI("You're too far from your class!")
         Log.d(TAG, "Test 2: Successfully detect that the user tries to check in when they are too far away from the class!")
-
-        Log.d(TAG, "Test 2: t2_attendanceTest is finishing ......")
     }
 
     @Test fun t3_viewRouteTest(){
-        Log.d(TAG, "Test 3: t3_viewRouteTest is starting ......")
-
         logInAndLoadWinterSchedule()
         Log.d(TAG, "Test 3: Successfully log in and upload a winter schedule!")
 
@@ -250,8 +237,6 @@ class E2EEspressoTest {
         Thread.sleep(2000)
         pressBack()
         Log.d(TAG, "Test 3: Successfully see, swiping and re-centering the navigation view!")
-
-        Log.d(TAG, "Test 3: t3_viewRouteTest is finishing ......")
     }
 }
 
