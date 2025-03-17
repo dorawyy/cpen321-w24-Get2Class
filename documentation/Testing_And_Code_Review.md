@@ -119,17 +119,7 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
     | 5. The schedule was properly uploaded. | Check that the classes display the right number of lectures, labs, and discussions. <br>Check classes without a meeting time are not displayed. |
 
   - **Test Logs:**
-    ```
-    2025-03-11 16:57:00.554  7783-7800  TestRunner              com.example.get2class                I  started: t1_uploadScheduleTest(com.example.get2class.E2EEspressoTest)
-    2025-03-11 16:57:01.348  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: t1_uploadScheduleTest is starting ......
-    2025-03-11 16:57:13.700  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully log in and navigate to the schedule list!
-    2025-03-11 16:57:24.035  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully get an empty schedule after uploading a winter schedule to the fall schedule!
-    2025-03-11 16:57:32.125  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully upload a winter schedule in 1762ms!
-    2025-03-11 16:57:33.161  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully load the winter schedule after pressing back and clicking Winter Schedule again!
-    2025-03-11 16:57:34.120  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: Successfully clear the winter schedule!
-    2025-03-11 16:57:34.122  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 1: t1_uploadScheduleTest is finishing ......
-    2025-03-11 16:57:34.127  7783-7800  TestRunner              com.example.get2class                I  finished: t1_uploadScheduleTest(com.example.get2class.E2EEspressoTest)
-    ```
+    ![Get2Class Use-Case Diagram](./images/frontend_t1_logs.png)
 
 - **Use Case: Check Attendance**
 
@@ -157,24 +147,7 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
     | 2h1. The user receives a toast explaining the error. | Check that the message is visible. |
 
   - **Test Logs:**
-    ```
-    2025-03-11 16:57:34.542  7783-7800  TestRunner              com.example.get2class                I  started: t2_attendanceTest(com.example.get2class.E2EEspressoTest)
-    2025-03-11 16:57:34.794  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: t2_attendanceTest is starting ......
-    2025-03-11 16:57:46.563  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully log in and navigate to the winter schedule!
-    2025-03-11 16:57:52.596  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully upload a winter schedule!
-    2025-03-11 16:57:53.229  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully find and click CPSC 320!
-    2024-12-01 16:58:07.567  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in in a wrong year!
-    2025-05-01 16:58:24.757  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in in a wrong term!
-    2025-03-04 16:58:39.215  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in in a wrong day!
-    2025-03-10 09:45:03.929  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in when it is too early!
-    2025-03-10 10:55:04.018  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in when it is too late!
-    2025-03-10 09:55:13.472  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully check the user in and award appropriate amount of points when everything is right!
-    2025-03-10 09:55:13.767  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in more than once!
-    2025-03-10 15:55:08.312  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully check the user in when they are late and award appropriate amount of points in 481ms!
-    2025-03-11 16:55:04.986  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: Successfully detect that the user tries to check in when they are too far away from the class!
-    2025-03-11 16:55:04.986  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 2: t2_attendanceTest is finishing ......
-    2025-03-11 16:55:04.996  7783-7800  TestRunner              com.example.get2class                I  finished: t2_attendanceTest(com.example.get2class.E2EEspressoTest)
-    ```
+    ![Get2Class Use-Case Diagram](./images/frontend_t2_logs.png)
 
 - **Use Case: View Route To class**
 
@@ -190,15 +163,7 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
     | 3. The user sees their current location and destination location together with the optimal route on the screen. | Check if the navigation layout is present on the screen. <br> Swipe the screen up and then to the right. <br> Check if the button labelled "Re-center" is present on the screen. <br> Click the button labelled "Re-center". |
 
   - **Test Logs:**
-    ```
-    2025-03-11 16:55:05.268  7783-7800  TestRunner              com.example.get2class                I  started: t3_viewRouteTest(com.example.get2class.E2EEspressoTest)
-    2025-03-11 16:55:05.531  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: t3_viewRouteTest is starting ......
-    2025-03-11 16:55:22.692  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: Successfully log in and upload a winter schedule!
-    2025-03-11 16:55:29.493  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: Successfully click CPEN 321 and the button labelled "View route to class"!
-    2025-03-11 16:55:30.038  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: Successfully agree on Google Maps navigation terms and conditions!
-    2025-03-11 16:55:47.455  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: Successfully see, swiping and re-centering the navigation view!
-    2025-03-11 16:55:47.455  7783-7800  E2EEspressoTest         com.example.get2class                D  Test 3: t3_viewRouteTest is finishing ......
-    2025-03-11 16:55:47.460  7783-7800  TestRunner              com.example.get2class                I  finished: t3_viewRouteTest(com.example.get2class.E2EEspressoTest)
+    ![Get2Class Use-Case Diagram](./images/frontend_t3_logs.png)
 
 ---
 
