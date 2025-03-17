@@ -1,4 +1,3 @@
-import { Db } from 'mongodb';
 import { serverReady, cronResetAttendance } from '../../index';
 import { client } from '../../services';
 import request from 'supertest';

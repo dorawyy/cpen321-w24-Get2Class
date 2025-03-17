@@ -19,7 +19,7 @@ export class UserController {
         const query = req.query;
         const sub = query.sub;
 
-        const userData = await client.db("get2class").collection("users").findOne({ sub: sub });
+        const userData = await client.db("get2class").collection("users").findOne({ sub });
         res.status(200).send(userData);
     }
 
@@ -51,13 +51,13 @@ export class UserController {
     async getNotifications(req: Request, res: Response) {
         const sub = req.query.sub;
 
-        const data = await client.db("get2class").collection("users").findOne({ sub: sub });
+        const data = await client.db("get2class").collection("users").findOne({ sub });
         
         if (data != null) {
             const notificationsEnabled = data.notificationsEnabled;
             const notificationTime = data.notificationTime;
 
-            res.status(200).json({ "notificationsEnabled": notificationsEnabled, "notificationTime": notificationTime });
+            res.status(200).json({ notificationsEnabled, notificationTime: notificationTime });
         } else {
             res.status(400).send("User not found");
         }
@@ -98,7 +98,7 @@ export class UserController {
 
         let currKarma;
 
-        const userData = await client.db("get2class").collection("users").findOne({ "sub": sub });
+        const userData = await client.db("get2class").collection("users").findOne({ sub });
         
         if (userData != null) {
             currKarma = userData.karma;

@@ -48,7 +48,7 @@ const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
                 }
             };
             
-            const updatedData = await client.db("get2class").collection("schedules").updateOne(filter, document);
+            await client.db("get2class").collection("schedules").updateOne(filter, document);
         }
     } catch (err) {
         console.error(err);
@@ -167,7 +167,7 @@ app.post('/get2class', (req: Request, res: Response) => {
 //                 }
 //             };
             
-//             const updatedData = await client.db("get2class").collection("schedules").updateOne(filter, document);
+//             await client.db("get2class").collection("schedules").updateOne(filter, document);
 //         }
 //         res.status(200).send("Attendance reset for all courses");
 //     } catch (err) {
@@ -195,7 +195,7 @@ const serverReady = client.connect().then(() => {
 
     return new Promise((resolve) => {
         const server = app.listen(process.env.PORT, () => {
-            console.log("Listening on port " + process.env.PORT);
+            console.log(`Listening on port ${process.env.PORT}`);
             resolve(server);
         });
     });

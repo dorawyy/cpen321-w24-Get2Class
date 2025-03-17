@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { client } from "../services";
 
 export class ScheduleController {
@@ -6,15 +6,15 @@ export class ScheduleController {
         const sub = req.query.sub;
         const term = req.query.term;
 
-        let courseList = "";
+        let courseList: string = "";
         if (term == "fallCourseList") courseList = "fallCourseList";
         else if (term == "winterCourseList") courseList = "winterCourseList";
         else courseList = "summerCourseList";
 
-        const data = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        const data = await client.db("get2class").collection("schedules").findOne({ sub });
 
         if (data != null) {
-            res.status(200).json({ "courseList": data[courseList] });
+            res.status(200).json({ "courseList": data[courseList as string] });
         } else {
             res.status(400).send("User not found");
         }
@@ -25,7 +25,7 @@ export class ScheduleController {
         let document;
         
         const filter = {
-            sub: sub
+            sub
         };
 
         if (req.body.fallCourseList) {
@@ -87,7 +87,7 @@ export class ScheduleController {
                     summerCourseList: req.body.summerCourseList
                 }
             };
-        };
+        }
 
         const options = {
             upsert: false
@@ -108,21 +108,21 @@ export class ScheduleController {
         const classFormat = req.query.classFormat;
         const term = req.query.term;
 
-        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub });
 
         if (userScheduleData != null) {
             let classes = userScheduleData[term as string];
             let found = false
             let attendanceVal;
 
-            for (let i = 0; i < classes.length; i++) {
-                if (classes[i].name == className && classes[i].format == classFormat) {
+            for (let c of classes) {
+                if (c.name == className && c.format == classFormat) {
                     found = true;
-                    attendanceVal = classes[i].attended;
+                    attendanceVal = c.attended;
                 }
             }
             
-            if (found == true) {
+            if (found) {
                 res.status(200).json({ attended: attendanceVal });
             } else {
                 res.status(400).send("Class not found");
