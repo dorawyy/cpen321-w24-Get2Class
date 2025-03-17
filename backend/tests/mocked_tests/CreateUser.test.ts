@@ -19,7 +19,7 @@ afterAll(async () => {
     });
     await client.close();
     await cronResetAttendance.stop();
-    server.close();
+    await new Promise((resolve) => { resolve(server.close()); });
 });
 
 // Interface POST /user
