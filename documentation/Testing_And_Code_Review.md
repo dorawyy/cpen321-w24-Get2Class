@@ -14,12 +14,19 @@
 
 #### 2.1.1. Tests
 
-| **Interface**                 | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
+| **Interface**               | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **POST /user/login**          | [`tests/unmocked/authenticationLogin.test.js#L1`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google Authentication API, User DB |
-| **POST /study-groups/create** | ...                                                  | ...                                                | Study Group DB                     |
-| ...                           | ...                                                  | ...                                                | ...                                |
-| ...                           | ...                                                  | ...                                                | ...                                |
+| **POST /user** | [`backend/tests/unmocked_tests/CreateUser.test.ts#L24`](#) | [`backend/tests/mocked_tests/CreateUser.test.ts#L24`](#) | ... |
+| **GET /user** | [`backend/tests/unmocked_tests/GetUser.test.ts#L30`](#) | [`backend/tests/mocked_tests/GetUser.test.ts#L31`](#) | ... |
+| **POST /tokensignin** | [`backend/tests/unmocked_tests/GoogleSignIn.test.ts#L26`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | ... |
+| **PUT /karma** | [`backend/tests/unmocked_tests/UpdateKarma.test.ts#L30`](#) | [`backend/tests/mocked_tests/UpdateKarma.test.ts#L30`](#) | ... |
+| **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L30`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L30`](#) | ... |
+| **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L79`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L78`](#) | ... |
+| **DELETE /schedule** | [`backend/tests/unmocked_tests/DeleteSchedule.test.ts#L26`](#) | [`backend/tests/mocked_tests/DeleteSchedule.test.ts#L28`](#) | ... |
+| **GET /attendance** | [`backend/tests/unmocked_tests/GetAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetAttendance.test.ts#L27`](#) | ... |
+| **GET /schedule** | [`backend/tests/unmocked_tests/GetSchedule.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetSchedule.test.ts#L27`](#) | ... |
+| **PUT /attendance** | [`backend/tests/unmocked_tests/PutAttendance.test.ts#L33`](#) | [`backend/tests/mocked_tests/PutAttendance.test.ts#L30`](#) | ... |
+| **PUT /schedule** | [`backend/tests/unmocked_tests/PutSchedule.test.ts#L25`](#) | [`backend/tests/mocked_tests/PutSchedule.test.ts#L34`](#) | ... |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
@@ -56,8 +63,8 @@ _(Placeholder for Jest coverage screenshot without mocks)_
 
 | **Non-Functional Requirement**  | **Location in Git**                              |
 | ------------------------------- | ----------------------------- |
-| **Schedule Upload Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt:78`](#) |
-| **Attendance Check Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt:157`](#) |
+| **Schedule Upload Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt#L78`](#) |
+| **Attendance Check Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt#L157`](#) |
 
 We directly integrated these tests into our frontend tests.<br>Instructions for running them can be found in section 4.1.
 
@@ -84,7 +91,7 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 ### 4.1. Location in Git of Front-end Test Suite:
 
-`frontend/src/androidTest/java/com/studygroupfinder/`
+`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt`
 
 #### Explanation on How to Run the Tests
 
