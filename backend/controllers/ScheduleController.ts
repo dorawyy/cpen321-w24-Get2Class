@@ -6,14 +6,16 @@ export class ScheduleController {
         const sub = req.query.sub;
         const term = req.query.term;
 
-        let courseList: string = "";
+        let allowedKeys = ["fallCourseList", "winterCourseList", "summerCourseList"];
+
+        let courseList = "";
         if (term == "fallCourseList") courseList = "fallCourseList";
         else if (term == "winterCourseList") courseList = "winterCourseList";
         else courseList = "summerCourseList";
 
         const data = await client.db("get2class").collection("schedules").findOne({ sub });
 
-        if (data != null) {
+        if (allowedKeys.includes(courseList) && data != null) {
             res.status(200).json({ "courseList": data[courseList] });
         } else {
             res.status(400).send("User not found");
@@ -143,9 +145,9 @@ export class ScheduleController {
         if (userScheduleData != null) {
             let classes = userScheduleData[term];
 
-            for (let i = 0; i < classes.length; i++) {
-                if (classes[i].name == className && classes[i].format == classFormat) {
-                    classes[i].attended = true;
+            for (let c of classes) {
+                if (c.name == className && c.format == classFormat) {
+                    c.attended = true;
                 }
             }
 
