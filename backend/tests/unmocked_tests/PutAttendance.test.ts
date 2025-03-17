@@ -8,22 +8,19 @@ let server: Server;
 
 beforeAll(async () => {
     server = await serverReady;  // Wait for the server to be ready
-});
-
-beforeEach(async() => {
     let schedule = myDBScheduleItem;
     schedule.fallCourseList = mySchedule.courses;
     schedule.summerCourseList = mySchedule.courses;
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
 });
 
-afterEach(async() => {
+afterAll(async () => {
     await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
     });
-});
-
-afterAll(async () => {
+    await client.db("get2class").collection("schedules").deleteMany({
+        sub: myUser.sub
+    });
     await client.close();
     cronResetAttendance.stop();
     await server.close();
@@ -42,6 +39,8 @@ describe("Unmocked: PUT /attendance", () => {
         const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('acknowledged');
+        expect(res.body).toHaveProperty('message');
     });
 
     test("Empty schedule 'winterCourseList'", async () => {
@@ -68,6 +67,8 @@ describe("Unmocked: PUT /attendance", () => {
         const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('acknowledged');
+        expect(res.body).toHaveProperty('message');
     });
 
     test("Invalid request 'springCourseList'", async () => {
@@ -83,7 +84,7 @@ describe("Unmocked: PUT /attendance", () => {
         expect(res.statusCode).toBe(400);
     });
 
-    test("Invalid sub", async () => {
+    test("Invalid user sub", async () => {
         const req = {
             sub: "Ryan Gosling",
             className: mySchedule.courses[0]["name"],
@@ -97,7 +98,9 @@ describe("Unmocked: PUT /attendance", () => {
     });
     
     test("Empty request body", async () => {
-        const res = await request(server).put("/attendance").send({});
+        const req = {};
+        const res = await request(server).put("/attendance").send(req);
         expect(res.statusCode).toBe(400);
+        expect(res.body).toHaveProperty('errors');
     });
 });
