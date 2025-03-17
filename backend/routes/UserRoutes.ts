@@ -7,7 +7,7 @@ export const UserRoutes = [
     {
         method: "post",
         route: "/tokensignin",
-        action: controller.tokenSignIn,
+        action: controller.tokenSignIn.bind(controller),
         validation: [
             body("idToken").exists().isString(),
             body("audience").exists().isString()
@@ -16,35 +16,35 @@ export const UserRoutes = [
     {
         method: "get",
         route: "/user",
-        action: controller.findUser,
+        action: controller.findUser.bind(controller),
         validation: [
-            query("sub").exists().isString()
+            query("sub").exists().isAlphanumeric()
         ]
     },
     {
         method: "post",
         route: "/user",
-        action: controller.createUser,
+        action: controller.createUser.bind(controller),
         validation: [
             body("email").isString(),
-            body("sub").exists().isString(),
+            body("sub").exists().isAlphanumeric(),
             body("name").isString()
         ]
     },
     {
         method: "get",
         route: "/notification_settings",
-        action: controller.getNotifications,
+        action: controller.getNotifications.bind(controller),
         validation: [
-            query("sub").exists().isString()
+            query("sub").exists().isAlphanumeric()
         ]
     },
     {
         method: "put",
         route: "/notification_settings",
-        action: controller.updateNotifications,
+        action: controller.updateNotifications.bind(controller),
         validation: [
-            body("sub").exists().isString(),
+            body("sub").exists().isAlphanumeric(),
             body("notificationsEnabled").isBoolean(),
             body("notificationTime").toInt()
         ]
@@ -52,9 +52,9 @@ export const UserRoutes = [
     {
         method: "put",
         route: "/karma",
-        action: controller.updateKarma,
+        action: controller.updateKarma.bind(controller),
         validation: [
-            body("sub").exists().isString(),
+            body("sub").exists().isAlphanumeric(),
             body("karma").isInt()
         ]
     }

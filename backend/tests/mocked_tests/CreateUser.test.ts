@@ -20,7 +20,13 @@ afterAll(async () => {
     await server.close();
 });
 
+// Interface POST /user
 describe("Mocked: POST /user", () => {
+    // Mocked behavior: client db/collection throws an error
+    // Input: valid email, subject id, and name
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to reach get2class database", async () => {
         const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
             throw new Error("Database connection error");
@@ -39,6 +45,11 @@ describe("Mocked: POST /user", () => {
         dbSpy.mockRestore();
     });
 
+    // Mocked behavior: client db/collection throws an error at the first client.db.collection call
+    // Input: valid email, subject id, and name
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failiure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to create user in users collection", async () => {
         const userCollectionMock = jest.fn().mockImplementationOnce(() => {
             throw new Error("Database connection error");
@@ -64,6 +75,11 @@ describe("Mocked: POST /user", () => {
         dbSpy.mockRestore();
     });
 
+    // Mocked behavior: client db/collection throws an error throws an error at the second client.db.collection call
+    // Input: valid email, subject id, and name
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to create schedule in schedules collection", async () => {
         const mockUserInsertResult = { sub: "123" };
         const insertUserMock = jest.fn().mockResolvedValueOnce(mockUserInsertResult);

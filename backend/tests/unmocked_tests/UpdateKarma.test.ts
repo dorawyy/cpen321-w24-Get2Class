@@ -26,7 +26,12 @@ afterAll(async () => {
     await server.close();
 });
 
+// Interface PUT /karma
 describe("Unmocked: PUT /karma", () => {
+    // Input: valid request body contains subject id and karma
+    // Expected status code: 200
+    // Expected behavior: should return success status code and body contains karma update acknowledgement and message
+    // Expected output: acknowledged, message
     test("Update valid user karma points", async () => {
         const res = await request(server).put("/karma").send({
             sub: "123",
@@ -38,6 +43,10 @@ describe("Unmocked: PUT /karma", () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    // Input: valid request body contains subject id and karma
+    // Expected status code: 400
+    // Expected behavior: should return error status code and body is empty with text error message
+    // Expected output: empty body and text error message "User not found"
     test("Unable to update a nonexistent user karma points", async () => {
         const res = await request(server).put("/karma").send({
             sub: "321",
@@ -49,6 +58,10 @@ describe("Unmocked: PUT /karma", () => {
         expect(res.body).toEqual({});
     });
 
+    // Input: missing data field in request body
+    // Expected status code: 400
+    // Expected behavior: should return error status code and body contains 'errors' due to missing fields in request body
+    // Expected output: errors
     test("Missing data field when updating karma points", async () => {
         const res = await request(server).put("/karma").send({
             sub: "123"
@@ -58,6 +71,10 @@ describe("Unmocked: PUT /karma", () => {
         expect(res.body).toHaveProperty('errors');
     });
 
+    // Input: valid request body contains subject id and karma
+    // Expected status code: 400
+    // Expected behavior: should return error status code and body is empty with text error message
+    // Expected output: empty body and text error message "Unable to update karma"
     test("Updating karma with 0 points", async () => {
         const res = await request(server).put("/karma").send({
             sub: "123",
@@ -65,9 +82,14 @@ describe("Unmocked: PUT /karma", () => {
         });
 
         expect(res.statusCode).toBe(400);
-        expect(res.text).toBe("Unable to update karma")
-    })
+        expect(res.text).toBe("Unable to update karma");
+        expect(res.body).toEqual({});
+    });
 
+    // Input: empty request body
+    // Expected status code: 400
+    // Expected behavior: should return error status code and body contains 'errors' due to missing request body
+    // Expected output: errors
     test("No body in request", async () => {
         const res = await request(server).put("/karma").send({});
 

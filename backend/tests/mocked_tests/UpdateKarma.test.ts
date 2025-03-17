@@ -26,7 +26,13 @@ afterAll(async () => {
     await server.close();
 });
 
+// Interface PUT /karma
 describe("Mocked: PUT /karma", () => {
+    // Mocked behavior: client db/collection throws an error
+    // Input: valid subject id and karma
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failiure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to reach get2class database when finding user to update karma for", async () => {
         const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
             throw new Error("Database connection error");
@@ -44,6 +50,11 @@ describe("Mocked: PUT /karma", () => {
         dbSpy.mockRestore();
     });
 
+    // Mocked behavior: client db/collection throws an error at the first client.db.collection call
+    // Input: valid subject id and karma
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failiure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to reach first get2class db user collection call", async () => {
         const userCollectionMock = jest.fn().mockImplementationOnce(() => {
             throw new Error("Database connection error");
@@ -68,6 +79,11 @@ describe("Mocked: PUT /karma", () => {
         dbSpy.mockRestore();
     });
 
+    // Mocked behavior: client db/collection throws an error at the second client.db.collection call
+    // Input: valid subject id and karma
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failiure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to reach second get2class db user collection call", async () => {
         const mockFindOne = jest.fn().mockResolvedValueOnce({
             findOne: () => ({ sub: "123" })

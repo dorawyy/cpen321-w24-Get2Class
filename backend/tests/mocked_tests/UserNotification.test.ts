@@ -26,7 +26,13 @@ afterAll(async () => {
     await server.close();
 });
 
+// Interface GET /notification_settings
 describe("Mocked: GET /notification_settings", () => {
+    // Mocked behavior: client db/collection throws an error
+    // Input: valid subject id
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failiure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to reach get2class db when getting user notification settings", async () => {
         const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
             throw new Error("Database connection error");
@@ -41,6 +47,11 @@ describe("Mocked: GET /notification_settings", () => {
         dbSpy.mockRestore();
     });
 
+    // Mocked behavior: client db/collection throws an error at the first client.db.collection call
+    // Input: valid subject id
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failiure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to reach get2class db users collection", async () => {
         const userCollectionMock = jest.fn().mockImplementationOnce(() => {
             throw new Error("Database connection error");
@@ -63,7 +74,13 @@ describe("Mocked: GET /notification_settings", () => {
     });
 });
 
+// Interface PUT /notification_settings
 describe("Mocked: PUT /notification_settings", () => {
+    // Mocked behavior: client db/collection throws an error
+    // Input: valid subject id, notificationTime, and notificationsEnabled fields
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failiure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to reach get2class db when updating user notification settings", async () => {
         const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
             throw new Error("Database connection error");
@@ -82,6 +99,11 @@ describe("Mocked: PUT /notification_settings", () => {
         dbSpy.mockRestore();
     });
 
+    // Mocked behavior: client db/collection throws an error at the first client.db.collection call
+    // Input: valid subject id, notificationTime, and notificationsEnabled fields
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failiure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Database error when attempting to reach get2class db users collection", async () => {
         const userCollectionMock = jest.fn().mockImplementationOnce(() => {
             throw new Error("Database connection error");

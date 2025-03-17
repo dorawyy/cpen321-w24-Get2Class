@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { client } from "./services";
 import { UserRoutes } from './routes/UserRoutes';
@@ -17,39 +17,38 @@ app.use(morgan('tiny'));
 const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
     try {
         const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
-        console.log(allSchedules);
-        for (let i = 0; i < allSchedules.length; i++) {
-            if (allSchedules[i]["fallCourseList"].length != 0) {
-                for (let j = 0; j < allSchedules[i]["fallCourseList"].length; j++) {
-                    allSchedules[i]["fallCourseList"][j]["attended"] = false;
+        for (let schedule of allSchedules) {
+            if (schedule.fallCourseList.length != 0) {
+                for (let course of schedule.fallCourseList) {
+                    course.attended = false;
                 }
             }
-            if (allSchedules[i]["winterCourseList"].length != 0) {
-                for (let j = 0; j < allSchedules[i]["winterCourseList"].length; j++) {
-                    allSchedules[i]["winterCourseList"][j]["attended"] = false;
+            if (schedule.winterCourseList.length != 0) {
+                for (let course of schedule.winterCourseList) {
+                    course.attended = false;
                 }
             }
-            if (allSchedules[i]["summerCourseList"].length != 0) {
-                for (let j = 0; j < allSchedules[i]["summerCourseList"].length; j++) {
-                    allSchedules[i]["summerCourseList"][j]["attended"] = false;
+            if (schedule.summerCourseList.length != 0) {
+                for (let course of schedule.summerCourseList) {
+                    course.attended = false
                 }
             }
         }
 
-        for (let i = 0; i < allSchedules.length; i++) {
+        for (let schedule of allSchedules) {
             const filter = {
-                sub: allSchedules[i]["sub"]
+                sub: schedule.sub
             };
 
             const document = {
                 $set: {
-                    fallCourseList: allSchedules[i]["fallCourseList"],
-                    winterCourseList: allSchedules[i]["winterCourseList"],
-                    summerCourseList: allSchedules[i]["summerCourseList"]
+                    fallCourseList: schedule.fallCourseList,
+                    winterCourseList: schedule.winterCourseList,
+                    summerCourseList: schedule.summerCourseList
                 }
             };
-
-            const updatedData = await client.db("get2class").collection("schedules").updateOne(filter, document);
+            
+            await client.db("get2class").collection("schedules").updateOne(filter, document);
         }
     } catch (err) {
         console.error(err);
@@ -65,7 +64,7 @@ UserRoutes.forEach((route) => {
     (app as any)[route.method] (
         route.route,
         route.validation,
-        async (req: Request, res: Response, next: NextFunction) => {
+        async (req: Request, res: Response) => {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 /* If there are validation errors, send a response with the error messages */
@@ -75,11 +74,10 @@ UserRoutes.forEach((route) => {
             try {
                 await route.action(
                     req,
-                    res,
-                    next,
+                    res
                 );
             } catch (err) {
-                console.log(err);
+                console.error(err);
                 return res.sendStatus(500); // Don't expose internal server workings
             }
         },
@@ -93,7 +91,7 @@ ScheduleRoutes.forEach((route) => {
     (app as any)[route.method] (
         route.route,
         route.validation,
-        async (req: Request, res: Response, next: NextFunction) => {
+        async (req: Request, res: Response) => {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 /* If there are validation errors, send a response with the error messages */
@@ -103,11 +101,10 @@ ScheduleRoutes.forEach((route) => {
             try {
                 await route.action(
                     req,
-                    res,
-                    next,
+                    res
                 );
             } catch (err) {
-                console.log(err);
+                console.error(err);
                 return res.sendStatus(500); // Don't expose internal server workings
             }
         },
@@ -139,41 +136,40 @@ app.post('/get2class', (req: Request, res: Response) => {
 // app.get('/test', async (req: Request, res: Response) => {
 //     try {
 //         const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
-//         console.log(allSchedules);
-//         for (let i = 0; i < allSchedules.length; i++) {
-//             if (allSchedules[i]["fallCourseList"].length != 0) {
-//                 for (let j = 0; j < allSchedules[i]["fallCourseList"].length; j++) {
-//                     allSchedules[i]["fallCourseList"][j]["attended"] = false;
+//         for (let schedule of allSchedules) {
+//             if (schedule.fallCourseList.length != 0) {
+//                 for (let course of schedule.fallCourseList) {
+//                     course.attended = false;
 //                 }
 //             }
-//             if (allSchedules[i]["winterCourseList"].length != 0) {
-//                 for (let j = 0; j < allSchedules[i]["winterCourseList"].length; j++) {
-//                     allSchedules[i]["winterCourseList"][j]["attended"] = false;
+//             if (schedule.winterCourseList.length != 0) {
+//                 for (let course of schedule.winterCourseList) {
+//                     course.attended = false;
 //                 }
 //             }
-//             if (allSchedules[i]["summerCourseList"].length != 0) {
-//                 for (let j = 0; j < allSchedules[i]["summerCourseList"].length; j++) {
-//                     allSchedules[i]["summerCourseList"][j]["attended"] = false;
+//             if (schedule.summerCourseList.length != 0) {
+//                 for (let course of schedule.summerCourseList) {
+//                     course.attended = false
 //                 }
 //             }
 //         }
 
-//         for (let i = 0; i < allSchedules.length; i++) {
+//         for (let schedule of allSchedules) {
 //             const filter = {
-//                 sub: allSchedules[i]["sub"]
+//                 sub: schedule.sub
 //             };
 
 //             const document = {
 //                 $set: {
-//                     fallCourseList: allSchedules[i]["fallCourseList"],
-//                     winterCourseList: allSchedules[i]["winterCourseList"],
-//                     summerCourseList: allSchedules[i]["summerCourseList"]
+//                     fallCourseList: schedule.fallCourseList,
+//                     winterCourseList: schedule.winterCourseList,
+//                     summerCourseList: schedule.summerCourseList
 //                 }
 //             };
-
-//             const updatedData = await client.db("get2class").collection("schedules").updateOne(filter, document);
+            
+//             await client.db("get2class").collection("schedules").updateOne(filter, document);
 //         }
-//         res.status(200).send("working");
+//         res.status(200).send("Attendance reset for all courses");
 //     } catch (err) {
 //         console.error(err);
 //         res.status(500).send(err);
@@ -199,7 +195,7 @@ const serverReady = client.connect().then(() => {
 
     return new Promise((resolve) => {
         const server = app.listen(process.env.PORT, () => {
-            console.log("Listening on port " + process.env.PORT);
+            console.log("Listening on port", process.env.PORT);
             resolve(server);
         });
     });
