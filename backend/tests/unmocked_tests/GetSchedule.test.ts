@@ -27,6 +27,10 @@ afterAll(async () => {
 
 // Interface GET /schedule
 describe("Unmocked: GET /schedule", () => {
+    // Input: empty request body
+    // Expected status code: 400
+    // Expected behavior: should return error status code and contain 'errors' in body for missing field
+    // Expected output: errors
     test("Empty request body", async () => {
         const req = {};
 
@@ -35,7 +39,11 @@ describe("Unmocked: GET /schedule", () => {
         expect(res.statusCode).toBe(400);
         expect(res.body).toHaveProperty('errors');
     });
-    
+
+    // Input: valid subject id and invalid term string "springCourseList"
+    // Expected status code: 400
+    // Expected behavior: should return error status code and contain a message text explaining that the schedule was not found
+    // Expected output: empty body and "User not found"
     test("Invalid term string", async () => {
         const req = {
             sub: myUser.sub,
@@ -45,8 +53,14 @@ describe("Unmocked: GET /schedule", () => {
         const res = await request(server).get("/schedule")
             .query(req);
         expect(res.statusCode).toBe(400);
+        expect(res.text).toBe("User not found");
+        expect(res.body).toEqual({});
     });
 
+    // Input: valid subject id and term string "fallCourseList"
+    // Expected status code: 200
+    // Expected bahaviour: should return status success and a body containing the requested schedule
+    // Expected output: "courseList"
     test("Valid request 'fallCourseList", async () => {
         const req = {
             sub: myUser.sub,
@@ -59,6 +73,10 @@ describe("Unmocked: GET /schedule", () => {
         expect(res.body).toHaveProperty('courseList');
     });
 
+    // Input: valid subject id and term string "winterCourseList"
+    // Expected status code: 200
+    // Expected bahaviour: should return status success and a body containing the requested schedule
+    // Expected output: "courseList"
     test("Valid request 'winterCourseList", async () => {
         const req = {
             sub: myUser.sub,
@@ -71,6 +89,10 @@ describe("Unmocked: GET /schedule", () => {
         expect(res.body).toHaveProperty('courseList');
     });
 
+    // Input: valid subject id and term string "summerCourseList"
+    // Expected status code: 200
+    // Expected bahaviour: should return status success and a body containing the requested schedule
+    // Expected output: "courseList"
     test("Valid request 'summerCourseList", async () => {
         const req = {
             sub: myUser.sub,
@@ -83,6 +105,10 @@ describe("Unmocked: GET /schedule", () => {
         expect(res.body).toHaveProperty('courseList');
     });
 
+    // Input: an invalid subject id and a valid term string
+    // Expected status code: 400
+    // Expected behavior: should return error status code and contain a message text explaining that schedule was not found
+    // Expected output: empty body and "User not found"
     test("Invalid user sub", async () => {
         const req = {
             sub: "Ryan Gosling",
@@ -92,6 +118,7 @@ describe("Unmocked: GET /schedule", () => {
         const res = await request(server).get("/schedule")
             .query(req);
         expect(res.statusCode).toBe(200);
-        expect(res.body).toHaveProperty('courseList');
+        expect(res.text).toBe("User not found");
+        expect(res.body).toEqual({});
     });
 });

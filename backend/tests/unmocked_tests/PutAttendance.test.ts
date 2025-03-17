@@ -26,8 +26,12 @@ afterAll(async () => {
     await server.close();
 });
 
-
+// Interface PUT /attendance
 describe("Unmocked: PUT /attendance", () => {
+    // Input: valid subject id and term string "fallCourseList"
+    // Expected status code: 200
+    // Expected bahaviour: should return status success and a body acknowledging schedule db updates
+    // Expected output: acknowledged, message
     test("Valid request 'fallCourseList'", async () => {
         const req = {
             sub: myUser.sub,
@@ -43,6 +47,10 @@ describe("Unmocked: PUT /attendance", () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    // Input: valid subject id and term string "winterCourseList" corresponding to an empty schedule
+    // Expected status code: 400
+    // Expected bahaviour: should return error status code and contain a message text explaining that attendance was not updated
+    // Expected output: empty body and "Unable to clear schedule"
     test("Empty schedule 'winterCourseList'", async () => {
         const req = {
             sub: myUser.sub,
@@ -54,8 +62,14 @@ describe("Unmocked: PUT /attendance", () => {
         const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(400);
+        expect(res.text).toBe("Unable to clear schedule");
+        expect(res.body).toEqual({});
     });
 
+    // Input: valid subject id and term string "summerCourseList"
+    // Expected status code: 200
+    // Expected bahaviour: should return status success and a body acknowledging schedule db updates
+    // Expected output: acknowledged, message
     test("Valid request 'summerCourseList'", async () => {
         const req = {
             sub: myUser.sub,
@@ -71,6 +85,10 @@ describe("Unmocked: PUT /attendance", () => {
         expect(res.body).toHaveProperty('message');
     });
 
+    // Input: valid subject id and invalid term string "springCourseList"
+    // Expected status code: 400
+    // Expected behavior: should return error status code and contain a message text explaining that attendance was not updated
+    // Expected output: empty body and "Unable to clear schedule"
     test("Invalid request 'springCourseList'", async () => {
         const req = {
             sub: myUser.sub,
@@ -82,8 +100,14 @@ describe("Unmocked: PUT /attendance", () => {
         const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(400);
+        expect(res.text).toBe("Unable to clear schedule");
+        expect(res.body).toEqual({});
     });
 
+    // Input: valid subject id and invalid term string "springCourseList"
+    // Expected status code: 400
+    // Expected behavior: should return error status code and contain a message text explaining that user was not found
+    // Expected output: empty body and "Could not find user schedule data"
     test("Invalid user sub", async () => {
         const req = {
             sub: "Ryan Gosling",
@@ -95,8 +119,14 @@ describe("Unmocked: PUT /attendance", () => {
         const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(400);
+        expect(res.text).toBe("Could not find user schedule data");
+        expect(res.body).toEqual({});
     });
     
+    // Input: empty request body
+    // Expected status code: 400
+    // Expected behavior: should return error status code and contain 'errors' in body for missing field
+    // Expected output: errors
     test("Empty request body", async () => {
         const req = {};
         const res = await request(server).put("/attendance").send(req);
