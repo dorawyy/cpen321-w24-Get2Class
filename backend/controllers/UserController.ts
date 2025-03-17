@@ -75,7 +75,7 @@ export class UserController {
         const document = {
             $set: {
                 notificationsEnabled,
-                notificationTime: notificationTime
+                notificationTime
             },
         };
 

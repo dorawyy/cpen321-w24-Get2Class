@@ -4,6 +4,7 @@ import { client } from "./services";
 import { UserRoutes } from './routes/UserRoutes';
 import morgan from 'morgan';
 import { ScheduleRoutes } from './routes/ScheduleRoutes';
+import { Server } from 'http';
 
 const app = express();
 var cron = require('node-cron');
@@ -190,10 +191,10 @@ app.post('/get2class', (req: Request, res: Response) => {
 //     client.close();
 // });
 
-const serverReady = client.connect().then(() => {
+const serverReady: Promise<Server> = client.connect().then(() => {
     console.log("MongoDB Client Connected");
 
-    return new Promise((resolve) => {
+    return new Promise<Server>((resolve) => {
         const server = app.listen(process.env.PORT, () => {
             console.log("Listening on port", process.env.PORT);
             resolve(server);
@@ -202,6 +203,7 @@ const serverReady = client.connect().then(() => {
 }).catch(err => {
     console.error(err);
     client.close();
+    return Promise.reject(err);
 });
 
 export { app, serverReady, cronResetAttendance }
