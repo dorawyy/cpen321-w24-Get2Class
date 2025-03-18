@@ -20,7 +20,12 @@ export class UserController {
         const sub = query.sub;
 
         const userData = await client.db("get2class").collection("users").findOne({ sub });
-        res.status(200).send(userData);
+
+        if (userData) {
+            res.status(200).send(userData);
+        } else {
+            res.status(400).send("User does not exist");
+        }
     }
 
     async createUser(req: Request, res: Response) {
