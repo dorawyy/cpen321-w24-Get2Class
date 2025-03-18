@@ -18,9 +18,6 @@ afterAll(async () => {
     await client.db("get2class").collection("schedules").deleteOne({
         sub: myUser.sub
     });
-    await client.db("get2class").collection("schedules").deleteMany({
-        sub: myUser.sub
-    });
     await client.close();
     cronResetAttendance.stop();
     await new Promise((resolve) => { resolve(server.close()); });
