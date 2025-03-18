@@ -95,13 +95,15 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 #### Explanation on How to Run the Tests
 
-1. Make sure the settings app is on your emulated device's home screen.
-2. Make sure the device's date is set to March 2025.
-3. Turn off Window animation scale, Transition animation scale, and Animator duration scale in the device's developer settings.
-3. Copy the file get2class/documentation/View_My_Courses.xlsx to the device's downloads folder without changing its name.
-4. Open the test in frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt.
-5. Change the NAME variable to the name that shows up when you sign in with Google
-6. Run the test. If it fails due to emulator lag, manually upload and clear a schedule the rerun the test. 
+1. Read get2class/frontend/README.md to set up the frontend.
+2. Make sure the settings app is on your emulated device's home screen.
+3. In the device's settings, disable "Set time automatically" and if needed set to the date to March 2025.
+4. Turn off Window animation scale, Transition animation scale, and Animator duration scale in the device's developer settings.
+5. Copy the file get2class/documentation/View_My_Courses.xlsx to the device's downloads folder without changing its name.
+6. Make sure when tapping upload in the app, it opens to the folder containing the file.
+7. Open the test in frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt.
+8. Change the NAME variable to the name that shows up when you sign in with Google
+9. Run the test. If it fails due to emulator lag, manually upload and clear a schedule the rerun the test. 
 
 
 ### 4.2. Tests
