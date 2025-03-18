@@ -1,8 +1,9 @@
+import { Server } from 'http';
 import { serverReady, cronResetAttendance } from '../../index';
 import { client } from '../../services';
 import request from 'supertest';
 
-let server: any;
+let server: Server;
 
 beforeAll(async () => {
     server = await serverReady;
@@ -17,7 +18,7 @@ afterAll(async () => {
     });
     await client.close();
     await cronResetAttendance.stop();
-    await server.close();
+    await new Promise((resolve) => { resolve(server.close()); });
 });
 
 // Interface POST /user
