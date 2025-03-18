@@ -1,5 +1,5 @@
 import { serverReady, cronResetAttendance } from '../../index';
-import { mySchedule, myUser, myDBScheduleItem, DBScheduleItem } from "../utils";
+import { mySchedule, myUser, myDBScheduleItem } from "../utils";
 import { client } from '../../services';
 import request from 'supertest';
 import { Server } from "http";
