@@ -1,7 +1,6 @@
 import { Server } from 'http';
 import { serverReady, cronResetAttendance, resetAttendanceController } from '../../index';
 import { client } from '../../services';
-import request from 'supertest';
 import { Db } from 'mongodb';
 
 let server: Server;
