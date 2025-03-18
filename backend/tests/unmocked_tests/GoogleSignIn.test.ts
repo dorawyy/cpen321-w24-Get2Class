@@ -2,8 +2,9 @@ import { OAuth2Client } from "google-auth-library";
 import { serverReady, cronResetAttendance } from '../../index';
 import { client } from '../../services';
 import request from 'supertest';
+import { Server } from "http";
 
-let server: any;
+let server: Server;
 
 jest.mock('google-auth-library', () => {
     return {
@@ -18,7 +19,7 @@ beforeAll(async () => {
 afterAll(async () => {
     await client.close();
     await cronResetAttendance.stop();
-    await server.close();
+    await new Promise((resolve) => { resolve(server.close()); });
     jest.resetAllMocks();
 });
 
@@ -33,7 +34,7 @@ describe("Unmocked: POST /tokensignin", () => {
             getPayload: () => ({ sub: "123" })
         });
 
-        (OAuth2Client as any).mockImplementation(() => ({
+        (OAuth2Client as unknown as jest.Mock).mockImplementation(() => ({
             verifyIdToken: mockVerifyIdToken
         }));
 
@@ -60,7 +61,7 @@ describe("Unmocked: POST /tokensignin", () => {
             getPayload: () => ({ sub: "123" })
         });
 
-        (OAuth2Client as any).mockImplementation(() => ({
+        (OAuth2Client as unknown as jest.Mock).mockImplementation(() => ({
             verifyIdToken: mockVerifyIdToken
         }));
 
@@ -69,5 +70,5 @@ describe("Unmocked: POST /tokensignin", () => {
         expect(mockVerifyIdToken).toHaveBeenCalledTimes(0);
         expect(res.statusCode).toBe(400);
         expect(res.body).toHaveProperty('errors');
-    })
+    });
 });
