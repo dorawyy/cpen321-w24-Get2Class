@@ -2,7 +2,7 @@
 // import { client } from '../../services';
 // import { Server } from "http";
 
-export type User = {
+export interface User {
     email: string;
     sub: string;
     name: string;
@@ -11,7 +11,7 @@ export type User = {
     notificationsEnabled: boolean;
 };
 
-export type DBScheduleItem = {
+export interface DBScheduleItem {
     email: string;
     sub: string;
     name: string;
@@ -20,7 +20,7 @@ export type DBScheduleItem = {
     summerCourseList: Course[];
 };
 
-export type Course = {
+export interface Course {
     name: string;
     daysBool: string;  // Consider using `boolean[]` instead if storing actual boolean values
     startTime: string; // Consider using a tuple `[number, number]` if parsing (hours, minutes)
@@ -33,7 +33,7 @@ export type Course = {
     attended: string;  // Consider using `boolean` if storing actual boolean values
 };
 
-export type Schedule = {
+export interface Schedule {
     courses: Course[];
 };
 
