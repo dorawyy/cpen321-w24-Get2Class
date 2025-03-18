@@ -33,7 +33,7 @@ describe("Unmocked: GET /attendance", () => {
         const req = {
             sub: myUser.sub,
             className: "Introduction to Conspiracy Theories",
-            classFormat: mySchedule.courses[0]["format"],
+            classFormat: mySchedule.courses[0].format,
             term: "fallCourseList"
         }
 
@@ -51,8 +51,8 @@ describe("Unmocked: GET /attendance", () => {
     test("Valid request", async () => {
         const req = {
             sub: myUser.sub,
-            className: mySchedule.courses[0]["name"],
-            classFormat: mySchedule.courses[0]["format"],
+            className: mySchedule.courses[0].name,
+            classFormat: mySchedule.courses[0].format,
             term: "fallCourseList"
         }
 
@@ -69,8 +69,8 @@ describe("Unmocked: GET /attendance", () => {
     test("Invalid user sub", async () => {
         const req = {
             sub: "Ryan Gosling",
-            className: mySchedule.courses[0]["name"],
-            classFormat: mySchedule.courses[0]["format"],
+            className: mySchedule.courses[0].name,
+            classFormat: mySchedule.courses[0].format,
             term: "fallCourseList"
         }
 

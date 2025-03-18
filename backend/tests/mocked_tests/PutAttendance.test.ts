@@ -40,8 +40,8 @@ describe("Mocked: PUT /attendance", () => {
 
         const req = {
             sub: myUser.sub,
-            className: mySchedule.courses[0]["name"],
-            classFormat: mySchedule.courses[0]["format"],
+            className: mySchedule.courses[0].name,
+            classFormat: mySchedule.courses[0].format,
             term: "fallCourseList"
         }
 

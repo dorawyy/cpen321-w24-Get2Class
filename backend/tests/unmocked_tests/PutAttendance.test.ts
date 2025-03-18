@@ -35,8 +35,8 @@ describe("Unmocked: PUT /attendance", () => {
     test("Valid request 'fallCourseList'", async () => {
         const req = {
             sub: myUser.sub,
-            className: mySchedule.courses[0]["name"],
-            classFormat: mySchedule.courses[0]["format"],
+            className: mySchedule.courses[0].name,
+            classFormat: mySchedule.courses[0].format,
             term: "fallCourseList"
         }
 
@@ -54,8 +54,8 @@ describe("Unmocked: PUT /attendance", () => {
     test("Empty schedule 'winterCourseList'", async () => {
         const req = {
             sub: myUser.sub,
-            className: mySchedule.courses[0]["name"],
-            classFormat: mySchedule.courses[0]["format"],
+            className: mySchedule.courses[0].name,
+            classFormat: mySchedule.courses[0].format,
             term: "winterCourseList"
         }
 
@@ -73,8 +73,8 @@ describe("Unmocked: PUT /attendance", () => {
     test("Valid request 'summerCourseList'", async () => {
         const req = {
             sub: myUser.sub,
-            className: mySchedule.courses[0]["name"],
-            classFormat: mySchedule.courses[0]["format"],
+            className: mySchedule.courses[0].name,
+            classFormat: mySchedule.courses[0].format,
             term: "summerCourseList"
         }
 
@@ -92,8 +92,8 @@ describe("Unmocked: PUT /attendance", () => {
     test("Invalid request 'springCourseList'", async () => {
         const req = {
             sub: myUser.sub,
-            className: mySchedule.courses[0]["name"],
-            classFormat: mySchedule.courses[0]["format"],
+            className: mySchedule.courses[0].name,
+            classFormat: mySchedule.courses[0].format,
             term: "springCourseList"
         }
 
@@ -111,8 +111,8 @@ describe("Unmocked: PUT /attendance", () => {
     test("Invalid user sub", async () => {
         const req = {
             sub: "Ryan Gosling",
-            className: mySchedule.courses[0]["name"],
-            classFormat: mySchedule.courses[0]["format"],
+            className: mySchedule.courses[0].name,
+            classFormat: mySchedule.courses[0].format,
             term: "fallCourseList"
         }
 
