@@ -19,7 +19,7 @@ app.use(morgan('tiny'));
  */
 const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
     try {
-        resetAttendanceController.resetAttendance();
+        await resetAttendanceController.resetAttendance();
     } catch (err) {
         console.error(err);
     }
