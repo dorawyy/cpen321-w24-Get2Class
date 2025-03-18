@@ -88,7 +88,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 3. A popup or page reroute will occur requesting the user to upload a (valid) .xlsx file (from Workday)
                 4. Once the user successfully uploads an .xlsx file of their schedule, the blank schedule will become populated with the users uploaded schedule 
             - **Failure scenario(s)**:
-                - 3a. The user uploads their schedule to the worng term
+                - 3a. The user uploads their schedule to the wrong term
                     - 3a1. An error message is displayed telling the user that that the schedule is not for the currently selected term
         2. **View Schedule**<a name="fr2_3"></a>:
             - **Description**: The user can view their schedules and a particular schedule
