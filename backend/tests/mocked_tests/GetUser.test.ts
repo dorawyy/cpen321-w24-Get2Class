@@ -1,8 +1,10 @@
+import { Server } from 'http';
 import { serverReady, cronResetAttendance } from '../../index';
 import { client } from '../../services';
 import request from 'supertest';
+import { Db } from 'mongodb';
 
-let server: any;
+let server: Server;
 
 beforeAll(async () => {
     server = await serverReady;
@@ -24,7 +26,7 @@ afterAll(async () => {
 
     await client.close();
     await cronResetAttendance.stop();
-    await server.close();
+    await new Promise((resolve) => { resolve(server.close()); });
 });
 
 // Interface GET /user
@@ -58,9 +60,13 @@ describe("Mocked: GET /user", () => {
             throw new Error("Database connection error");
         });
 
-        const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce({
+        const dbMock = {
             collection: userCollectionMock
-        } as any);
+        } as Partial<jest.Mocked<Db>>;
+
+        const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce(
+            dbMock as Db
+        );
 
         const res = await request(server).get('/user').query({ sub: "123" });
 
