@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import { client } from "../services";
 
 export class UserController {
@@ -11,7 +11,7 @@ export class UserController {
             audience: req.body.audience
         });
         
-        const payload: any = ticket.getPayload();
+        const payload = ticket.getPayload() as unknown as TokenPayload;
         res.status(200).json({ sub: payload.sub })
     }
 
