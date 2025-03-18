@@ -117,7 +117,7 @@ describe("Unmocked: GET /schedule", () => {
 
         const res = await request(server).get("/schedule")
             .query(req);
-        expect(res.statusCode).toBe(200);
+        expect(res.statusCode).toBe(400);
         expect(res.text).toBe("User not found");
         expect(res.body).toEqual({});
     });

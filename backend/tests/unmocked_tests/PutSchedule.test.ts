@@ -92,7 +92,7 @@ describe("Unmocked: PUT /schedule", () => {
         };
 
         const res = await request(server).put("/schedule").send(req);
-        expect(res.statusCode).toBe(200);
+        expect(res.statusCode).toBe(400);
         expect(res.text).toBe("Unable to save schedule");
         expect(res.body).toEqual({});
     });

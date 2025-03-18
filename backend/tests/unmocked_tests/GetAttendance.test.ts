@@ -77,7 +77,7 @@ describe("Unmocked: GET /attendance", () => {
         const res = await request(server).get("/attendance")
             .query(req);
         expect(res.statusCode).toBe(400);
-        expect(res.text).toBe("Class not found");
+        expect(res.text).toBe("User not found");
         expect(res.body).toEqual({});
     });
 
