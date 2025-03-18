@@ -16,17 +16,17 @@
 
 | **Interface**               | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **POST /user** | [`backend/tests/unmocked_tests/CreateUser.test.ts#L24`](#) | [`backend/tests/mocked_tests/CreateUser.test.ts#L24`](#) | ... |
-| **GET /user** | [`backend/tests/unmocked_tests/GetUser.test.ts#L30`](#) | [`backend/tests/mocked_tests/GetUser.test.ts#L31`](#) | ... |
-| **POST /tokensignin** | [`backend/tests/unmocked_tests/GoogleSignIn.test.ts#L26`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | ... |
-| **PUT /karma** | [`backend/tests/unmocked_tests/UpdateKarma.test.ts#L30`](#) | [`backend/tests/mocked_tests/UpdateKarma.test.ts#L30`](#) | ... |
-| **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L30`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L30`](#) | ... |
-| **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L79`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L78`](#) | ... |
-| **DELETE /schedule** | [`backend/tests/unmocked_tests/DeleteSchedule.test.ts#L26`](#) | [`backend/tests/mocked_tests/DeleteSchedule.test.ts#L28`](#) | ... |
-| **GET /attendance** | [`backend/tests/unmocked_tests/GetAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetAttendance.test.ts#L27`](#) | ... |
-| **GET /schedule** | [`backend/tests/unmocked_tests/GetSchedule.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetSchedule.test.ts#L27`](#) | ... |
-| **PUT /attendance** | [`backend/tests/unmocked_tests/PutAttendance.test.ts#L33`](#) | [`backend/tests/mocked_tests/PutAttendance.test.ts#L30`](#) | ... |
-| **PUT /schedule** | [`backend/tests/unmocked_tests/PutSchedule.test.ts#L25`](#) | [`backend/tests/mocked_tests/PutSchedule.test.ts#L34`](#) | ... |
+| **POST /user** | [`backend/tests/unmocked_tests/CreateUser.test.ts#L24`](#) | [`backend/tests/mocked_tests/CreateUser.test.ts#L24`](#) | Database client |
+| **GET /user** | [`backend/tests/unmocked_tests/GetUser.test.ts#L30`](#) | [`backend/tests/mocked_tests/GetUser.test.ts#L31`](#) | Database client |
+| **POST /tokensignin** | [`backend/tests/unmocked_tests/GoogleSignIn.test.ts#L26`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google-Authenticator |
+| **PUT /karma** | [`backend/tests/unmocked_tests/UpdateKarma.test.ts#L30`](#) | [`backend/tests/mocked_tests/UpdateKarma.test.ts#L30`](#) | Database client |
+| **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L30`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L30`](#) | Database client |
+| **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L79`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L78`](#) | Database client |
+| **DELETE /schedule** | [`backend/tests/unmocked_tests/DeleteSchedule.test.ts#L26`](#) | [`backend/tests/mocked_tests/DeleteSchedule.test.ts#L28`](#) | Database client |
+| **GET /attendance** | [`backend/tests/unmocked_tests/GetAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetAttendance.test.ts#L27`](#) | Database client |
+| **GET /schedule** | [`backend/tests/unmocked_tests/GetSchedule.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetSchedule.test.ts#L27`](#) | Database client |
+| **PUT /attendance** | [`backend/tests/unmocked_tests/PutAttendance.test.ts#L33`](#) | [`backend/tests/mocked_tests/PutAttendance.test.ts#L30`](#) | Database client |
+| **PUT /schedule** | [`backend/tests/unmocked_tests/PutSchedule.test.ts#L25`](#) | [`backend/tests/mocked_tests/PutSchedule.test.ts#L34`](#) | Database client |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
