@@ -20,7 +20,7 @@ afterAll(async () => {
 
     await client.close();
     cronResetAttendance.stop();
-    await server.close();
+    await new Promise((resolve) => { resolve(server.close()); });
 });
 
 // Interface GET /schedule

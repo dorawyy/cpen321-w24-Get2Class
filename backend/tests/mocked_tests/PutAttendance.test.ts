@@ -23,7 +23,7 @@ afterAll(async () => {
     });
     await client.close();
     cronResetAttendance.stop();
-    await server.close();
+    await new Promise((resolve) => { resolve(server.close()); }); // TODO: change all these
 });
 
 // Interface PUT /attendance
@@ -54,4 +54,6 @@ describe("Mocked: PUT /attendance", () => {
 
         dbSpy.mockRestore();
     });
+
+    // TODO: new test
 });

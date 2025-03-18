@@ -1,3 +1,4 @@
+import { Db } from 'mongodb';
 const { serverReady, cronResetAttendance } = require("../../index");
 const { mySchedule, myUser, myDBScheduleItem, Init } = require("../utils");
 import { client } from '../../services';
@@ -20,7 +21,7 @@ afterAll(async () => {
 
     await client.close();
     cronResetAttendance.stop();
-    await server.close();
+    await new Promise((resolve) => { resolve(server.close()); });
 });
 
 // Interface GET /attendance
@@ -62,9 +63,12 @@ describe("Mocked: GET /attendance", () => {
             throw new Error("Database connection error");
         });
 
-        const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce({
+        const dbMock = {
             collection: scheduleCollectionMock
-        } as any);
+        } as Partial<jest.Mocked<Db>>
+
+        const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce(dbMock as Db);
+        
 
         const req = {
             sub: myUser.sub,
@@ -81,5 +85,8 @@ describe("Mocked: GET /attendance", () => {
         expect(scheduleCollectionMock).toHaveBeenCalledTimes(1);
         expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(1);
+
+        scheduleCollectionMock.mockRestore();
+        dbSpy.mockRestore();
     });
 });
