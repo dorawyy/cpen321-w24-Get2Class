@@ -66,7 +66,12 @@ afterAll(async () => {
     await new Promise((resolve) => { resolve(server.close()); });
 });
 
+// Unmocked Tests for ResetAttendance
 describe("Unmocked: Test reset attendance logic", () => {
+    // Input: none
+    // Expected status code: 200
+    // Expected behavior: All of the attended fields of the courses within a user's courseList should be set back to false
+    // Expected output: attended = false
     test("Full run through of reset attendance controller for all courseLists", async () => {
         await resetAttendanceController.resetAttendance();
 
