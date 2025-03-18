@@ -9,7 +9,7 @@ export const ScheduleRoutes = [
         route: "/schedule",
         action: controller.getSchedule.bind(controller),
         validation: [
-            query("sub").exists().isAlphanumeric(),
+            query("sub").exists().isString(),
             query("term").exists().isString()
         ]
     },
@@ -18,7 +18,7 @@ export const ScheduleRoutes = [
         route: "/schedule",
         action: controller.saveSchedule.bind(controller),
         validation: [
-            body("sub").exists().isAlphanumeric()
+            body("sub").exists().isString()
         ]
     },
     {
@@ -26,7 +26,7 @@ export const ScheduleRoutes = [
         route: "/schedule",
         action: controller.clearSchedule.bind(controller),
         validation: [
-            body("sub").exists().isAlphanumeric()
+            body("sub").exists().isString()
         ]
     },
     {
@@ -34,7 +34,7 @@ export const ScheduleRoutes = [
         route: "/attendance",
         action: controller.getAttendance.bind(controller),
         validation: [
-            query("sub").exists().isAlphanumeric(),
+            query("sub").exists().isString(),
             query("className").exists().isString(),
             query("classFormat").exists().isString(),
             query("term").exists().isString()
@@ -45,7 +45,7 @@ export const ScheduleRoutes = [
         route: "/attendance",
         action: controller.updateAttendance.bind(controller),
         validation: [
-            body("sub").exists().isAlphanumeric(),
+            body("sub").exists().isString(),
             body("className").exists().isString(),
             body("classFormat").exists().isString(),
             body("term").exists().isString()

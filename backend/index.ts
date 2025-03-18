@@ -142,4 +142,4 @@ const serverReady: Promise<Server> = client.connect().then(() => {
     return Promise.reject(new Error(err));
 });
 
-export { app, serverReady, cronResetAttendance }
+export { app, serverReady, cronResetAttendance, resetAttendanceController }
