@@ -1,5 +1,5 @@
-const { serverReady, cronResetAttendance } = require("../../index");
-const { mySchedule, myUser, myDBScheduleItem, Init } = require("../utils");
+import { serverReady, cronResetAttendance } from '../../index';
+import { mySchedule, myUser, myDBScheduleItem, DBScheduleItem } from "../utils";
 import { client } from '../../services';
 import request from 'supertest';
 import { Server } from "http";
@@ -9,7 +9,7 @@ let server: Server;
 beforeAll(async () => {
     // Wait for the server to be ready
     server = await serverReady;  
-    let dbScheduleItem = myDBScheduleItem;
+    let dbScheduleItem: DBScheduleItem = myDBScheduleItem;
     dbScheduleItem.fallCourseList = mySchedule.courses;
     await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
 });

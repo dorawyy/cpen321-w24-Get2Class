@@ -1,6 +1,41 @@
-// const { serverReady, cronResetAttendance } = require("../../index");
+// import { serverReady, cronResetAttendance } from '../../index';
 // import { client } from '../../services';
 // import { Server } from "http";
+
+export type User = {
+    email: string;
+    sub: string;
+    name: string;
+    karma: number;
+    notificationTime: number;
+    notificationsEnabled: boolean;
+};
+
+export type DBScheduleItem = {
+    email: string;
+    sub: string;
+    name: string;
+    fallCourseList: Course[];
+    winterCourseList: Course[];
+    summerCourseList: Course[];
+};
+
+export type Course = {
+    name: string;
+    daysBool: string;  // Consider using `boolean[]` instead if storing actual boolean values
+    startTime: string; // Consider using a tuple `[number, number]` if parsing (hours, minutes)
+    endTime: string;   // Same as `startTime`
+    startDate: string; // Consider `Date` type if parsing
+    endDate: string;   // Same as `startDate`
+    location: string;
+    credits: number;
+    format: string;
+    attended: string;  // Consider using `boolean` if storing actual boolean values
+};
+
+export type Schedule = {
+    courses: Course[];
+};
 
 export const myUser = {
     email: "asdfasdf@gmail.com",
@@ -36,31 +71,3 @@ export const mySchedule = {
         }
     ]
 };
-
-// let server: Server;
-
-// export class Init {
-//     async init_schedule_test() {
-//         server = await serverReady;  // Wait for the server to be ready
-//         await client.db("get2class").collection("users").insertOne(myUser);
-//         await client.db("get2class").collection("schedules").insertOne(myDBScheduleItem);
-//     }
-
-//     async shutdown_schedule_test() {
-//         await client.db("get2class").collection("schedules").deleteMany({
-//             sub: myUser.sub
-//         })
-//         await client.db("get2class").collection("users").deleteOne({
-//             sub: myUser.sub
-//         });
-//         if (cronResetAttendance) {
-//             cronResetAttendance.stop(); // Stop the cron job to prevent Jest from hanging
-//         }
-//         if (client) {
-//             await client.close();
-//         }
-//         if (server) {
-//             await new Promise((resolve) => server.close(resolve));
-//         }
-//     }
-// }

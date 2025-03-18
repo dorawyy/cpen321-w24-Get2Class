@@ -1,5 +1,5 @@
-const { serverReady, cronResetAttendance } = require("../../index");
-const { mySchedule, myUser, myDBScheduleItem, Init } = require("../utils");
+import { serverReady, cronResetAttendance } from '../../index';
+import { mySchedule, myUser, myDBScheduleItem, DBScheduleItem } from "../utils";
 import { client } from '../../services';
 import request from 'supertest';
 import { Server } from "http";
