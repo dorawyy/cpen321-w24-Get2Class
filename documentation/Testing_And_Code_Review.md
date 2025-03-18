@@ -70,7 +70,7 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 ### 3.2. Test Verification and Logs
 
-- **Schedule Upload Time**
+- **Schedule Usability**
 
   - **Verification:** This test simulates a user uploading their schedule from an xlsx file in their phone's downloads. The focus is on ensuring that the process of uploading the file, parsing it, storing it on the database, and rendering it for the user completes within the target response time of 4 seconds under normal load. We use Espresso's onView().check() to ensure the timer does not stop until the component is displayed for the user. We use Espresso's onView().perform(click()) to ensure the timer does not stop until the component is displayed for the user. The test logs let us know if the system meets our requirement. 
   - **Log Output**
@@ -78,8 +78,8 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
     Test 1: Successfully upload a winter schedule in 1762ms!
     ```
 
-- **Attendance Check Time**
-  - **Verification:** This test simulates a user clicking on the "Check in to class" button with the help of Espresso. The focus is to ensure that the process of checking the time and location of the user, checking the starting time and location of the next class, calculating, updating and showing the Karma points the user gains completes within the target response time of 3 seconds under normal load. We use Espresso's onView().perform(click()) and onView().check() to perform the click action and check if the user receives the response from the app. The test logs capture the processing time and let us know if the system meets our requirement.
+- **Check-in Usability**
+  - **Verification:** This test simulates a user clicking on the "Check in to class" button with the help of Espresso. The focus is to ensure that the process of checking the time and location of the user, checking the starting time and location of the next class, calculating, updating and showing the Karma points the user gains completes within the target response time of 4 seconds under normal load. We use Espresso's onView().perform(click()) and onView().check() to perform the click action and check if the user receives the response from the app. The test logs capture the processing time and let us know if the system meets our requirement.
   - **Log Output**
     ```
     Test 2: Successfully check the user in when they are late and award appropriate amount of points in 481ms!

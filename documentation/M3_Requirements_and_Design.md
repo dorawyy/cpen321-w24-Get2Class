@@ -30,6 +30,10 @@
     - Changed failure case from uploading invalid file to uploading file to wrong term. This change was made because the library we use doesn't allow you to upload a file of the wrong type so this would not be testable.
 10. Updated section 3.3-5, on March 15.
     - Changed use case to match what was actually implemented which was much more complex.
+11. Updated section 3.3-3, on March 17.
+    - Changed the failure scenario to match what was actually implemented, which will ask the user to grant location permissions in Settings if they deny the request.
+12. Updated section 3.5, on March 17.
+    - Updated the second non-functional requirements to match the main use case (check attendance). This will make it more measurable and comprehensive, as it will cover more system components and thoroughly test the core functionality.
 
 
 ## 2. Project Description
@@ -121,9 +125,8 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 3. The user sees their current location and destination location together with the optimal route on the screen
             - **Failure scenario(s)**:
                 - 2a. The user does not grant location permissions
-                    - 2a1. The app prompts the user for permissions again with rationale
-                    - 2a2. If the user denies twice, the app shows a dialog to tell the user to enable location permissions in the settings first
-                    - 2a3. The app routes the user back to the previous screen
+                    - 2a1. If the user denies, the app shows a toast to tell the user to enable location permissions in the settings first
+                    - 2a2. The app routes the user back to the previous screen
 
 4. **Manage User Settings**
     - **Overview**:
@@ -186,11 +189,11 @@ N/A
 ### **3.5. Non-Functional Requirements**
 
 1. **Schedule Usability** <a name="nfr1"></a>
-    - **Description**: All schedules operations (upload, view, clear) should be processed and reflected on the screen within 3 seconds of the user action
+    - **Description**: All schedules operations (upload, view, clear) should be processed and reflected on the screen within 4 seconds of the user action.
     - **Justification**: Quick schedule display avoids user dissatisfaction and saves time for busy professors and students to check the time and location for their upcoming classes. According to https://think.storage.googleapis.com/docs/mobile-page-speed-new-industry-benchmarks.pdf, as page load time goes from 1s to 3s, the probability of bounce increases 32%.
-2. **Location Accuracy** <a name="nfr2"></a>
-    - **Description**: The user's location should be track within a radius of 50 meters from the actual location
-    - **Justification**: Accurate location tracking helps provide the optimal route, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points (karma). Our testing found that inside buildings on campus you can be up to 50m away from the building's google maps location, so we need precise location data to keep the valid radius small.
+2. **Check in Usability** <a name="nfr2"></a>
+    - **Description**: The user will see if they have checked in successfully or not, along with the amount of Karma points awarded, within 4 seconds of clicking the "Check in to class" button.
+    - **Justification**: Quick check in feedback reassures the user that their action is successful and to instantly reward them with Karma points. This fast confirmation can minimize anxiety, prevent repetitive attempts and reinforce trust in the system. According to https://think.storage.googleapis.com/docs/mobile-page-speed-new-industry-benchmarks.pdf, as page load time goes from 1s to 3s, the probability of bounce increases 32%.
 
 
 ## 4. Designs Specification
