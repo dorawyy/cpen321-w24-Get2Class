@@ -1,42 +1,47 @@
-import { Request, Response, NextFunction } from "express";
-import { OAuth2Client } from 'google-auth-library';
+import { Request, Response } from "express";
+import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import { client } from "../services";
 
 export class UserController {
-    async tokenSignIn(req: Request, res: Response, nextFunction: NextFunction) {
+    async tokenSignIn(req: Request, res: Response) {
         const client = new OAuth2Client();
         
         const ticket = await client.verifyIdToken({
-            idToken: req.body["idToken"],
-            audience: req.body["audience"]
+            idToken: req.body.idToken,
+            audience: req.body.audience
         });
         
-        const payload = ticket.getPayload();
-        res.status(200).json({ "sub": payload?.sub })
+        const payload = ticket.getPayload() as unknown as TokenPayload;
+        res.status(200).json({ sub: payload.sub })
     }
 
-    async findUser(req: Request, res: Response, nextFunction: NextFunction) {
+    async findUser(req: Request, res: Response) {
         const query = req.query;
-        const sub = query["sub"];
+        const sub = query.sub;
 
-        const userData = await client.db("get2class").collection("users").findOne({ "sub": sub });
-        res.status(200).send(userData);
-    };
+        const userData = await client.db("get2class").collection("users").findOne({ sub });
 
-    async createUser(req: Request, res: Response, nextFunction: NextFunction) {
+        if (userData) {
+            res.status(200).send(userData);
+        } else {
+            res.status(400).send("User does not exist");
+        }
+    }
+
+    async createUser(req: Request, res: Response) {
         const userRequestBody = {
-            email: req.body["email"],
-            sub: req.body["sub"],
-            name: req.body["name"],
+            email: req.body.email,
+            sub: req.body.sub,
+            name: req.body.name,
             karma: 0,
             notificationTime: 15,
             notificationsEnabled: true
         };
 
         const courseListRequestBody = {
-            email: req.body["email"],
-            sub: req.body["sub"],
-            name: req.body["name"],
+            email: req.body.email,
+            sub: req.body.sub,
+            name: req.body.name,
             fallCourseList: [],
             winterCourseList: [],
             summerCourseList: []
@@ -46,36 +51,36 @@ export class UserController {
         const scheduleData = await client.db("get2class").collection("schedules").insertOne(courseListRequestBody);
 
         res.status(200).json({ userAcknowledged: userData.acknowledged, scheduleAcknowledged: scheduleData.acknowledged, message: "Successfully registered account" });
-    };
+    }
 
-    async getNotifications(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.query["sub"];
+    async getNotifications(req: Request, res: Response) {
+        const sub = req.query.sub;
 
-        const data = await client.db("get2class").collection("users").findOne({ "sub": sub });
+        const data = await client.db("get2class").collection("users").findOne({ sub });
         
         if (data != null) {
-            const notificationsEnabled = data["notificationsEnabled"];
-            const notificationTime = data["notificationTime"];
+            const notificationsEnabled = data.notificationsEnabled;
+            const notificationTime = data.notificationTime;
 
-            res.status(200).json({ "notificationsEnabled": notificationsEnabled, "notificationTime": notificationTime });
+            res.status(200).json({ notificationsEnabled, notificationTime });
         } else {
             res.status(400).send("User not found");
         }
     }
 
-    async updateNotifications(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
-        const notificationsEnabled = req.body["notificationsEnabled"];
-        const notificationTime = req.body["notificationTime"];
+    async updateNotifications(req: Request, res: Response) {
+        const sub = req.body.sub;
+        const notificationsEnabled = req.body.notificationsEnabled;
+        const notificationTime = req.body.notificationTime;
 
         const filter = {
-            sub: sub
+            sub
         };
 
         const document = {
             $set: {
-                notificationsEnabled: notificationsEnabled,
-                notificationTime: notificationTime
+                notificationsEnabled,
+                notificationTime
             },
         };
 
@@ -92,22 +97,22 @@ export class UserController {
         }
     }
 
-    async updateKarma(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
-        const karma = req.body["karma"];
+    async updateKarma(req: Request, res: Response) {
+        const sub = req.body.sub;
+        const karma = req.body.karma;
 
         let currKarma;
 
-        const userData = await client.db("get2class").collection("users").findOne({ "sub": sub });
+        const userData = await client.db("get2class").collection("users").findOne({ sub });
         
         if (userData != null) {
-            currKarma = userData["karma"];
+            currKarma = userData.karma;
         } else {
-            res.status(400).send("User not found");
+            return res.status(400).send("User not found");
         }
 
         const filter = {
-            sub: sub
+            sub
         };
 
         const document = {
@@ -123,7 +128,7 @@ export class UserController {
         const updateData = await client.db("get2class").collection("users").updateOne(filter, document, options);
 
         if (!updateData.acknowledged || updateData.modifiedCount == 0) {
-            res.status(400).send("Unable to update karma");
+            return res.status(400).send("Unable to update karma");
         } else {
             res.status(200).json({ acknowledged: updateData.acknowledged, message: "Successfully gained karma" });
         }
