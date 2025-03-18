@@ -1,3 +1,4 @@
+import { Db } from 'mongodb';
 import { serverReady, cronResetAttendance } from '../../index';
 import { mySchedule, myUser, myDBScheduleItem, DBScheduleItem } from "../utils";
 import { client } from '../../services';
@@ -56,9 +57,12 @@ describe("Mocked: GET /schedule", () => {
             throw new Error("Database connection error");
         });
 
-        const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce({
+        const dbMock = {
             collection: scheduleCollectionMock
-        } as any);
+        } as Partial<jest.Mocked<Db>>
+
+        const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce(dbMock as Db);
+
 
         const req = { sub: myUser.sub, term: "fallCourseList" };
         const res = await request(server).get("/schedule")
