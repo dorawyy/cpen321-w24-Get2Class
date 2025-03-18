@@ -203,7 +203,7 @@ const serverReady: Promise<Server> = client.connect().then(() => {
 }).catch(err => {
     console.error(err);
     client.close();
-    return Promise.reject(err);
+    return Promise.reject(new Error(err));
 });
 
 export { app, serverReady, cronResetAttendance }
