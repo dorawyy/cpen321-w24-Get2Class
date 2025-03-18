@@ -12,6 +12,8 @@ jobs:
     services:
       mongo:
         image: mongo:latest
+        container_name: mongo_instance
+        restart: always
         ports: 
           - "27017:27017"
 
@@ -33,10 +35,6 @@ jobs:
       - name: Install dependencies
         working-directory: ./backend
         run: npm ci
-
-      - name: Run backend server
-        working-directory: ./backend
-        run: npm run dev
 
       - name: Run tests
         working-directory: ./backend/tests
