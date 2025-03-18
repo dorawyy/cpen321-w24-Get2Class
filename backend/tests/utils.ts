@@ -9,7 +9,7 @@ export interface User {
     karma: number;
     notificationTime: number;
     notificationsEnabled: boolean;
-};
+}
 
 export interface DBScheduleItem {
     email: string;
@@ -18,7 +18,7 @@ export interface DBScheduleItem {
     fallCourseList: Course[];
     winterCourseList: Course[];
     summerCourseList: Course[];
-};
+}
 
 export interface Course {
     name: string;
@@ -31,11 +31,11 @@ export interface Course {
     credits: number;
     format: string;
     attended: string;  // Consider using `boolean` if storing actual boolean values
-};
+}
 
 export interface Schedule {
     courses: Course[];
-};
+}
 
 export const myUser = {
     email: "asdfasdf@gmail.com",
@@ -44,7 +44,7 @@ export const myUser = {
     karma: 0,
     notificationTime: 15,
     notificationsEnabled: true
-};
+}
 
 export const myDBScheduleItem = {
     email: myUser.email,
@@ -53,7 +53,7 @@ export const myDBScheduleItem = {
     fallCourseList: [],
     winterCourseList: [],
     summerCourseList: []
-};
+}
   
 export const mySchedule = {
     courses: [
@@ -70,4 +70,4 @@ export const mySchedule = {
             "attended": "false"
         }
     ]
-};
+}
