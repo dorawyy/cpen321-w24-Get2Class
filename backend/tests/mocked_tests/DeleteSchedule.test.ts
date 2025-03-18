@@ -26,6 +26,11 @@ afterAll(async () => {
 
 // Interface DELETE /schedule
 describe("Mocked: DELETE /schedule", () => {
+    // Mocked behavior: client db/collection throws an error
+    // Input: valid subject id
+    // Expected status code: 500
+    // Expected behavior: should return error response due to db/collection failure
+    // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to reach get2class database", async () => {
         const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
             throw new Error("Database connection error");
