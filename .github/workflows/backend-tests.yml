@@ -36,14 +36,6 @@ jobs:
         working-directory: ./backend
         run: npm ci
 
-      - name: Run unmocked tests
-        working-directory: ./backend/tests
-        run: npm test ./unmocked_tests/
-
-      - name: Run mocked tests
-        working-directory: ./backend/tests
-        run: npm test ./mocked_tests/
-
       - name: Run all tests
         working-directory: ./backend/tests
         run: npm test
