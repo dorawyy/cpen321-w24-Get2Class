@@ -1,4 +1,4 @@
-name: Run Backend Jest TEsts
+name: Run Backend Jest Tests
 
 on:
   push:
@@ -6,8 +6,14 @@ on:
       - backend-testing
     
 jobs:
-  builds:
+  integration:
     runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:latest
+        ports: 
+          - "27017:27017"
 
     strategy:
       matrix:
@@ -27,6 +33,10 @@ jobs:
       - name: Install dependencies
         working-directory: ./backend
         run: npm ci
+
+      - name: Run backend server
+        working-directory: ./backend
+        run: npm run dev
 
       - name: Run tests
         working-directory: ./backend/tests
