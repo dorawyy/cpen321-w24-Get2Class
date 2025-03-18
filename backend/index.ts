@@ -5,8 +5,10 @@ import { UserRoutes } from './routes/UserRoutes';
 import morgan from 'morgan';
 import { ScheduleRoutes } from './routes/ScheduleRoutes';
 import { Server } from 'http';
+import { ResetAttendanceController } from './controllers/ResetAttendanceController';
 
 const app = express();
+const resetAttendanceController = new ResetAttendanceController();
 var cron = require('node-cron');
 
 app.use(express.json());
@@ -17,40 +19,7 @@ app.use(morgan('tiny'));
  */
 const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
     try {
-        const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
-        for (let schedule of allSchedules) {
-            if (schedule.fallCourseList.length != 0) {
-                for (let course of schedule.fallCourseList) {
-                    course.attended = false;
-                }
-            }
-            if (schedule.winterCourseList.length != 0) {
-                for (let course of schedule.winterCourseList) {
-                    course.attended = false;
-                }
-            }
-            if (schedule.summerCourseList.length != 0) {
-                for (let course of schedule.summerCourseList) {
-                    course.attended = false
-                }
-            }
-        }
-
-        for (let schedule of allSchedules) {
-            const filter = {
-                sub: schedule.sub
-            };
-
-            const document = {
-                $set: {
-                    fallCourseList: schedule.fallCourseList,
-                    winterCourseList: schedule.winterCourseList,
-                    summerCourseList: schedule.summerCourseList
-                }
-            };
-            
-            await client.db("get2class").collection("schedules").updateOne(filter, document);
-        }
+        resetAttendanceController.resetAttendance();
     } catch (err) {
         console.error(err);
     }
@@ -136,40 +105,7 @@ app.post('/get2class', (req: Request, res: Response) => {
 
 // app.get('/test', async (req: Request, res: Response) => {
 //     try {
-//         const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
-//         for (let schedule of allSchedules) {
-//             if (schedule.fallCourseList.length != 0) {
-//                 for (let course of schedule.fallCourseList) {
-//                     course.attended = false;
-//                 }
-//             }
-//             if (schedule.winterCourseList.length != 0) {
-//                 for (let course of schedule.winterCourseList) {
-//                     course.attended = false;
-//                 }
-//             }
-//             if (schedule.summerCourseList.length != 0) {
-//                 for (let course of schedule.summerCourseList) {
-//                     course.attended = false
-//                 }
-//             }
-//         }
-
-//         for (let schedule of allSchedules) {
-//             const filter = {
-//                 sub: schedule.sub
-//             };
-
-//             const document = {
-//                 $set: {
-//                     fallCourseList: schedule.fallCourseList,
-//                     winterCourseList: schedule.winterCourseList,
-//                     summerCourseList: schedule.summerCourseList
-//                 }
-//             };
-            
-//             await client.db("get2class").collection("schedules").updateOne(filter, document);
-//         }
+//         resetAttendanceController.resetAttendance();
 //         res.status(200).send("Attendance reset for all courses");
 //     } catch (err) {
 //         console.error(err);
