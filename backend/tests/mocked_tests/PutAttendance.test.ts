@@ -1,3 +1,4 @@
+import { Db } from 'mongodb';
 import { serverReady, cronResetAttendance } from '../../index';
 import { mySchedule, myUser, myDBScheduleItem, DBScheduleItem } from "../utils";
 import { client } from '../../services';
@@ -61,46 +62,39 @@ describe("Mocked: PUT /attendance", () => {
     // Expected behavior: should return error response due to db/collection failure
     // Expected output: error response with status 500 and error message "Database connection error"
     test("Unable to create schedule in schedules collection", async () => {
-        const mockUserInsertResult = { sub: "123" };
-        const insertUserMock = jest.fn().mockResolvedValueOnce(mockUserInsertResult);
+        let schedule: DBScheduleItem = myDBScheduleItem;
+        schedule.fallCourseList = mySchedule.courses;
+        schedule.summerCourseList = mySchedule.courses;
+        const mockScheduleFindResult = schedule;
+        const findScheduleMock = jest.fn().mockResolvedValueOnce(mockScheduleFindResult);
 
-        const userCollectionMock = jest.fn().mockImplementationOnce(() => {
-            return { insertOne: insertUserMock }
-        });
+        const scheduleCollectionMock = jest.fn()
+            .mockImplementationOnce(() => { return { findOne: findScheduleMock }; })
+            .mockImplementationOnce(() => { throw new Error("Database connection error"); });
 
-        const dbMock1 = {
-            collection: userCollectionMock
-        } as Partial<jest.Mocked<Db>>;
+        const dbMock1 = { collection: scheduleCollectionMock } as Partial<jest.Mocked<Db>>;
+        const dbMock2 = { collection: scheduleCollectionMock } as Partial<jest.Mocked<Db>>;
 
-        const scheduleCollectionMock = jest.fn().mockImplementationOnce(() => {
-            throw new Error("Database connection error");
-        });
-        
-        const dbMock2 = {
-            collection: scheduleCollectionMock
-        } as Partial<jest.Mocked<Db>>;
+        const dbSpy = jest.spyOn(client, "db")
+            .mockReturnValueOnce(dbMock1 as Db)
+            .mockReturnValueOnce(dbMock2 as Db);
 
-        const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce(
-            dbMock1 as Db
-        ).mockReturnValueOnce(
-            dbMock2 as Db
-        );
+        const req = {
+            sub: myUser.sub,
+            className: mySchedule.courses[0].name,
+            classFormat: mySchedule.courses[0].format,
+            term: "fallCourseList"
+        }
 
-        const res = await request(server).post('/user').send({
-            email: "createnewuser@gmail.com",
-            sub: "123",
-            name: "New User"
-        });
+        const res = await request(server).put("/attendance")
+            .send(req);
 
         expect(res.statusCode).toStrictEqual(500);
-        expect(userCollectionMock).toHaveBeenCalledWith('users');
-        expect(userCollectionMock).toHaveBeenCalledTimes(1);
         expect(scheduleCollectionMock).toHaveBeenCalledWith('schedules');
-        expect(scheduleCollectionMock).toHaveBeenCalledTimes(1);
+        expect(scheduleCollectionMock).toHaveBeenCalledTimes(2);
         expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(2);
 
-        userCollectionMock.mockRestore();
         scheduleCollectionMock.mockRestore();
         dbSpy.mockRestore();
     });
