@@ -18,7 +18,7 @@
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
 | **POST /user** | [`backend/tests/unmocked_tests/CreateUser.test.ts#L24`](#) | [`backend/tests/mocked_tests/CreateUser.test.ts#L24`](#) | Database client |
 | **GET /user** | [`backend/tests/unmocked_tests/GetUser.test.ts#L30`](#) | [`backend/tests/mocked_tests/GetUser.test.ts#L31`](#) | Database client |
-| **POST /tokensignin** | [`backend/tests/unmocked_tests/GoogleSignIn.test.ts#L26`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google-Authenticator |
+| **POST /tokensignin** | [`NA`](#) | [`backend/tests/mocked_tests/GoogleSignIn.test.ts#L26`](#) | Google-Authenticator |
 | **PUT /karma** | [`backend/tests/unmocked_tests/UpdateKarma.test.ts#L30`](#) | [`backend/tests/mocked_tests/UpdateKarma.test.ts#L30`](#) | Database client |
 | **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L30`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L30`](#) | Database client |
 | **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L79`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L78`](#) | Database client |
@@ -41,28 +41,35 @@
     git clone https://github.com/example/your-project.git
     ```
 
-2. **Change Directory to `backend`**:
+2. **Checkout to `milestone-5` branch**:
+
+  - In the terminal, after you have cloned the repository, checkout to `milestone-5` branch with the following command:
+    ```
+    git checkout milestone-5
+    ```
+
+3. **Change Directory to `backend`**:
   
   - In the terminal you will change directory to `backend`:
     ```
     cd backend
     ```
 
-3. **Install Dependencies**:
+4. **Install Dependencies**:
 
   - In the terminal you will run install the dependencies by making sure you are in the `backend` directory and you run:
     ```
     npm i
     ```
 
-4. **Running the Tests**:
+5. **Running the Tests**:
   - In the terminal you will change directory to `tests` where the mocked and unmocked tests are located:
     ```
     cd tests
     npm test
     ```
 
-5. **You can run the mocked and unmocked tests with the following commands below (Optional)**:
+6. **You can run the mocked and unmocked tests with the following commands below (Optional)**:
   - In the terminal, make you sure you're in the `tests` directory:
     - For `unmocked_tests`:
       ```
