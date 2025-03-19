@@ -58,16 +58,32 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         save_button.setOnClickListener() {
-            saveNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings") { result ->
-                Log.d(TAG, "Saving notification settings...")
-                Log.d(TAG, "$result")
+            val minutesText = edit_minutes.text.toString().trim()
+            val minutes = minutesText.toIntOrNull()
 
-                val acknowledgement = result.getBoolean("acknowledged")
-                runOnUiThread {
-                    if (acknowledgement) {
-                        Snackbar.make(mainView, result.getString("message"), Snackbar.LENGTH_SHORT).show()
-                    } else {
-                        Snackbar.make(mainView, "An error has occurred", Snackbar.LENGTH_SHORT).show()
+            // check if the input is empty
+            if (minutesText.isEmpty()) {
+                Snackbar.make(mainView, "Time cannot be empty", Snackbar.LENGTH_SHORT).show()
+            }else if (minutes == null) { // parse the input as an integer
+                Snackbar.make(mainView, "Please enter a valid number", Snackbar.LENGTH_SHORT).show()
+                edit_minutes.setText("")
+            }else if (minutes > 1440) { // check if minutes exceed one day
+                Snackbar.make(mainView, "Maximum reminder time is one day", Snackbar.LENGTH_SHORT).show()
+                edit_minutes.setText("")
+            }else{ // if validation passes, proceed to save settings
+                saveNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings") { result ->
+                    Log.d(TAG, "Saving notification settings...")
+                    Log.d(TAG, "$result")
+                    try {
+                        val message = result.getString("message")
+                        Snackbar.make(
+                            mainView,
+                            message,
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    } catch (e: Exception) {
+                        Snackbar.make(mainView, "No notification changes made", Snackbar.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
