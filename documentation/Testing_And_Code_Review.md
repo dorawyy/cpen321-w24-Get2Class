@@ -103,17 +103,17 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-![Full Jest Coverage w/ Mocks](./images/full-jest-coverage-with-mocks.png)
+![Full Jest Coverage w/ Mocks](./images/jest-coverage-w-mocks.png)
 
 - #### Reason for uncovered lines in `index.ts`
-  - These lines have to do with Promise errors within the try-catches of the routes and scheduler which do not get triggered as they are part of the server set up logic.
+  - These lines have to do with Promise errors within the server set up process not getting triggered (https://piazza.com/class/m5abcyzl23d5or/post/176).
 
 - #### Reason for uncovered lines in `services.ts`
-  - This is part of the back end tutorial and has to deal with the MongoDB Client set up logic.
+  - This is part of the back end tutorial and has to deal with the MongoDB Client set up logic (https://piazza.com/class/m5abcyzl23d5or/post/176).
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-![Jest Coverage w/o Mocks](./images/full-jest-coverage-without-mocks.png)
+![Jest Coverage w/o Mocks](./images/jest-coverage-wo-mocks.png)
 
 - #### Reason for uncovered lines in `UserController.ts`
   - This is the `/tokensignin` route which mocks the Google OAuth2Client which gets handled within the mocked_tests
@@ -253,20 +253,6 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 ![Issues Overview](./images/issues-overview.png)
 
 ### 5.4. Justifications for Unfixed Issues
-
-- **Code Pattern: [A `require()` style import is forbidden](#)**
-
-  1. **Issue**
-
-     - **Location in Git:** [`backend/index.ts#L12`](#)
-     - **Justification:** Referring to the node-cron npm docs (https://www.npmjs.com/package/node-cron), they mention to use `var cron = require('node-cron')` to utilize the scheduler function
-
-- **Code Pattern: [Require statement not part of import statement](#)**
-
-  1. **Issue**
-
-    - **Location in Git:** [`backend/index.ts#L12`](#)
-    - **Justification:** Referring to the node-cron npm docs (https://www.npmjs.com/package/node-cron), they mention to use `var cron = require('node-cron')` to utilize the scheduler function
 
 - **Code Pattern: [Unexpected any. Specify a different type](#)**
 

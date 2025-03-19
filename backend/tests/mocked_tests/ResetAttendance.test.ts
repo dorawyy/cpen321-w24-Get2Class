@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { serverReady, cronResetAttendance, resetAttendanceController } from '../../index';
+import { serverReady, cronResetAttendance } from '../../index';
 import { client } from '../../services';
 import { Db } from 'mongodb';
 
@@ -72,7 +72,7 @@ describe("Mocked: Test reset attendance logic", () => {
     // Expected status code: none
     // Expected behavior: should throw a database connection error
     // Expected output: none
-    test("Throw error on first database call", async () => {
+    test("Throw error on first database call", () => {
         const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
             throw new Error("Database connection error");
         });
@@ -87,7 +87,7 @@ describe("Mocked: Test reset attendance logic", () => {
     // Expected status code: none
     // Expected behavior: should throw a database connection error
     // Expected output: none
-    test("Throw error on second database call", async () => {
+    test("Throw error on second database call", () => {
         const mockToArrayResult = [
             { 
                 email: "asdfasdf@gmail.com",
