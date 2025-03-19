@@ -16,6 +16,7 @@ import okhttp3.Callback
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
@@ -81,9 +82,8 @@ class SettingsActivity : AppCompatActivity() {
                             message,
                             Snackbar.LENGTH_SHORT
                         ).show()
-                    } catch (e: Exception) {
-                        Snackbar.make(mainView, "No notification changes made", Snackbar.LENGTH_SHORT)
-                            .show()
+                    } catch (e: JSONException) {
+                        Snackbar.make(mainView, "No notification changes made", Snackbar.LENGTH_SHORT).show()
                     }
                 }
             }
