@@ -250,7 +250,7 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
-![Issues Overview](./images/issues-overview.png)
+![Issues Overview](./images/issues-overview-2.png)
 
 ### 5.4. Justifications for Unfixed Issues
 
