@@ -23,10 +23,10 @@
 | **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L31`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L32`](#) | Database client |
 | **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L80`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L84`](#) | Database client |
 | **DELETE /schedule** | [`backend/tests/unmocked_tests/DeleteSchedule.test.ts#L27`](#) | [`backend/tests/mocked_tests/DeleteSchedule.test.ts#L29`](#) | Database client |
-| **GET /attendance** | [`backend/tests/unmocked_tests/GetAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetAttendance.test.ts#L28`](#) | Database client |
 | **GET /schedule** | [`backend/tests/unmocked_tests/GetSchedule.test.ts#L29`](#) | [`backend/tests/mocked_tests/GetSchedule.test.ts#L28`](#) | Database client |
-| **PUT /attendance** | [`backend/tests/unmocked_tests/PutAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/PutAttendance.test.ts#L28`](#) | Database client |
 | **PUT /schedule** | [`backend/tests/unmocked_tests/PutSchedule.test.ts#L25`](#) | [`backend/tests/mocked_tests/PutSchedule.test.ts#L25`](#) | Database client |
+| **GET /attendance** | [`backend/tests/unmocked_tests/GetAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetAttendance.test.ts#L28`](#) | Database client |
+| **PUT /attendance** | [`backend/tests/unmocked_tests/PutAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/PutAttendance.test.ts#L28`](#) | Database client |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
