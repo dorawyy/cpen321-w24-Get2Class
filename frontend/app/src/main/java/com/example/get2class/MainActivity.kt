@@ -3,9 +3,9 @@ package com.example.get2class
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.credentials.ClearCredentialStateRequest
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val activityScope = CoroutineScope(Dispatchers.Main)
+    lateinit var mainView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        mainView = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.main)
 
         // Override Android back button to perform leaving app logic
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -53,21 +56,18 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.schedules_button).setOnClickListener() {
             Log.d(TAG, "Schedules button clicked")
-
             val intent = Intent(this@MainActivity, ScheduleListActivity::class.java)
             startActivity(intent)
         }
 
         findViewById<Button>(R.id.karma_button).setOnClickListener() {
             Log.d(TAG, "Karma button clicked")
-
             val intent = Intent(this@MainActivity, KarmaActivity::class.java)
             startActivity(intent)
         }
 
         findViewById<Button>(R.id.settings_button).setOnClickListener() {
             Log.d(TAG, "Settings button clicked")
-
             val intent = Intent(this@MainActivity, SettingsActivity::class.java)
             startActivity(intent)
         }
@@ -82,11 +82,7 @@ class MainActivity : AppCompatActivity() {
 
                     // Clear user's credentialManager state
                     LoginActivity.credentialManager?.clearCredentialState(ClearCredentialStateRequest())
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Logged Out Successfully",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Snackbar.make(mainView, "Logged Out Successfully", Snackbar.LENGTH_SHORT).show()
 
                     // Log the user's credentialManager information after clearing
                     Log.d(TAG, "after clear: ${LoginActivity.credentialManager}")
@@ -96,13 +92,12 @@ class MainActivity : AppCompatActivity() {
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     startActivity(intent)
                     finish()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error clearing credential state", e)
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Error clearing credential state",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                } catch (e: SecurityException) {
+                    Log.e(TAG, "Security error while clearing credential state", e)
+                    Snackbar.make(mainView, "Security error occurred", Snackbar.LENGTH_SHORT).show()
+                } catch (e: IllegalStateException) {
+                    Log.e(TAG, "Credential manager is in an invalid state", e)
+                    Snackbar.make(mainView, "Invalid credential state", Snackbar.LENGTH_SHORT).show()
                 }
             }
         }

@@ -75,9 +75,13 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.googleid)
+    implementation(libs.androidx.uiautomator)
+    implementation(libs.androidx.espresso.idling.resource)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.uiautomator)
+
 
     implementation("com.squareup.okhttp3:okhttp:3.8.1")
 
@@ -87,4 +91,9 @@ dependencies {
 
     // excel parser
     implementation(libs.poi.ooxml)
+
+    // Espresso
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.androidx.rules)
 }
