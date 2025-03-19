@@ -6,10 +6,10 @@ import morgan from 'morgan';
 import { ScheduleRoutes } from './routes/ScheduleRoutes';
 import { Server } from 'http';
 import { ResetAttendanceController } from './controllers/ResetAttendanceController';
+import * as cron from 'node-cron'
 
 const app = express();
 const resetAttendanceController = new ResetAttendanceController();
-var cron = require('node-cron');
 
 app.use(express.json());
 app.use(morgan('tiny'));

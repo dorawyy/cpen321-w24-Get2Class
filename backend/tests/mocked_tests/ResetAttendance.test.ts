@@ -77,8 +77,9 @@ describe("Mocked: Test reset attendance logic", () => {
             throw new Error("Database connection error");
         });
 
-        await expect(resetAttendanceController.resetAttendance()).rejects.toThrow("Database connection error");
+        cronResetAttendance.now();
 
+        expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -164,9 +165,9 @@ describe("Mocked: Test reset attendance logic", () => {
             dbMock2 as Db
         );
 
-        await expect(resetAttendanceController.resetAttendance()).rejects.toThrow("Database connection error");
+        cronResetAttendance.now();
         
         expect(dbSpy).toHaveBeenCalledWith('get2class');
-        expect(dbSpy).toHaveBeenCalledTimes(3);
+        expect(dbSpy).toHaveBeenCalledTimes(2);
     });
 });

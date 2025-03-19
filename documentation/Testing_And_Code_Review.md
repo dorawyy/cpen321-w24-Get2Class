@@ -27,6 +27,7 @@
 | **GET /schedule** | [`backend/tests/unmocked_tests/GetSchedule.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetSchedule.test.ts#L27`](#) | Database client |
 | **PUT /attendance** | [`backend/tests/unmocked_tests/PutAttendance.test.ts#L33`](#) | [`backend/tests/mocked_tests/PutAttendance.test.ts#L30`](#) | Database client |
 | **PUT /schedule** | [`backend/tests/unmocked_tests/PutSchedule.test.ts#L25`](#) | [`backend/tests/mocked_tests/PutSchedule.test.ts#L34`](#) | Database client |
+| **Reset Attendance** | [`backend/tests/unmocked_tests/ResetAttendance.test.ts#L69`](#) | [`backend/tests/mocked_tests/ResetAttendance.test.ts#L69`](#) | Cron scheduler |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
