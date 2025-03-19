@@ -18,7 +18,7 @@
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
 | **POST /user** | [`backend/tests/unmocked_tests/CreateUser.test.ts#L25`](#) | [`backend/tests/mocked_tests/CreateUser.test.ts#L26`](#) | Database client |
 | **GET /user** | [`backend/tests/unmocked_tests/GetUser.test.ts#L31`](#) | [`backend/tests/mocked_tests/GetUser.test.ts#L33`](#) | Database client |
-| **POST /tokensignin** | [`backend/tests/unmocked_tests/GoogleSignIn.test.ts#L27`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google-Authenticator |
+| **POST /tokensignin** | [`backend/tests/unmocked_tests/GoogleSignIn.test.ts#L27`](#) | [ N/A ](#) | Google-Authenticator |
 | **PUT /karma** | [`backend/tests/unmocked_tests/UpdateKarma.test.ts#L31`](#) | [`backend/tests/mocked_tests/UpdateKarma.test.ts#L32`](#) | Database client |
 | **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L31`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L32`](#) | Database client |
 | **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L80`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L84`](#) | Database client |
