@@ -36,9 +36,14 @@
 
 1. **Clone the Repository**:
 
-  - Open your terminal and run:
+  - Open your terminal and run (if you are using https):
     ```
-    git clone https://github.com/example/your-project.git
+    git clone https://github.com/Get2Class/Get2Class.git
+    ```
+
+  - Or if you are using ssh:
+    ```
+    git clone git@github.com:Get2Class/Get2Class.git
     ```
 
 2. **Checkout to `milestone-5` branch**:
@@ -62,14 +67,25 @@
     npm i
     ```
 
-5. **Running the Tests**:
+5. **Setting Up the Database**:
+
+  - Next ensure that you have your mongodb service running
+  - Use MongoDB Compass to connect to your local database
+  - Create a new database with the name `get2class` (needs to be exactly like this)
+  - Then you will add two collections under this database: `users` and `schedules`
+
+  - You should have something that looks like this:
+
+    ![MongoDB Setup](./images/mongodb-setup.png)
+
+6. **Running the Tests**:
   - In the terminal you will change directory to `tests` where the mocked and unmocked tests are located:
     ```
     cd tests
     npm test
     ```
 
-6. **You can run the mocked and unmocked tests with the following commands below (Optional)**:
+7. **You can run the mocked and unmocked tests with the following commands below (Optional)**:
   - In the terminal, make you sure you're in the `tests` directory:
     - For `unmocked_tests`:
       ```
