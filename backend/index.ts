@@ -84,13 +84,13 @@ ScheduleRoutes.forEach((route) => {
 /**
  * Test routes to confirm back end is working as expected
  */
-app.get('/get2class', (req: Request, res: Response) => {
-    res.json({ "data": "Get2Class GET" });
-});
+// app.get('/get2class', (req: Request, res: Response) => {
+//     res.json({ "data": "Get2Class GET" });
+// });
 
-app.post('/get2class', (req: Request, res: Response) => {
-    res.json({ "data": `Client sent: ${req.body.text}` });
-});
+// app.post('/get2class', (req: Request, res: Response) => {
+//     res.json({ "data": `Client sent: ${req.body.text}` });
+// });
 
 // app.delete('/reset_db', async (req: Request, res: Response) => {
 //     try {
