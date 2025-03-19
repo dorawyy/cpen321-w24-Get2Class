@@ -86,11 +86,23 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-![Full Jest Coverage w/ Mocks](./images/full_jest_coverage.png)
+![Full Jest Coverage w/ Mocks](./images/full-jest-coverage-with-mocks.png)
+
+- #### Reason for uncovered lines in `index.ts`
+  - These lines have to do with Promise errors within the try-catches of the routes and scheduler which do not get triggered as they are part of the server set up logic.
+
+- #### Reason for uncovered lines in `services.ts`
+  - This is part of the back end tutorial and has to deal with the MongoDB Client set up logic.
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-![Jest Coverage w/o Mocks](./images/unmocked_jest_coverage.png)
+![Jest Coverage w/o Mocks](./images/full-jest-coverage-without-mocks.png)
+
+- #### Reason for uncovered lines in `UserController.ts`
+  - This is the `/tokensignin` route which mocks the Google OAuth2Client which gets handled within the mocked_tests
+
+- #### Reason for uncovered lines in `index.ts` specifically L50 - L51
+  - This gets handled by the mocked_tests in section 2.3
 
 ---
 
@@ -214,21 +226,46 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-_(Placeholder for screenshots of Codacyâ€™s Category Breakdown table in Overview)_
+![Issues Breakdown](./images/issues-breakdown.png)
+
+- #### Notice:
+  - It says there are 91 total issues, but this might be for the `main` branch and not our `milestone-5` branch. However, if you refer to section 5.3 this is a more reflective amount of our issues which we will justify why they are not fixed in Section 5.4.
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
-_(Placeholder for screenshots of Codacyâ€™s Issues page)_
+![Issues Overview](./images/issues-overview.png)
 
 ### 5.4. Justifications for Unfixed Issues
 
-- **Code Pattern: [Usage of Deprecated Modules](#)**
+- **Code Pattern: [A `require()` style import is forbidden](#)**
 
   1. **Issue**
 
-     - **Location in Git:** [`src/services/chatService.js#L31`](#)
-     - **Justification:** ...
+     - **Location in Git:** [`backend/index.ts#L12`](#)
+     - **Justification:** Referring to the node-cron npm docs (https://www.npmjs.com/package/node-cron), they mention to use `var cron = require('node-cron')` to utilize the scheduler function
 
-  2. ...
+- **Code Pattern: [Require statement not part of import statement](#)**
 
-- ...
+  1. **Issue**
+
+    - **Location in Git:** [`backend/index.ts#L12`](#)
+    - **Justification:** Referring to the node-cron npm docs (https://www.npmjs.com/package/node-cron), they mention to use `var cron = require('node-cron')` to utilize the scheduler function
+
+- **Code Pattern: [Unexpected any. Specify a different type](#)**
+
+  1. **Issue**
+
+    - **Location in Git:** [`backend/index.ts#L34`](#)
+    - **Justification:** From the CPEN 321 Backend Tutorials provided by the TAs. Specifically in Backend Tutorial Video 3, at 26:52, it is shown that the `app as any` is being used for the TodoRoutes
+
+  2. **Issue**
+
+    - **Location in Git:** [`backend/index.ts#L61`](#)
+    - **Justification:** From the CPEN 321 Backend Tutorials provided by the TAs. Specifically in Backend Tutorial Video 3, at 26:52, it is shown that the `app as any` is being used for the TodoRoutes
+
+- **Code Pattern: [Detect console.log() with non Literal argument](#)**
+
+  1. **Issue**
+
+    - **Location in Git:** [`backend/index.ts#L135`](#)
+    - **Justification:** From the CPEN 321 Backend Tutorials provided by the TAs. Specifically in Backend Tutorial Video 4, at 18:00, it is shown that the `console.log("Listening on port " + process.env.PORT)` is being used to show the port number of the server
