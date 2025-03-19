@@ -18,7 +18,7 @@
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
 | **POST /user** | [`backend/tests/unmocked_tests/CreateUser.test.ts#L24`](#) | [`backend/tests/mocked_tests/CreateUser.test.ts#L24`](#) | Database client |
 | **GET /user** | [`backend/tests/unmocked_tests/GetUser.test.ts#L30`](#) | [`backend/tests/mocked_tests/GetUser.test.ts#L31`](#) | Database client |
-| **POST /tokensignin** | [`backend/tests/unmocked_tests/GoogleSignIn.test.ts#L26`](#) | [`tests/mocked/authenticationLogin.test.js#L1`](#) | Google-Authenticator |
+| **POST /tokensignin** | [`NA`](#) | [`backend/tests/mocked_tests/GoogleSignIn.test.ts#L26`](#) | Google-Authenticator |
 | **PUT /karma** | [`backend/tests/unmocked_tests/UpdateKarma.test.ts#L30`](#) | [`backend/tests/mocked_tests/UpdateKarma.test.ts#L30`](#) | Database client |
 | **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L30`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L30`](#) | Database client |
 | **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L79`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L78`](#) | Database client |
@@ -36,33 +36,56 @@
 
 1. **Clone the Repository**:
 
-  - Open your terminal and run:
+  - Open your terminal and run (if you are using https):
     ```
-    git clone https://github.com/example/your-project.git
+    git clone https://github.com/Get2Class/Get2Class.git
     ```
 
-2. **Change Directory to `backend`**:
+  - Or if you are using ssh:
+    ```
+    git clone git@github.com:Get2Class/Get2Class.git
+    ```
+
+2. **Checkout to `milestone-5` branch**:
+
+  - In the terminal, after you have cloned the repository, checkout to `milestone-5` branch with the following command:
+    ```
+    git checkout milestone-5
+    ```
+
+3. **Change Directory to `backend`**:
   
   - In the terminal you will change directory to `backend`:
     ```
     cd backend
     ```
 
-3. **Install Dependencies**:
+4. **Install Dependencies**:
 
   - In the terminal you will run install the dependencies by making sure you are in the `backend` directory and you run:
     ```
     npm i
     ```
 
-4. **Running the Tests**:
+5. **Setting Up the Database**:
+
+  - Next ensure that you have your mongodb service running
+  - Use MongoDB Compass to connect to your local database
+  - Create a new database with the name `get2class` (needs to be exactly like this)
+  - Then you will add two collections under this database: `users` and `schedules`
+
+  - You should have something that looks like this:
+
+    ![MongoDB Setup](./images/mongodb-setup.png)
+
+6. **Running the Tests**:
   - In the terminal you will change directory to `tests` where the mocked and unmocked tests are located:
     ```
     cd tests
     npm test
     ```
 
-5. **You can run the mocked and unmocked tests with the following commands below (Optional)**:
+7. **You can run the mocked and unmocked tests with the following commands below (Optional)**:
   - In the terminal, make you sure you're in the `tests` directory:
     - For `unmocked_tests`:
       ```
@@ -79,11 +102,23 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-![Full Jest Coverage w/ Mocks](./images/full_jest_coverage.png)
+![Full Jest Coverage w/ Mocks](./images/full-jest-coverage-with-mocks.png)
+
+- #### Reason for uncovered lines in `index.ts`
+  - These lines have to do with Promise errors within the try-catches of the routes and scheduler which do not get triggered as they are part of the server set up logic.
+
+- #### Reason for uncovered lines in `services.ts`
+  - This is part of the back end tutorial and has to deal with the MongoDB Client set up logic.
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-![Jest Coverage w/o Mocks](./images/unmocked_jest_coverage.png)
+![Jest Coverage w/o Mocks](./images/full-jest-coverage-without-mocks.png)
+
+- #### Reason for uncovered lines in `UserController.ts`
+  - This is the `/tokensignin` route which mocks the Google OAuth2Client which gets handled within the mocked_tests
+
+- #### Reason for uncovered lines in `index.ts` specifically L50 - L51
+  - This gets handled by the mocked_tests in section 2.3
 
 ---
 
@@ -207,21 +242,46 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-_(Placeholder for screenshots of Codacyâ€™s Category Breakdown table in Overview)_
+![Issues Breakdown](./images/issues-breakdown.png)
+
+- #### Notice:
+  - It says there are 91 total issues, but this might be for the `main` branch and not our `milestone-5` branch. However, if you refer to section 5.3 this is a more reflective amount of our issues which we will justify why they are not fixed in Section 5.4.
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
-_(Placeholder for screenshots of Codacyâ€™s Issues page)_
+![Issues Overview](./images/issues-overview.png)
 
 ### 5.4. Justifications for Unfixed Issues
 
-- **Code Pattern: [Usage of Deprecated Modules](#)**
+- **Code Pattern: [A `require()` style import is forbidden](#)**
 
   1. **Issue**
 
-     - **Location in Git:** [`src/services/chatService.js#L31`](#)
-     - **Justification:** ...
+     - **Location in Git:** [`backend/index.ts#L12`](#)
+     - **Justification:** Referring to the node-cron npm docs (https://www.npmjs.com/package/node-cron), they mention to use `var cron = require('node-cron')` to utilize the scheduler function
 
-  2. ...
+- **Code Pattern: [Require statement not part of import statement](#)**
 
-- ...
+  1. **Issue**
+
+    - **Location in Git:** [`backend/index.ts#L12`](#)
+    - **Justification:** Referring to the node-cron npm docs (https://www.npmjs.com/package/node-cron), they mention to use `var cron = require('node-cron')` to utilize the scheduler function
+
+- **Code Pattern: [Unexpected any. Specify a different type](#)**
+
+  1. **Issue**
+
+    - **Location in Git:** [`backend/index.ts#L34`](#)
+    - **Justification:** From the CPEN 321 Backend Tutorials provided by the TAs. Specifically in Backend Tutorial Video 3, at 26:52, it is shown that the `app as any` is being used for the TodoRoutes
+
+  2. **Issue**
+
+    - **Location in Git:** [`backend/index.ts#L61`](#)
+    - **Justification:** From the CPEN 321 Backend Tutorials provided by the TAs. Specifically in Backend Tutorial Video 3, at 26:52, it is shown that the `app as any` is being used for the TodoRoutes
+
+- **Code Pattern: [Detect console.log() with non Literal argument](#)**
+
+  1. **Issue**
+
+    - **Location in Git:** [`backend/index.ts#L135`](#)
+    - **Justification:** From the CPEN 321 Backend Tutorials provided by the TAs. Specifically in Backend Tutorial Video 4, at 18:00, it is shown that the `console.log("Listening on port " + process.env.PORT)` is being used to show the port number of the server
