@@ -36,12 +36,42 @@
 
 1. **Clone the Repository**:
 
-   - Open your terminal and run:
-     ```
-     git clone https://github.com/example/your-project.git
-     ```
+  - Open your terminal and run:
+    ```
+    git clone https://github.com/example/your-project.git
+    ```
 
-2. **...**
+2. **Change Directory to `backend`**:
+  
+  - In the terminal you will change directory to `backend`:
+    ```
+    cd backend
+    ```
+
+3. **Install Dependencies**:
+
+  - In the terminal you will run install the dependencies by making sure you are in the `backend` directory and you run:
+    ```
+    npm i
+    ```
+
+4. **Running the Tests**:
+  - In the terminal you will change directory to `tests` where the mocked and unmocked tests are located:
+    ```
+    cd tests
+    npm test
+    ```
+
+5. **You can run the mocked and unmocked tests with the following commands below (Optional)**:
+  - In the terminal, make you sure you're in the `tests` directory:
+    - For `unmocked_tests`:
+      ```
+      npm test ./unmocked_tests/
+      ```
+    - For `mocked_tests`:
+      ```
+      npm test ./mocked_tests/
+      ```
 
 ### 2.2. GitHub Actions Configuration Location
 
@@ -49,11 +79,11 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-_(Placeholder for Jest coverage screenshot with mocks enabled)_
+![Full Jest Coverage w/ Mocks](./images/full_jest_coverage.png)
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-_(Placeholder for Jest coverage screenshot without mocks)_
+![Jest Coverage w/o Mocks](./images/unmocked_jest_coverage.png)
 
 ---
 
