@@ -34,6 +34,12 @@
     - Changed the failure scenario to match what was actually implemented, which will ask the user to grant location permissions in Settings if they deny the request.
 12. Updated section 3.5, on March 17.
     - Updated the second non-functional requirements to match the main use case (check attendance). This will make it more measurable and comprehensive, as it will cover more system components and thoroughly test the core functionality.
+13. Update section 3.1, on March 19.
+    - Added 2 new use cases: View Class Info and View Karma
+    - Updated the use case diagram to match the actual implementation, which is more comprehensive and includes more functionalities.
+14. Updated section 3.3-6&7, on March 19.
+    - Added formal use case specifications for View Class Info and View Karma
+    - Updated the functional requirements to match the changes in Change 13.
 
 
 ## 2. Project Description
@@ -41,7 +47,7 @@ Get2Class is a gamified calendar to help students get to class on time. The main
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
-![Get2Class Use-Case Diagram](./images/CPEN321_Use_Case_Diagram_Image.webp)
+![Get2Class Use-Case Diagram](./images/new_use_case_diagram.png)
 
 ### **3.2. Actors Description**
 1. **User**: The User is a student/professor which utilizes the application to help get them to their next class.
@@ -182,6 +188,32 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                     - 2g1. The user receives a toast telling them how late they were and another telling them how much Karma they gained
                 - 2c. The user is in the wrong location
                     - 2h1. The user receives a toast explaining the error
+
+6. **View Class Info**
+    - **Overview**:
+        1. The system must allow the user to view the information of any class on their schedules.
+    - **Detailed Flow for Each Independent Scenario**:
+        1. **View Class Info**<a name="fr5_1"></a>:
+            - **Description**: The user can see the class information, including the course name, class type, credits, time and location, by simply clicking a class section on their schedules.
+            - **Primary actor(s)**: User
+            - **Main success scenario**:
+                1. On one of the schedules, the user clicks a class section
+                2. The user sees the information of that class, including the course name, class type, credits, time and location, along with the "View route to class" and "Check in to class" buttons 
+            - **Failure scenario(s)**:
+                - N/A
+
+7. **View Karma**
+    - **Overview**:
+        1. The system must allow the user to view their up-to-date Karma points.
+    - **Detailed Flow for Each Independent Scenario**:
+        1. **View Karma**<a name="fr5_1"></a>:
+            - **Description**: The user can check their current Karma points, by simply clicking the "Karma" button on the home page after they log in.
+            - **Primary actor(s)**: User
+            - **Main success scenario**:
+                1. On the home page, the user clicks the "Karma" button
+                2. The user sees their updated Karma points
+            - **Failure scenario(s)**:
+                - N/A
 
 ### **3.4. Screen Mockups**
 N/A
