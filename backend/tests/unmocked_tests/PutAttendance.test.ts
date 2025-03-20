@@ -47,7 +47,7 @@ describe("Unmocked: PUT /attendance", () => {
     // Input: valid subject id and term string "winterCourseList" corresponding to an empty schedule
     // Expected status code: 400
     // Expected bahaviour: should return error status code and contain a message text explaining that attendance was not updated
-    // Expected output: empty body and "Unable to clear schedule"
+    // Expected output: empty body and "Unable to update attendance"
     test("Empty schedule 'winterCourseList'", async () => {
         const req = {
             sub: myUser.sub,
@@ -59,7 +59,7 @@ describe("Unmocked: PUT /attendance", () => {
         const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(400);
-        expect(res.text).toBe("Unable to clear schedule");
+        expect(res.text).toBe("Unable to update attendance");
         expect(res.body).toEqual({});
     });
 
@@ -85,7 +85,7 @@ describe("Unmocked: PUT /attendance", () => {
     // Input: valid subject id and invalid term string "springCourseList"
     // Expected status code: 400
     // Expected behavior: should return error status code and contain a message text explaining that attendance was not updated
-    // Expected output: empty body and "Unable to clear schedule"
+    // Expected output: empty body and "Unable to update attendance"
     test("Invalid request 'springCourseList'", async () => {
         const req = {
             sub: myUser.sub,
@@ -97,7 +97,7 @@ describe("Unmocked: PUT /attendance", () => {
         const res = await request(server).put("/attendance")
             .send(req);
         expect(res.statusCode).toBe(400);
-        expect(res.text).toBe("Unable to clear schedule");
+        expect(res.text).toBe("Unable to update attendance");
         expect(res.body).toEqual({});
     });
 

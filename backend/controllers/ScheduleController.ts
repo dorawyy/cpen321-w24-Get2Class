@@ -78,12 +78,14 @@ export class ScheduleController {
                     winterCourseList: req.body.winterCourseList
                 }
             };
-        } else {
+        } else if (req.body.summerCourseList) {
             document = {
                 $set: {
                     summerCourseList: req.body.summerCourseList
                 }
             };
+        } else {
+            return res.status(400).send("Unable to clear schedule");
         }
 
         const options = {
@@ -135,10 +137,17 @@ export class ScheduleController {
         const classFormat = req.body.classFormat;
         const term = req.body.term;
 
+        let allowedKeys = ["fallCourseList", "winterCourseList", "summerCourseList"];
+
         const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub });
 
         if (userScheduleData != null) {
-            let classes = userScheduleData[term as string];
+            let classes;
+            if (allowedKeys.includes(term)) {
+                classes = userScheduleData[term as string];
+            } else {
+                return res.status(400).send("Unable to update attendance");
+            }
 
             for (let c of classes) {
                 if (c.name == className && c.format == classFormat) {
@@ -179,7 +188,7 @@ export class ScheduleController {
             const updateData = await client.db("get2class").collection("schedules").updateOne(filter, document, options);
 
             if (!updateData.acknowledged || updateData.modifiedCount == 0) {
-                res.status(400).send("Unable to clear schedule");
+                res.status(400).send("Unable to update attendance");
             } else {
                 res.status(200).json({ acknowledged: updateData.acknowledged, message: "Successfully updated attendance" });
             }
