@@ -2,19 +2,21 @@ package com.example.get2class
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.snackbar.Snackbar
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
@@ -23,6 +25,7 @@ class SettingsActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "SettingsActivity"
     }
+    lateinit var mainView: View
 
     private lateinit var notification_switch: Switch
     private lateinit var edit_minutes: EditText
@@ -37,6 +40,7 @@ class SettingsActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        mainView = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.settings)
 
         notification_switch = findViewById(R.id.notifications_switch)
         edit_minutes = findViewById(R.id.edit_minutes)
@@ -60,27 +64,26 @@ class SettingsActivity : AppCompatActivity() {
 
             // check if the input is empty
             if (minutesText.isEmpty()) {
-                Toast.makeText(this, "Time cannot be empty", Toast.LENGTH_SHORT).show()
+                Snackbar.make(mainView, "Time cannot be empty", Snackbar.LENGTH_SHORT).show()
             }else if (minutes == null) { // parse the input as an integer
-                Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show()
+                Snackbar.make(mainView, "Please enter a valid number", Snackbar.LENGTH_SHORT).show()
                 edit_minutes.setText("")
             }else if (minutes > 1440) { // check if minutes exceed one day
-                Toast.makeText(this, "Maximum reminder time is one day", Toast.LENGTH_SHORT).show()
+                Snackbar.make(mainView, "Maximum reminder time is one day", Snackbar.LENGTH_SHORT).show()
                 edit_minutes.setText("")
             }else{ // if validation passes, proceed to save settings
                 saveNotificationSettings(BuildConfig.BASE_API_URL + "/notification_settings") { result ->
                     Log.d(TAG, "Saving notification settings...")
                     Log.d(TAG, "$result")
-
                     try {
                         val message = result.getString("message")
-                        this@SettingsActivity.runOnUiThread {
-                            Toast.makeText(this@SettingsActivity, message, Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (_: Exception) {
-                        this@SettingsActivity.runOnUiThread {
-                            Toast.makeText(this@SettingsActivity, "No notification changes made", Toast.LENGTH_SHORT).show()
-                        }
+                        Snackbar.make(
+                            mainView,
+                            message,
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    } catch (e: JSONException) {
+                        Snackbar.make(mainView, "No notification changes made", Snackbar.LENGTH_SHORT).show()
                     }
                 }
             }

@@ -1,0 +1,41 @@
+name: Run Backend Jest Tests
+
+on:
+  push:
+    branches:
+      - main
+      - milestone-5
+      - backend-testing
+    
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:latest
+        ports: 
+          - "27017:27017"
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js Version ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Run all tests
+        working-directory: ./backend/tests
+        run: npm test

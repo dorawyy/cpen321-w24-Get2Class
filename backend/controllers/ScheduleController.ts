@@ -1,52 +1,49 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { client } from "../services";
 
 export class ScheduleController {
-    async getSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.query["sub"];
-        const term = req.query["term"];
+    async getSchedule(req: Request, res: Response) {
+        const sub = req.query.sub;
+        const term = req.query.term;
 
-        let courseList = "";
-        if (term == "fallCourseList") courseList = "fallCourseList";
-        else if (term == "winterCourseList") courseList = "winterCourseList";
-        else courseList = "summerCourseList";
+        let allowedKeys = ["fallCourseList", "winterCourseList", "summerCourseList"];
 
-        const data = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        const data = await client.db("get2class").collection("schedules").findOne({ sub });
 
-        if (data != null) {
-            res.status(200).json({ "courseList": data[courseList] });
+        if (allowedKeys.includes(term as string) && data != null) {
+            res.status(200).json({ courseList: data[term as string] })
         } else {
             res.status(400).send("User not found");
         }
     }
 
-    async saveSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
+    async saveSchedule(req: Request, res: Response) {
+        const sub = req.body.sub;
         let document;
         
         const filter = {
-            sub: sub
+            sub
         };
 
-        if (req.body["fallCourseList"]) {
+        if (req.body.fallCourseList) {
             document = {
                 $set: {
-                    fallCourseList: req.body["fallCourseList"]
+                    fallCourseList: req.body.fallCourseList
                 }
             };
-        } else if (req.body["winterCourseList"]) {
+        } else if (req.body.winterCourseList) {
             document = {
                 $set: {
-                    winterCourseList: req.body["winterCourseList"]
+                    winterCourseList: req.body.winterCourseList
                 }
             };
         } else {
             document = {
                 $set: {
-                    summerCourseList: req.body["summerCourseList"]
+                    summerCourseList: req.body.summerCourseList
                 }
             };
-        };
+        }
 
         const options = {
             upsert: false
@@ -61,33 +58,35 @@ export class ScheduleController {
         }
     }
 
-    async clearSchedule(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
+    async clearSchedule(req: Request, res: Response) {
+        const sub = req.body.sub;
         let document;
 
         const filter = {
-            sub: sub
+            sub
         };
 
-        if (req.body["fallCourseList"]) {
+        if (req.body.fallCourseList) {
             document = {
                 $set: {
-                    fallCourseList: req.body["fallCourseList"]
+                    fallCourseList: req.body.fallCourseList
                 }
             };
-        } else if (req.body["winterCourseList"]) {
+        } else if (req.body.winterCourseList) {
             document = {
                 $set: {
-                    winterCourseList: req.body["winterCourseList"]
+                    winterCourseList: req.body.winterCourseList
+                }
+            };
+        } else if (req.body.summerCourseList) {
+            document = {
+                $set: {
+                    summerCourseList: req.body.summerCourseList
                 }
             };
         } else {
-            document = {
-                $set: {
-                    summerCourseList: req.body["summerCourseList"]
-                }
-            };
-        };
+            return res.status(400).send("Unable to clear schedule");
+        }
 
         const options = {
             upsert: false
@@ -102,27 +101,27 @@ export class ScheduleController {
         }
     }
 
-    async getAttendance(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.query["sub"];
-        const className = req.query["className"];
-        const classFormat = req.query["classFormat"];
-        const term = req.query["term"];
+    async getAttendance(req: Request, res: Response) {
+        const sub = req.query.sub;
+        const className = req.query.className;
+        const classFormat = req.query.classFormat;
+        const term = req.query.term;
 
-        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub });
 
         if (userScheduleData != null) {
             let classes = userScheduleData[term as string];
             let found = false
             let attendanceVal;
 
-            for (let i = 0; i < classes.length; i++) {
-                if (classes[i].name == className && classes[i].format == classFormat) {
+            for (let c of classes) {
+                if (c.name == className && c.format == classFormat) {
                     found = true;
-                    attendanceVal = classes[i].attended;
+                    attendanceVal = c.attended;
                 }
             }
             
-            if (found == true) {
+            if (found) {
                 res.status(200).json({ attended: attendanceVal });
             } else {
                 res.status(400).send("Class not found");
@@ -132,27 +131,34 @@ export class ScheduleController {
         }
     }
 
-    async updateAttendance(req: Request, res: Response, nextFunction: NextFunction) {
-        const sub = req.body["sub"];
-        const className = req.body["className"];
-        const classFormat = req.body["classFormat"];
-        const term = req.body["term"];
+    async updateAttendance(req: Request, res: Response) {
+        const sub = req.body.sub;
+        const className = req.body.className;
+        const classFormat = req.body.classFormat;
+        const term = req.body.term;
 
-        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub: sub });
+        let allowedKeys = ["fallCourseList", "winterCourseList", "summerCourseList"];
+
+        const userScheduleData = await client.db("get2class").collection("schedules").findOne({ sub });
 
         if (userScheduleData != null) {
-            let classes = userScheduleData[term];
+            let classes;
+            if (allowedKeys.includes(term)) {
+                classes = userScheduleData[term as string];
+            } else {
+                return res.status(400).send("Unable to update attendance");
+            }
 
-            for (let i = 0; i < classes.length; i++) {
-                if (classes[i].name == className && classes[i].format == classFormat) {
-                    classes[i].attended = true;
+            for (let c of classes) {
+                if (c.name == className && c.format == classFormat) {
+                    c.attended = true;
                 }
             }
 
             let document;
 
             const filter = {
-                sub: sub
+                sub
             };
 
             if (term == "fallCourseList") {
@@ -173,7 +179,7 @@ export class ScheduleController {
                         summerCourseList: classes
                     }
                 };
-            }; 
+            } 
 
             const options = {
                 upsert: false
@@ -182,7 +188,7 @@ export class ScheduleController {
             const updateData = await client.db("get2class").collection("schedules").updateOne(filter, document, options);
 
             if (!updateData.acknowledged || updateData.modifiedCount == 0) {
-                res.status(400).send("Unable to clear schedule");
+                res.status(400).send("Unable to update attendance");
             } else {
                 res.status(200).json({ acknowledged: updateData.acknowledged, message: "Successfully updated attendance" });
             }

@@ -4,15 +4,15 @@
 1. Updated section 3.1, on February 28. 
     - Updated the Use-Case Diagram to use verbs in accordance with M3 feedback.
     - Changed includes to extends to accurately depict relationships.
-2. Updated section 3.3, 2, on February 28.
+2. Updated section 3.3-2, on February 28.
     - Removed create schedule use case since this is now done automatically upon account creation.
     - Added language to describe Fall, Winter, Summer schedule format.
     - Changed **import** to **upload** and **delete** to **clear** to accurately depict actions.
     - Changed **csv** to **xlsx** since Workday no longer allows csv download.
     - Removed failure scenario for clear schedule in accordance with M3 feedback.
-3. Updated section 3.3, 3, on February 28.
+3. Updated section 3.3-3, on February 28.
     - Removed attendance checking as that is a separate feature.
-4. Updated section 3.5, 3, on February 28.
+4. Updated section 3.5-3, on February 28.
     - Added further justification to NFRs 1 and 2 in accordance with M3 feedback.
     - Removed NFR 3 as it was extraneous and not justifiable.
 5. Updated section 4, on February 28.
@@ -26,13 +26,28 @@
     - Updated dependency diagram to match changes to section 4.1.
 8. Updated section 4.8, on March 2.
     - Updated description of complexity component and pseudo code to better align with our actual implementation.
+9. Updated section 3.3-2.1.3a, on March 15.
+    - Changed failure case from uploading invalid file to uploading file to wrong term. This change was made because the library we use doesn't allow you to upload a file of the wrong type so this would not be testable.
+10. Updated section 3.3-5, on March 15.
+    - Changed use case to match what was actually implemented which was much more complex.
+11. Updated section 3.3-3, on March 17.
+    - Changed the failure scenario to match what was actually implemented, which will ask the user to grant location permissions in Settings if they deny the request.
+12. Updated section 3.5, on March 17.
+    - Updated the second non-functional requirements to match the main use case (check attendance). This will make it more measurable and comprehensive, as it will cover more system components and thoroughly test the core functionality.
+13. Update section 3.1, on March 19.
+    - Added 2 new use cases: View Class Info and View Karma
+    - Updated the use case diagram to match the actual implementation, which is more comprehensive and includes more functionalities.
+14. Updated section 3.3-6&7, on March 19.
+    - Added formal use case specifications for View Class Info and View Karma
+    - Updated the functional requirements to match the changes in Change 13.
+
 
 ## 2. Project Description
 Get2Class is a gamified calendar to help students get to class on time. The main target audience for this app will be UBC students and professors. The main problem we are trying to solve is simplifying the Workday Student calendar as it is unintuitive and difficult to use. We will make it easy to set up your calendar using data from Workday. It can be difficult, especially for first-year’s, to find your classes using the building acronym on Workday. We will provide maps and walking routes. Additionally, we want to help motivate students to be punctual and attend their classes. Our application aims to solve this by implementing a notification and points system that helps and motivates users to go to classes and provides best routes to reach their next class.
 
 ## 3. Requirements Specification
 ### **3.1. Use-Case Diagram**
-![Get2Class Use-Case Diagram](./images/CPEN321_Use_Case_Diagram_Image.webp)
+![Get2Class Use-Case Diagram](./images/new_use_case_diagram.png)
 
 ### **3.2. Actors Description**
 1. **User**: The User is a student/professor which utilizes the application to help get them to their next class.
@@ -83,9 +98,8 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 3. A popup or page reroute will occur requesting the user to upload a (valid) .xlsx file (from Workday)
                 4. Once the user successfully uploads an .xlsx file of their schedule, the blank schedule will become populated with the users uploaded schedule 
             - **Failure scenario(s)**:
-                - 3a. The user uploads a non-valid or non .xlsx file
-                    - 3a1. An error message is displayed telling the user that the uploaded file is not valid
-                    - 3a2. The app will prompt the user to upload a valid schedule again
+                - 3a. The user uploads their schedule to the wrong term
+                    - 3a1. An error message is displayed telling the user that that the schedule is not for the currently selected term
         2. **View Schedule**<a name="fr2_3"></a>:
             - **Description**: The user can view their schedules and a particular schedule
             - **Primary actor(s)**: User
@@ -117,9 +131,8 @@ Get2Class is a gamified calendar to help students get to class on time. The main
                 3. The user sees their current location and destination location together with the optimal route on the screen
             - **Failure scenario(s)**:
                 - 2a. The user does not grant location permissions
-                    - 2a1. The app prompts the user for permissions again with rationale
-                    - 2a2. If the user denies twice, the app shows a dialog to tell the user to enable location permissions in the settings first
-                    - 2a3. The app routes the user back to the previous screen
+                    - 2a1. If the user denies, the app shows a toast to tell the user to enable location permissions in the settings first
+                    - 2a2. The app routes the user back to the previous screen
 
 4. **Manage User Settings**
     - **Overview**:
@@ -156,16 +169,51 @@ Get2Class is a gamified calendar to help students get to class on time. The main
             - **Description**: The user can check themselves in when they arrive at the classroom and the system will provide to the user points (karma)
             - **Primary actor(s)**: User, Google Maps API
             - **Main success scenario**:
-                1. User clicks on the Check In button
-                2. System will check that the user is in the right location within the allotted/right time
-                3. System grants user points (karma)
+                1. User clicks on the "Check in to class" button
+                2. The user receives a toast telling them they got 60 Karma
             - **Failure scenario(s)**:
-                - 2a. User is not in right location but within the allotted time
-                    - 2a1. A popup message will occur notifying the user that they are not in the right location of their class location
-                - 2b. User is in the right location but not within the allotted time
-                    - 2b1. A popup message will occur notifying the user that they are not within the right location neither are they within the allotted time
-                - 2c. User is not in the right location neither are they within the allotted time
-                    - 2c1. A popup message will occur notifying the user that they are not within the right location neither are they within the allotted time
+                - 2a. The class is not from this year
+                    - 2a1. The user receives a toast explaining the error
+                - 2b. The class is not from this term
+                    - 2b1. The user receives a toast explaining the error
+                - 2c. The class is not on this day of the week
+                    - 2c1. The user receives a toast explaining the error
+                - 2d. It's too early in the day to check in to the class
+                    - 2d1. The user receives a toast explaining the error
+                - 2e. It's too late in the day to check in to the class
+                    - 2e1. The user receives a toast explaining the error
+                - 2f. The user already checked into class today
+                    - 2f1. The user receives a toast explaining the error
+                - 2g. The user went to class, but they were not on time
+                    - 2g1. The user receives a toast telling them how late they were and another telling them how much Karma they gained
+                - 2c. The user is in the wrong location
+                    - 2h1. The user receives a toast explaining the error
+
+6. **View Class Info**
+    - **Overview**:
+        1. The system must allow the user to view the information of any class on their schedules.
+    - **Detailed Flow for Each Independent Scenario**:
+        1. **View Class Info**<a name="fr5_1"></a>:
+            - **Description**: The user can see the class information, including the course name, class type, credits, time and location, by simply clicking a class section on their schedules.
+            - **Primary actor(s)**: User
+            - **Main success scenario**:
+                1. On one of the schedules, the user clicks a class section
+                2. The user sees the information of that class, including the course name, class type, credits, time and location, along with the "View route to class" and "Check in to class" buttons 
+            - **Failure scenario(s)**:
+                - N/A
+
+7. **View Karma**
+    - **Overview**:
+        1. The system must allow the user to view their up-to-date Karma points.
+    - **Detailed Flow for Each Independent Scenario**:
+        1. **View Karma**<a name="fr5_1"></a>:
+            - **Description**: The user can check their current Karma points, by simply clicking the "Karma" button on the home page after they log in.
+            - **Primary actor(s)**: User
+            - **Main success scenario**:
+                1. On the home page, the user clicks the "Karma" button
+                2. The user sees their updated Karma points
+            - **Failure scenario(s)**:
+                - N/A
 
 ### **3.4. Screen Mockups**
 N/A
@@ -173,11 +221,11 @@ N/A
 ### **3.5. Non-Functional Requirements**
 
 1. **Schedule Usability** <a name="nfr1"></a>
-    - **Description**: All schedules operations (upload, view, clear) should be processed and reflected on the screen within 3 seconds of the user action
+    - **Description**: All schedules operations (upload, view, clear) should be processed and reflected on the screen within 4 seconds of the user action.
     - **Justification**: Quick schedule display avoids user dissatisfaction and saves time for busy professors and students to check the time and location for their upcoming classes. According to https://think.storage.googleapis.com/docs/mobile-page-speed-new-industry-benchmarks.pdf, as page load time goes from 1s to 3s, the probability of bounce increases 32%.
-2. **Location Accuracy** <a name="nfr2"></a>
-    - **Description**: The user's location should be track within a radius of 50 meters from the actual location
-    - **Justification**: Accurate location tracking helps provide the optimal route, which is important for professors and students to get to class on time. This also ensures fairness for awarding and deducting points (karma). Our testing found that inside buildings on campus you can be up to 50m away from the building's google maps location, so we need precise location data to keep the valid radius small.
+2. **Check in Usability** <a name="nfr2"></a>
+    - **Description**: The user will see if they have checked in successfully or not, along with the amount of Karma points awarded, within 4 seconds of clicking the "Check in to class" button.
+    - **Justification**: Quick check in feedback reassures the user that their action is successful and to instantly reward them with Karma points. This fast confirmation can minimize anxiety, prevent repetitive attempts and reinforce trust in the system. According to https://think.storage.googleapis.com/docs/mobile-page-speed-new-industry-benchmarks.pdf, as page load time goes from 1s to 3s, the probability of bounce increases 32%.
 
 
 ## 4. Designs Specification
