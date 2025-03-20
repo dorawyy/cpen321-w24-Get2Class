@@ -6,10 +6,10 @@ import morgan from 'morgan';
 import { ScheduleRoutes } from './routes/ScheduleRoutes';
 import { Server } from 'http';
 import { ResetAttendanceController } from './controllers/ResetAttendanceController';
+import * as cron from 'node-cron'
 
 const app = express();
 const resetAttendanceController = new ResetAttendanceController();
-var cron = require('node-cron');
 
 app.use(express.json());
 app.use(morgan('tiny'));
@@ -84,13 +84,13 @@ ScheduleRoutes.forEach((route) => {
 /**
  * Test routes to confirm back end is working as expected
  */
-app.get('/get2class', (req: Request, res: Response) => {
-    res.json({ "data": "Get2Class GET" });
-});
+// app.get('/get2class', (req: Request, res: Response) => {
+//     res.json({ "data": "Get2Class GET" });
+// });
 
-app.post('/get2class', (req: Request, res: Response) => {
-    res.json({ "data": `Client sent: ${req.body.text}` });
-});
+// app.post('/get2class', (req: Request, res: Response) => {
+//     res.json({ "data": `Client sent: ${req.body.text}` });
+// });
 
 // app.delete('/reset_db', async (req: Request, res: Response) => {
 //     try {

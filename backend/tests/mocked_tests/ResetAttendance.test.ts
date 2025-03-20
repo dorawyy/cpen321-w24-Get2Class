@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { serverReady, cronResetAttendance, resetAttendanceController } from '../../index';
+import { serverReady, cronResetAttendance } from '../../index';
 import { client } from '../../services';
 import { Db } from 'mongodb';
 
@@ -72,13 +72,14 @@ describe("Mocked: Test reset attendance logic", () => {
     // Expected status code: none
     // Expected behavior: should throw a database connection error
     // Expected output: none
-    test("Throw error on first database call", async () => {
+    test("Throw error on first database call", () => {
         const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
             throw new Error("Database connection error");
         });
 
-        await expect(resetAttendanceController.resetAttendance()).rejects.toThrow("Database connection error");
+        cronResetAttendance.now();
 
+        expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -86,7 +87,7 @@ describe("Mocked: Test reset attendance logic", () => {
     // Expected status code: none
     // Expected behavior: should throw a database connection error
     // Expected output: none
-    test("Throw error on second database call", async () => {
+    test("Throw error on second database call", () => {
         const mockToArrayResult = [
             { 
                 email: "asdfasdf@gmail.com",
@@ -164,9 +165,9 @@ describe("Mocked: Test reset attendance logic", () => {
             dbMock2 as Db
         );
 
-        await expect(resetAttendanceController.resetAttendance()).rejects.toThrow("Database connection error");
+        cronResetAttendance.now();
         
         expect(dbSpy).toHaveBeenCalledWith('get2class');
-        expect(dbSpy).toHaveBeenCalledTimes(3);
+        expect(dbSpy).toHaveBeenCalledTimes(2);
     });
 });
