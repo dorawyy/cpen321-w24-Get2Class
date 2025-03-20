@@ -18,7 +18,7 @@
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
 | **POST /user** | [`backend/tests/unmocked_tests/CreateUser.test.ts#L25`](#) | [`backend/tests/mocked_tests/CreateUser.test.ts#L26`](#) | Database client |
 | **GET /user** | [`backend/tests/unmocked_tests/GetUser.test.ts#L31`](#) | [`backend/tests/mocked_tests/GetUser.test.ts#L33`](#) | Database client |
-| **POST /tokensignin** | [`N/A`](#) | [ backend/tests/unmocked_tests/GoogleSignIn.test.ts#L27 ](#) | Google-Authenticator |
+| **POST /tokensignin** | [`N/A`](#) | [`backend/tests/unmocked_tests/GoogleSignIn.test.ts#L27`](#) | Google-Authenticator |
 | **PUT /karma** | [`backend/tests/unmocked_tests/UpdateKarma.test.ts#L31`](#) | [`backend/tests/mocked_tests/UpdateKarma.test.ts#L32`](#) | Database client |
 | **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L31`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L32`](#) | Database client |
 | **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L80`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L84`](#) | Database client |
@@ -31,7 +31,7 @@
 
 #### 2.1.2. Commit Hash Where Tests Run
 
-`[Insert Commit SHA here]`
+`[c10808e1cf5f33a9a8862aeddde45d144dc5ea09]`
 
 #### 2.1.3. Explanation on How to Run the Tests
 
@@ -47,11 +47,11 @@
     git clone git@github.com:Get2Class/Get2Class.git
     ```
 
-2. **Checkout to `milestone-5` branch**:
+2. **Checkout to `main` branch**:
 
-  - In the terminal, after you have cloned the repository, checkout to `milestone-5` branch with the following command:
+  - In the terminal, after you have cloned the repository, checkout to `main` branch with the following command:
     ```
-    git checkout milestone-5
+    git checkout main
     ```
 
 3. **Change Directory to `backend`**:
@@ -239,14 +239,11 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 ### 5.1. Commit Hash Where Codacy Ran
 
-`[Insert Commit SHA here]`
+`[c10808e1cf5f33a9a8862aeddde45d144dc5ea09]`
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-![Issues Breakdown](./images/issues-breakdown.png)
-
-- #### Notice:
-  - It says there are 91 total issues, but this might be for the `main` branch and not our `milestone-5` branch. However, if you refer to section 5.3 this is a more reflective amount of our issues which we will justify why they are not fixed in Section 5.4.
+![Issues Breakdown](./images/issues-breakdown-2.png)
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
