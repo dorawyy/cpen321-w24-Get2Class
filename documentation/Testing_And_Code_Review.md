@@ -31,7 +31,7 @@
 
 #### 2.1.2. Commit Hash Where Tests Run
 
-`[c10808e1cf5f33a9a8862aeddde45d144dc5ea09]`
+`[ebd877d3ae543846cdb16d7fdffa10f003920c5f]`
 
 #### 2.1.3. Explanation on How to Run the Tests
 
@@ -241,7 +241,7 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 ### 5.1. Commit Hash Where Codacy Ran
 
-`[c10808e1cf5f33a9a8862aeddde45d144dc5ea09]`
+`[ebd877d3ae543846cdb16d7fdffa10f003920c5f]`
 
 ### 5.2. Unfixed Issues per Codacy Category
 
