@@ -162,14 +162,16 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 #### Explanation on How to Run the Tests
 
 1. Read get2class/frontend/README.md to set up the frontend.
-2. Make sure the settings app is on your emulated device's home screen.
-3. In the device's settings, disable "Set time automatically" and if needed set to the date to March 2025.
-4. Turn off Window animation scale, Transition animation scale, and Animator duration scale in the device's developer settings.
-5. Copy the file get2class/documentation/View_My_Courses.xlsx to the device's downloads folder without changing its name.
-6. Make sure when tapping upload in the app, it opens to the folder containing the file.
-7. Open the test in frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt.
-8. Change the NAME variable to the name that shows up when you sign in with Google
-9. Run the test. If it fails due to emulator lag, manually upload and clear a schedule the rerun the test. 
+2. Next, set up the back end and run it, to do this read get2class/backend/README.md
+3. Additionally, on the Android Studio frontend, visit the frontend/app/src/main/AndroidManifest.xml and ensure that `android:usesCleartextTraffic="true"`
+4. Make sure the settings app is on your emulated device's home screen.
+5. In the device's settings, disable "Set time automatically" and if needed set to the date to March 2025.
+6. Turn off Window animation scale, Transition animation scale, and Animator duration scale in the device's developer settings.
+7. Copy the file get2class/documentation/View_My_Courses.xlsx to the device's downloads folder without changing its name.
+8. Make sure when tapping upload in the app, it opens to the folder containing the file.
+9. Open the test in frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt.
+10. Change the NAME variable to the name that shows up when you sign in with Google
+11. Run the test. If it fails due to emulator lag, manually upload and clear a schedule the rerun the test. 
 
 
 ### 4.2. Tests
