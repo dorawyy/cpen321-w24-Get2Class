@@ -136,7 +136,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
             Log.d(TAG, "Start: $classStartTime, end: $classEndTime, client: $clientTime")
 
             // Check that the current term and year match the term and year of the course
-            if (checkTermAndYear(course, this)) {
+            if (checkTermAndYear(course)) {
                 // Check if the course is today
                 if (clientDay < 1 || clientDay > 5 || !course.days[clientDay - 1]) {
                     Log.d(TAG, "You don't have this class today")
@@ -146,9 +146,9 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
                         if (checkLocation(course)) {
                             // Check if you're late
                             if (classStartTime < clientTime - 2 * MINUTES) {
-                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, true, this@ClassInfoActivity)
+                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, true)
                             } else {
-                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, false, this@ClassInfoActivity)
+                                calculateKarma(arrayOf(clientTime, classStartTime, classEndTime), course, false)
                             }
                         }
                     }
@@ -307,7 +307,7 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         current_location = p0.latitude to p0.longitude
     }
 
-    private fun checkTermAndYear(course: Course, context: Context): Boolean {
+    private fun checkTermAndYear(course: Course): Boolean {
         val term = ScheduleListActivity.term
         val start = course.startDate
         val end = course.endDate
@@ -332,13 +332,14 @@ class ClassInfoActivity : AppCompatActivity(), LocationListener {
         return false
     }
 
-    fun calculateKarma(times: Array<Double>, course: Course, late: Boolean, context: Context) {
+    fun calculateKarma(times: Array<Double>, course: Course, late: Boolean) {
         val karma: Int
         if (late) {
             val clientTime = times[0]
             val classStartTime = times[1]
             val classEndTime = times[2]
             val lateness = clientTime - classStartTime
+            Log.d(TAG, "Your time: $clientTime. Class Start: $classStartTime.")
             Log.d(TAG, "You were late by ${(lateness * 60).toInt()} minutes!")
             val firstSnackbar = Snackbar.make(mainView, "You were late by ${(lateness * 60).toInt()} minutes!", Snackbar.LENGTH_SHORT)
             val classLength = classEndTime - classStartTime

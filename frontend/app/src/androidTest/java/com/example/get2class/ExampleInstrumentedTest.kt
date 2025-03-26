@@ -219,13 +219,13 @@ class E2EEspressoTest {
             waitForUIClick("Only this time")
             Thread.sleep(5000)
             Log.d(TAG, "Test 3: Successfully pop up the request dialog again and grant location permissions!")
-        }catch (_: AssertionError){}
+        } catch (_: AssertionError){}
 
         // a navigation dialog will show up if this is the first run
-        try{
-            waitForUIClick("GOT IT", 5000)
+        try {
+            waitForUIClick("GOT IT", 10000)
             Log.d(TAG, "Test 3: Successfully agree on Google Maps navigation terms and conditions!")
-        }catch (_: AssertionError){}
+        } catch (_: AssertionError) {}
 
         // 3. The user sees their current location and destination location together with the optimal route on the screen
         waitForUI("", 10000, R.id.navigation_view)
