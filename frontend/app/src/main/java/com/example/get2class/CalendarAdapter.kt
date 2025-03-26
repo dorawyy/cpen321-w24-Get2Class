@@ -97,7 +97,7 @@ class CalendarAdapter(private val context: Context,
             }
         }
         holder.bottomBorder.visibility = View.GONE
-        holder.cellFrame.setBackgroundColor("#0252A9".toColorInt())
+        holder.cellFrame.setBackgroundColor(course.colour.toColorInt())
         holder.cellFrame.setOnClickListener {
             Log.d(TAG, "Course was clicked: $course")
             val intent = Intent(context, ClassInfoActivity::class.java)
