@@ -54,21 +54,21 @@ export class ResetAttendanceController {
                 if (term == "Fall") {
                     for (let course of schedule.fallCourseList) {
                         const daysBool = JSON.parse(course.daysBool);
-                        if (daysBool[todayIndex as number] == true && course.attended == false) {
+                        if (daysBool.at(todayIndex) == true && course.attended == false) {
                             karmaToDeduct += course.credits * 10;
                         }
                     }
                 } else if (term == "Winter") {
                     for (let course of schedule.winterCourseList) {
                         const daysBool = JSON.parse(course.daysBool);
-                        if (daysBool[todayIndex as number] == true && course.attended == false) {
+                        if (daysBool.at(todayIndex) == true && course.attended == false) {
                             karmaToDeduct += course.credits * 10;
                         }
                     }
                 } else {
                     for (let course of schedule.summerCourseList) {
                         const daysBool = JSON.parse(course.daysBool);
-                        if (daysBool[todayIndex as number] == true && course.attended == false) {
+                        if (daysBool.at(todayIndex) == true && course.attended == false) {
                             karmaToDeduct += course.credits * 10;
                         }
                     }
