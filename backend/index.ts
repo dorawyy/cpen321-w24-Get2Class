@@ -19,6 +19,7 @@ app.use(morgan('tiny'));
  */
 const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
     try {
+        await resetAttendanceController.deductKarma();
         await resetAttendanceController.resetAttendance();
     } catch (err) {
         console.error(err);
@@ -105,8 +106,8 @@ ScheduleRoutes.forEach((route) => {
 
 // app.get('/test', async (req: Request, res: Response) => {
 //     try {
-//         resetAttendanceController.resetAttendance();
-//         res.status(200).send("Attendance reset for all courses");
+//         resetAttendanceController.deductKarma();
+//         res.status(200).send("deducted karma");
 //     } catch (err) {
 //         console.error(err);
 //         res.status(500).send(err);

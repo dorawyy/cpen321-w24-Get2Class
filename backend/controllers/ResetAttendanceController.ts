@@ -4,34 +4,22 @@ export class ResetAttendanceController {
     async resetAttendance() {
         const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
 
-        const term = getTerm()
         for (let schedule of allSchedules) {
-            let karmaLost = 0
             if (schedule.fallCourseList.length != 0) {
                 for (let course of schedule.fallCourseList) {
-                    if (term == "Fall" && course.attended == false) {
-                        karmaLost += 30
-                    }
                     course.attended = false;
                 }
             }
             if (schedule.winterCourseList.length != 0) {
                 for (let course of schedule.winterCourseList) {
-                    if (term == "Winter" && course.attended == false) {
-                        karmaLost += 30
-                    }
                     course.attended = false;
                 }
             }
             if (schedule.summerCourseList.length != 0) {
                 for (let course of schedule.summerCourseList) {
-                    if (term == "Summer" && course.attended == false) {
-                        karmaLost += 30
-                    }
                     course.attended = false
                 }
             }
-            deductKarma(schedule.sub, karmaLost)
         }
 
         for (let schedule of allSchedules) {
@@ -50,6 +38,46 @@ export class ResetAttendanceController {
             await client.db("get2class").collection("schedules").updateOne(filter, document);
         }
     }
+
+    async deductKarma() {
+        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const todayIndex = (today + 6) % 7; // Adjust so Monday = 0, Tuesday = 1, ..., Sunday = 6
+
+        if (todayIndex < 5) {
+            const term = getTerm();
+            
+            let karmaToDeduct = 0;
+
+            const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
+
+            for (let schedule of allSchedules) {
+                if (term == "Fall") {
+                    for (let course of schedule.fallCourseList) {
+                        const daysBool = JSON.parse(course.daysBool);
+                        if (daysBool[todayIndex] == true && course.attended == false) {
+                            karmaToDeduct += course.credits * 10;
+                        }
+                    }
+                } else if (term == "Winter") {
+                    for (let course of schedule.winterCourseList) {
+                        const daysBool = JSON.parse(course.daysBool);
+                        if (daysBool[todayIndex] == true && course.attended == false) {
+                            karmaToDeduct += course.credits * 10;
+                        }
+                    }
+                } else {
+                    for (let course of schedule.summerCourseList) {
+                        const daysBool = JSON.parse(course.daysBool);
+                        if (daysBool[todayIndex] == true && course.attended == false) {
+                            karmaToDeduct += course.credits * 10;
+                        }
+                    }
+                }
+
+                await removeKarma(schedule.sub, karmaToDeduct);
+            }
+        }
+    }
 }
 
 function getTerm(): string {
@@ -64,7 +92,7 @@ function getTerm(): string {
     }
 }
 
-async function deductKarma(sub: String, karmaLost: number) {
+async function removeKarma(sub: String, karmaLost: number) {
     let currKarma;
 
     const userData = await client.db("get2class").collection("users").findOne({ sub });
@@ -72,8 +100,7 @@ async function deductKarma(sub: String, karmaLost: number) {
     if (userData != null) {
         currKarma = userData.karma;
     } else {
-        // handle error
-        // return res.status(400).send("User not found");
+        return;
     }
 
     const filter = {
@@ -90,13 +117,5 @@ async function deductKarma(sub: String, karmaLost: number) {
         upsert: false
     };
 
-    const updateData = await client.db("get2class").collection("users").updateOne(filter, document, options);
-
-    if (!updateData.acknowledged || updateData.modifiedCount == 0) {
-        // handle error
-        // return res.status(400).send("Unable to update karma");
-    } else {
-        // handle success
-        // res.status(200).json({ acknowledged: updateData.acknowledged, message: "Successfully gained karma" });
-    }
+    await client.db("get2class").collection("users").updateOne(filter, document, options);
 }
