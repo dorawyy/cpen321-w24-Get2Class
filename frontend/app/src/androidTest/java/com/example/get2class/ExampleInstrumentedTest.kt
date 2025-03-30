@@ -39,7 +39,7 @@ private const val LAG: Long = 8000
 private const val TAG = "E2EEspressoTest"
 
 /**
- * Instrumented test, which will execute on the emulated Pixel 9
+ * Instrumented test, which will execute on the emulated Pixel 9.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
