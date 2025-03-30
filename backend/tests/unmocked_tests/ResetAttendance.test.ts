@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { serverReady, cronResetAttendance, resetAttendanceController } from '../../index';
+import { serverReady, cronResetAttendance, resetAttendanceController, cronDeductKarma } from '../../index';
 import { client } from '../../services';
 import request from 'supertest';
 
@@ -63,6 +63,7 @@ afterAll(async () => {
     });
     await client.close();
     await cronResetAttendance.stop();
+    cronDeductKarma.stop();
     await new Promise((resolve) => { resolve(server.close()); });
 });
 

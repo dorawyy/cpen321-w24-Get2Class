@@ -1,5 +1,5 @@
 import { OAuth2Client } from "google-auth-library";
-import { serverReady, cronResetAttendance } from '../../index';
+import { serverReady, cronResetAttendance, cronDeductKarma } from '../../index';
 import { client } from '../../services';
 import request from 'supertest';
 import { Server } from "http";
@@ -19,6 +19,7 @@ beforeAll(async () => {
 afterAll(async () => {
     await client.close();
     await cronResetAttendance.stop();
+    cronDeductKarma.stop();
     await new Promise((resolve) => { resolve(server.close()); });
     jest.resetAllMocks();
 });
