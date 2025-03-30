@@ -7,6 +7,7 @@ on:
       - milestone-5
       - backend-testing
       - m6-backend-test-fixes
+      - M6
     
 jobs:
   integration:
