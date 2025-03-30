@@ -69,7 +69,7 @@ afterAll(async () => {
 
 // Mocked Tests for Deduct Karma
 describe("Mocked: Test deduct attendance karma logic", () => {
-    test("Throw error on first database call", async () => {
+    test("Throw error on first database call", () => {
         jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
 
         const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
@@ -82,7 +82,7 @@ describe("Mocked: Test deduct attendance karma logic", () => {
         expect(dbSpy).toHaveBeenCalledTimes(1);
     });
 
-    test("Throw error on second database call", async () => {
+    test("Throw error on second database call", () => {
         jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
 
         const mockToArrayResult = [
@@ -168,7 +168,7 @@ describe("Mocked: Test deduct attendance karma logic", () => {
         expect(dbSpy).toHaveBeenCalledTimes(2);
     });
 
-    test("Throw error on third database call", async () => {
+    test("Throw error on third database call", () => {
         jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
 
         const mockToArrayResult = [
