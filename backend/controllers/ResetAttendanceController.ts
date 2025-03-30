@@ -45,12 +45,12 @@ export class ResetAttendanceController {
 
         if (todayIndex < 5) {
             const term = getTerm();
-            
-            let karmaToDeduct = 0;
 
             const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
 
             for (let schedule of allSchedules) {
+                let karmaToDeduct = 0;
+                
                 if (term == "Fall") {
                     for (let course of schedule.fallCourseList) {
                         const daysBool = JSON.parse(course.daysBool);
@@ -99,8 +99,6 @@ async function removeKarma(sub: string, karmaLost: number) {
     
     if (userData != null) {
         currKarma = userData.karma;
-    } else {
-        return;
     }
 
     const filter = {
