@@ -141,11 +141,11 @@ const serverReady: Promise<Server> = client.connect().then(() => {
     console.log("MongoDB Client Connected");
 
     const port = process.env.PORT ? process.env.PORT : "3000";
-    const message = "Listening on port " + 3000;
+    // const message = "Listening on port " + port;
 
     return new Promise<Server>((resolve) => {
         const server = app.listen(port, () => {
-            console.log(message);
+            console.log(`Listening on port ${/^[0-9]+$/.test(port) ? port : "unknown"}`);
             resolve(server);
         });
     });
