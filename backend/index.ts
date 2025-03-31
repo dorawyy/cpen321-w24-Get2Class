@@ -17,6 +17,16 @@ app.use(morgan('tiny'));
 /**
  * Cron Scheduler: resets attendance at the end of each day (PST) for all users
  */
+const cronDeductKarma = cron.schedule('59 23 * * *', async () => {
+    try {
+        await resetAttendanceController.deductKarma();
+    } catch (err) {
+        console.error(err);
+    }
+}, {
+    timezone: "America/Los_Angeles"
+});
+
 const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
     try {
         await resetAttendanceController.resetAttendance();
@@ -105,8 +115,8 @@ ScheduleRoutes.forEach((route) => {
 
 // app.get('/test', async (req: Request, res: Response) => {
 //     try {
-//         resetAttendanceController.resetAttendance();
-//         res.status(200).send("Attendance reset for all courses");
+//         resetAttendanceController.deductKarma();
+//         res.status(200).send("deducted karma");
 //     } catch (err) {
 //         console.error(err);
 //         res.status(500).send(err);
@@ -142,4 +152,4 @@ const serverReady: Promise<Server> = client.connect().then(() => {
     return Promise.reject(new Error(err));
 });
 
-export { app, serverReady, cronResetAttendance, resetAttendanceController }
+export { app, serverReady, cronDeductKarma, cronResetAttendance, resetAttendanceController }
