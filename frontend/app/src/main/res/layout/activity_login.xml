@@ -33,6 +33,7 @@
         android:fontFamily="sans-serif-condensed"
         android:textSize="28sp"
         app:cornerRadius="10dip"
+        android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

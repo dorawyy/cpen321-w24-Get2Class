@@ -63,7 +63,7 @@
         android:fontFamily="sans-serif-condensed"
         android:text="@string/notification_reminder_time_mins_text"
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

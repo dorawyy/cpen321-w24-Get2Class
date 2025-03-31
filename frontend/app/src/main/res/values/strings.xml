@@ -29,4 +29,5 @@
     <string name="notification_reminder_time_mins_text">Notification Reminder Time (mins)</string>
     <string name="save_settings_button_text">Save</string>
     <string name="schedule_view_text">Schedule:</string>
+    <string name="your_schedules_title_text">Your Schedules</string>
 </resources>
