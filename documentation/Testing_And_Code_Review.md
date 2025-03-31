@@ -7,6 +7,9 @@
 | March 30, 2025 | 2.1.1 | Added tests for deducting karma due to attendance |
 | March 30, 2025 | 2.3 | Updated jest coverage image with deduct karma tests |
 | March 30, 2025 | 2.4 | Updated jest coverage for unmocked tests with deduct karma test |
+| March 31, 2025 | 5.2 | Fixed codacy issues so updated the issues overview screenshot |
+| March 31, 2025 | 5.3 | Fixed codacy issues so updated the issues breakdown screenshot |
+| March 31, 2025 | 5.4 | Updated to be N/A because there are no more issues |
 
 ---
 
@@ -248,29 +251,17 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 ### 5.2. Unfixed Issues per Codacy Category
 
-![Issues Breakdown](./images/issues-breakdown-2.png)
+![Issues Breakdown](./images/issues-breakdown-3.png)
 
 ### 5.3. Unfixed Issues per Codacy Code Pattern
 
-![Issues Overview](./images/issues-overview-2.png)
+![Issues Overview](./images/issues-overview-3.png)
 
 ### 5.4. Justifications for Unfixed Issues
 
-- **Code Pattern: [Unexpected any. Specify a different type](#)**
+- **Code Pattern: [N/A](#)**
 
   1. **Issue**
 
-    - **Location in Git:** [`backend/index.ts#L34`](#)
-    - **Justification:** From the CPEN 321 Backend Tutorials provided by the TAs. Specifically in Backend Tutorial Video 3, at 26:52, it is shown that the `app as any` is being used for the TodoRoutes
-
-  2. **Issue**
-
-    - **Location in Git:** [`backend/index.ts#L61`](#)
-    - **Justification:** From the CPEN 321 Backend Tutorials provided by the TAs. Specifically in Backend Tutorial Video 3, at 26:52, it is shown that the `app as any` is being used for the TodoRoutes
-
-- **Code Pattern: [Detect console.log() with non Literal argument](#)**
-
-  1. **Issue**
-
-    - **Location in Git:** [`backend/index.ts#L135`](#)
-    - **Justification:** From the CPEN 321 Backend Tutorials provided by the TAs. Specifically in Backend Tutorial Video 4, at 18:00, it is shown that the `console.log("Listening on port " + process.env.PORT)` is being used to show the port number of the server
+    - **Location in Git:** [`N/A`](#)
+    - **Justification:** No issues
