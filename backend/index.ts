@@ -145,17 +145,17 @@ const serverReady: Promise<Server> = client.connect().then(() => {
     return new Promise<Server>((resolve) => {
         if (port == "80") {
             const server = app.listen(port, () => {
-                console.log(`Listening on port 80`);
+                console.log("Listening on port 80");
                 resolve(server);
             });
         } else if (port == "3000") {
             const server = app.listen(port, () => {
-                console.log(`Listening on port 3000`);
+                console.log("Listening on port 3000");
                 resolve(server);
             });
         } else {
             const server = app.listen(port, () => {
-                console.log(`Listening on port unknown`);
+                console.log("Listening on port unknown");
                 resolve(server);
             });
         }
