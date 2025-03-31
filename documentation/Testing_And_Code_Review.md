@@ -4,7 +4,9 @@
 
 | **Change Date**   | **Modified Sections** | **Rationale** |
 | ----------------- | --------------------- | ------------- |
-| _Nothing to show_ |
+| March 30, 2025 | 2.1.1 | Added tests for deducting karma due to attendance |
+| March 30, 2025 | 2.3 | Updated jest coverage image with deduct karma tests |
+| March 30, 2025 | 2.4 | Updated jest coverage for unmocked tests with deduct karma test |
 
 ---
 
@@ -28,6 +30,7 @@
 | **GET /attendance** | [`backend/tests/unmocked_tests/GetAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetAttendance.test.ts#L28`](#) | Database client |
 | **PUT /attendance** | [`backend/tests/unmocked_tests/PutAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/PutAttendance.test.ts#L28`](#) | Database client |
 | **Reset Attendance** | [`backend/tests/unmocked_tests/ResetAttendance.test.ts#L70`](#) | [`backend/tests/mocked_tests/ResetAttendance.test.ts#L70`](#) | Cron scheduler |
+| **Deduct Karma** | [`backend/tests/unmocked_tests/DeductKarma.test.ts#L88`](#) | [`backend/tests/mocked_tests/DeductKarma.test.ts#L71`](#) | Cron scheduler |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
@@ -103,7 +106,7 @@
 
 ### 2.3. Jest Coverage Report Screenshots With Mocks
 
-![Full Jest Coverage w/ Mocks](./images/jest-coverage-w-mocks.png)
+![Full Jest Coverage w/ Mocks](./images/jest-coverage-w-mocks-v2.png)
 
 - #### Reason for uncovered lines in `index.ts`
   - These lines have to do with Promise errors within the server set up process not getting triggered (https://piazza.com/class/m5abcyzl23d5or/post/176).
@@ -113,12 +116,12 @@
 
 ### 2.4. Jest Coverage Report Screenshots Without Mocks
 
-![Jest Coverage w/o Mocks](./images/jest-coverage-wo-mocks.png)
+![Jest Coverage w/o Mocks](./images/jest-coverage-wo-mocks-v2.png)
 
 - #### Reason for uncovered lines in `UserController.ts`
   - This is the `/tokensignin` route which mocks the Google OAuth2Client which gets handled within the mocked_tests
 
-- #### Reason for uncovered lines in `index.ts` specifically L50 - L51
+- #### Reason for uncovered lines in `index.ts`
   - This gets handled by the mocked_tests in section 2.3
 
 ---

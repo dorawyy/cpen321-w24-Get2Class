@@ -1,5 +1,5 @@
 import { Db } from 'mongodb';
-import { serverReady, cronResetAttendance } from '../../index';
+import { serverReady, cronResetAttendance, cronDeductKarma } from '../../index';
 import { client } from '../../services';
 import request from 'supertest';
 import { Server } from 'http';
@@ -18,7 +18,8 @@ afterAll(async () => {
         sub: "123"
     });
     await client.close();
-    await cronResetAttendance.stop();
+    cronResetAttendance.stop();
+    cronDeductKarma.stop();
     await new Promise((resolve) => { resolve(server.close()); });
 });
 

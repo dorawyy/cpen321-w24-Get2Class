@@ -1,5 +1,5 @@
 import { Server } from 'http';
-import { serverReady, cronResetAttendance, cronDeductKarma } from '../../index';
+import { serverReady, cronDeductKarma, cronResetAttendance } from '../../index';
 import { client } from '../../services';
 import { Db } from 'mongodb';
 
@@ -23,7 +23,7 @@ beforeAll(async () => {
                 location: "CHBE - Room 102",
                 credits: 4,
                 format: "Lecture",
-                attended: true
+                attended: false
             }
         ],
         winterCourseList: [
@@ -37,7 +37,7 @@ beforeAll(async () => {
                 location: "CHBE - Room 102",
                 credits: 4,
                 format: "Lecture",
-                attended: true
+                attended: false
             }
         ],
         summerCourseList: [
@@ -51,10 +51,10 @@ beforeAll(async () => {
                 location: "CHBE - Room 102",
                 credits: 4,
                 format: "Lecture",
-                attended: true
+                attended: false
             }
         ]
-    });
+     });
 });
 
 afterAll(async () => {
@@ -67,28 +67,24 @@ afterAll(async () => {
     await new Promise((resolve) => { resolve(server.close()); });
 });
 
-// Mocked Tests for ResetAttendance
-describe("Mocked: Test reset attendance logic", () => {
-    // Input: none
-    // Expected status code: none
-    // Expected behavior: should throw a database connection error
-    // Expected output: none
+// Mocked Tests for Deduct Karma
+describe("Mocked: Test deduct attendance karma logic", () => {
     test("Throw error on first database call", () => {
+        jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
+
         const dbSpy = jest.spyOn(client, "db").mockImplementationOnce(() => {
             throw new Error("Database connection error");
         });
 
-        cronResetAttendance.now();
+        cronDeductKarma.now();
 
         expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(1);
     });
 
-    // Input: none
-    // Expected status code: none
-    // Expected behavior: should throw a database connection error
-    // Expected output: none
     test("Throw error on second database call", () => {
+        jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
+
         const mockToArrayResult = [
             { 
                 email: "asdfasdf@gmail.com",
@@ -105,7 +101,7 @@ describe("Mocked: Test reset attendance logic", () => {
                         location: "CHBE - Room 102",
                         credits: 4,
                         format: "Lecture",
-                        attended: true
+                        attended: false
                     }
                 ],
                 winterCourseList: [
@@ -119,7 +115,7 @@ describe("Mocked: Test reset attendance logic", () => {
                         location: "CHBE - Room 102",
                         credits: 4,
                         format: "Lecture",
-                        attended: true
+                        attended: false
                     }
                 ],
                 summerCourseList: [
@@ -133,7 +129,7 @@ describe("Mocked: Test reset attendance logic", () => {
                         location: "CHBE - Room 102",
                         credits: 4,
                         format: "Lecture",
-                        attended: true
+                        attended: false
                     }
                 ]
             }
@@ -152,12 +148,12 @@ describe("Mocked: Test reset attendance logic", () => {
             collection: scheduleCollectionMock1
         } as Partial<jest.Mocked<Db>>;
 
-        const scheduleCollectionMock2 = jest.fn().mockImplementationOnce(() => {
+        const userCollectionMock1 = jest.fn().mockImplementationOnce(() => {
             throw new Error("Database connection error");
         });
 
         const dbMock2 = {
-            collection: scheduleCollectionMock2
+            collection: userCollectionMock1
         } as Partial<jest.Mocked<Db>>;
 
         const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce(
@@ -166,9 +162,113 @@ describe("Mocked: Test reset attendance logic", () => {
             dbMock2 as Db
         );
 
-        cronResetAttendance.now();
-        
+        cronDeductKarma.now();
+
         expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(2);
+    });
+
+    test("Throw error on third database call", () => {
+        jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
+
+        const mockToArrayResult = [
+            { 
+                email: "asdfasdf@gmail.com",
+                sub: "123",
+                name: "asdfasdf",
+                fallCourseList: [
+                    {
+                        name: "CPEN 321 - Software Engineering",
+                        daysBool: "[true, false, true, false, false]",
+                        startTime: "(15, 30)",
+                        endTime: "(17, 0)",
+                        startDate: "2025-01-06",
+                        endDate: "2025-04-07",
+                        location: "CHBE - Room 102",
+                        credits: 4,
+                        format: "Lecture",
+                        attended: false
+                    }
+                ],
+                winterCourseList: [
+                    {
+                        name: "CPEN 321 - Software Engineering",
+                        daysBool: "[true, false, true, false, false]",
+                        startTime: "(15, 30)",
+                        endTime: "(17, 0)",
+                        startDate: "2025-01-06",
+                        endDate: "2025-04-07",
+                        location: "CHBE - Room 102",
+                        credits: 4,
+                        format: "Lecture",
+                        attended: false
+                    }
+                ],
+                summerCourseList: [
+                    {
+                        name: "CPEN 321 - Software Engineering",
+                        daysBool: "[true, false, true, false, false]",
+                        startTime: "(15, 30)",
+                        endTime: "(17, 0)",
+                        startDate: "2025-01-06",
+                        endDate: "2025-04-07",
+                        location: "CHBE - Room 102",
+                        credits: 4,
+                        format: "Lecture",
+                        attended: false
+                    }
+                ]
+            }
+        ];
+        const toArrayMock = jest.fn().mockResolvedValueOnce(mockToArrayResult);
+
+        const findMock = jest.fn().mockImplementationOnce(() => {
+            return { toArray: toArrayMock }
+        });
+
+        const scheduleCollectionMock1 = jest.fn().mockImplementationOnce(() => {
+            return { find: findMock }
+        });
+
+        const dbMock1 = {
+            collection: scheduleCollectionMock1
+        } as Partial<jest.Mocked<Db>>;
+
+        const mockFindOneResult = {
+            email: "asdfasdf@gmail.com",
+            sub: "123",
+            name: "asdf asdf",
+            karma: "0"
+        };
+        const findOneMock = jest.fn().mockResolvedValueOnce(mockFindOneResult);
+
+        const userCollectionMock1 = jest.fn().mockImplementationOnce(() => {
+            return { findOne: findOneMock }
+        });
+
+        const dbMock2 = {
+            collection: userCollectionMock1
+        } as Partial<jest.Mocked<Db>>;
+
+        const userCollectionMock2 = jest.fn().mockImplementationOnce(() => {
+            throw new Error("Database connection error");
+        });
+
+        const dbMock3 = {
+            collection: userCollectionMock2
+        } as Partial<jest.Mocked<Db>>;
+
+        const dbSpy = jest.spyOn(client, "db").mockReturnValueOnce(
+            dbMock1 as Db
+        ).mockReturnValueOnce(
+            dbMock2 as Db
+        ).mockReturnValueOnce(
+            dbMock3 as Db
+        );
+
+        cronDeductKarma.now();
+
+        expect(dbSpy).toHaveBeenCalledWith('get2class');
+        expect(dbSpy).toHaveBeenCalledTimes(4);
     });
 });
