@@ -30,4 +30,5 @@
     <string name="save_settings_button_text">Save</string>
     <string name="schedule_view_text">Schedule:</string>
     <string name="your_schedules_title_text">Your Schedules</string>
+    <string name="icon_description">icon</string>
 </resources>
