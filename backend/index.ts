@@ -141,13 +141,24 @@ const serverReady: Promise<Server> = client.connect().then(() => {
     console.log("MongoDB Client Connected");
 
     const port = process.env.PORT ? process.env.PORT : "3000";
-    // const message = "Listening on port " + port;
 
     return new Promise<Server>((resolve) => {
-        const server = app.listen(port, () => {
-            console.log(`Listening on port ${/^[0-9]+$/.test(port) ? port : "unknown"}`);
-            resolve(server);
-        });
+        if (port == "80") {
+            const server = app.listen(port, () => {
+                console.log(`Listening on port 80`);
+                resolve(server);
+            });
+        } else if (port == "3000") {
+            const server = app.listen(port, () => {
+                console.log(`Listening on port 3000`);
+                resolve(server);
+            });
+        } else {
+            const server = app.listen(port, () => {
+                console.log(`Listening on port unknown`);
+                resolve(server);
+            });
+        }
     });
 }).catch(err => {
     console.error(err);
