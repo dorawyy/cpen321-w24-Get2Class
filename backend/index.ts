@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Application, Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { client } from "./services";
 import { UserRoutes } from './routes/UserRoutes';
@@ -41,7 +41,7 @@ const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
  * User Routes
  */
 UserRoutes.forEach((route) => {
-    (app as unknown as any)[route.method] (
+    (app as Application)[route.method as keyof Application] (
         route.route,
         route.validation,
         async (req: Request, res: Response) => {
@@ -68,7 +68,7 @@ UserRoutes.forEach((route) => {
  * Schedule Routes
  */
 ScheduleRoutes.forEach((route) => {
-    (app as any)[route.method] (
+    (app as Application)[route.method as keyof Application] (
         route.route,
         route.validation,
         async (req: Request, res: Response) => {
@@ -140,7 +140,7 @@ ScheduleRoutes.forEach((route) => {
 const serverReady: Promise<Server> = client.connect().then(() => {
     console.log("MongoDB Client Connected");
 
-    const port = process.env.PORT ?? "3000";
+    const port = process.env.PORT ? process.env.PORT : "3000";
 
     return new Promise<Server>((resolve) => {
         const server = app.listen(port, () => {
