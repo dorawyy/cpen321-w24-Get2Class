@@ -1,4 +1,4 @@
-import { serverReady, cronResetAttendance } from '../../index';
+import { serverReady, cronResetAttendance, cronDeductKarma } from '../../index';
 import { mySchedule, myUser, myDBScheduleItem, DBScheduleItem } from "../utils";
 import { client } from '../../services';
 import request from 'supertest';
@@ -20,6 +20,7 @@ afterAll(async () => {
     await client.db("get2class").collection("schedules").deleteOne({ sub: myUser.sub });
     await client.close();
     cronResetAttendance.stop();
+    cronDeductKarma.stop();
     await new Promise((resolve) => { resolve(server.close()); });
 });
 
