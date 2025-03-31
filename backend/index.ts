@@ -41,7 +41,7 @@ const cronResetAttendance = cron.schedule('0 0 * * *', async () => {
  * User Routes
  */
 UserRoutes.forEach((route) => {
-    (app as any)[route.method] (
+    (app as unknown as any)[route.method] (
         route.route,
         route.validation,
         async (req: Request, res: Response) => {
@@ -140,9 +140,11 @@ ScheduleRoutes.forEach((route) => {
 const serverReady: Promise<Server> = client.connect().then(() => {
     console.log("MongoDB Client Connected");
 
+    const port = process.env.PORT ?? "3000";
+
     return new Promise<Server>((resolve) => {
-        const server = app.listen(process.env.PORT, () => {
-            console.log("Listening on port", process.env.PORT);
+        const server = app.listen(port, () => {
+            console.log("Listening on port", port);
             resolve(server);
         });
     });
