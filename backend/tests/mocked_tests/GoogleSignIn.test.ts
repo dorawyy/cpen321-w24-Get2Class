@@ -18,7 +18,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
     await client.close();
-    await cronResetAttendance.stop();
+    cronResetAttendance.stop();
     cronDeductKarma.stop();
     await new Promise((resolve) => { resolve(server.close()); });
     jest.resetAllMocks();

@@ -23,8 +23,8 @@ afterAll(async () => {
         sub: "123"
     });
     await client.close();
-    await cronResetAttendance.stop();
-    cronDeductKarma.stop()
+    cronResetAttendance.stop();
+    cronDeductKarma.stop();
     await new Promise((resolve) => { resolve(server.close()); });
 });
 
