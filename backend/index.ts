@@ -144,7 +144,7 @@ const serverReady: Promise<Server> = client.connect().then(() => {
 
     return new Promise<Server>((resolve) => {
         const server = app.listen(port, () => {
-            console.log("Listening on port", port);
+            console.log(`Listening on port ${port}`);
             resolve(server);
         });
     });
