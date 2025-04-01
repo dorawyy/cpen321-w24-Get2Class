@@ -1,6 +1,10 @@
 import { client } from "../services";
 
 export class ResetAttendanceController {
+    /**
+     * resetAttendance handles the attendance resetting logic at the end of a day to reset the attendance of all the classes
+     * the user has checked into. This is so that the next time the class occurs again they can check in.
+     */
     async resetAttendance() {
         const allSchedules = await client.db("get2class").collection("schedules").find().toArray();
 
@@ -39,6 +43,10 @@ export class ResetAttendanceController {
         }
     }
 
+    /**
+     * deductKarma handles the attendance karma reduction system which occurs at the end of the day. This function
+     * reduces the karma of users within the application who did not check into classes for a particular day.
+     */
     async deductKarma() {
         const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
         const todayIndex = (today + 6) % 7; // Adjust so Monday = 0, Tuesday = 1, ..., Sunday = 6
@@ -80,6 +88,11 @@ export class ResetAttendanceController {
     }
 }
 
+/**
+ * This function is a helper which is used in the deductKarma function
+ * 
+ * @returns "Winter", "Summer", or "Fall" string depending on the month
+ */
 function getTerm(): string {
     const month = new Date().getMonth() + 1; 
 
@@ -92,6 +105,14 @@ function getTerm(): string {
     }
 }
 
+/**
+ * This function is a helkper which is used in the deductKarma function to reduce
+ * the karma of a particular user by a specific amount depending on the amount of classes
+ * they skipped for the day.
+ * 
+ * @param sub subject id of a user
+ * @param karmaLost karma to reduce for a user
+ */
 async function removeKarma(sub: string, karmaLost: number) {
     let currKarma;
 

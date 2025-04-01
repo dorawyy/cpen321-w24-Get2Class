@@ -80,6 +80,7 @@ describe("Mocked: Test reset attendance logic", () => {
 
         cronResetAttendance.now();
 
+        expect(dbSpy.mock.results[0].type).toBe('throw');
         expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(1);
     });
@@ -168,6 +169,7 @@ describe("Mocked: Test reset attendance logic", () => {
 
         cronResetAttendance.now();
         
+        expect(dbSpy.mock.results[0].type).toBe('throw');
         expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(2);
     });

@@ -86,6 +86,10 @@ afterAll(async () => {
 
 // Unmocked Tests for Deduct Karma
 describe("Unmocked: Test deduct attendance karma logic", () => {
+    // Input: none
+    // Expected status code: 200
+    // Expected bahaviour: should deduct the user's karma based on the day and the classes they have not attended (this is for classes in the winter term)
+    // Expected output: karma is -40
     test("Test karma reduction for term: winter", async () => {
         jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
         jest.spyOn(global.Date.prototype, 'getMonth').mockReturnValueOnce(1);
@@ -100,6 +104,10 @@ describe("Unmocked: Test deduct attendance karma logic", () => {
         jest.resetAllMocks();
     });
 
+    // Input: none
+    // Expected status code: 200
+    // Expected bahaviour: should deduct the user's karma based on the day and the classes they have not attended (this is for classes in the summer term)
+    // Expected output: karma is -40
     test("Test karma reduction for term: summer", async () => {
         jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
         jest.spyOn(global.Date.prototype, 'getMonth').mockReturnValueOnce(5);
@@ -114,6 +122,10 @@ describe("Unmocked: Test deduct attendance karma logic", () => {
         jest.resetAllMocks();
     });
 
+    // Input: none
+    // Expected status code: 200
+    // Expected bahaviour: should deduct the user's karma based on the day and the classes they have not attended (this is for classes in the fall term)
+    // Expected output: karma is -40
     test("Test karma reduction for term: fall", async () => {
         jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
         jest.spyOn(global.Date.prototype, 'getMonth').mockReturnValueOnce(8);
