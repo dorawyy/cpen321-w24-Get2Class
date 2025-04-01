@@ -69,6 +69,11 @@ afterAll(async () => {
 
 // Mocked Tests for Deduct Karma
 describe("Mocked: Test deduct attendance karma logic", () => {
+    // Mocked behavior: client db/collection throws an error
+    // Input: none
+    // Expected status code: N/A
+    // Expected behavior: should return error response due to db/collection failure on the first time the database gets called
+    // Expected output: database call should error
     test("Throw error on first database call", () => {
         jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
 
@@ -78,10 +83,16 @@ describe("Mocked: Test deduct attendance karma logic", () => {
 
         cronDeductKarma.now();
 
+        expect(dbSpy.mock.results[0].type).toBe("throw");
         expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(1);
     });
 
+    // Mocked behavior: client db/collection throws an error
+    // Input: none
+    // Expected status code: N/A
+    // Expected behavior: should return error response due to db/collection failure on the second time the database gets called
+    // Expected output: database call should error
     test("Throw error on second database call", () => {
         jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
 
@@ -164,10 +175,16 @@ describe("Mocked: Test deduct attendance karma logic", () => {
 
         cronDeductKarma.now();
 
+        expect(dbSpy.mock.results[0].type).toBe("throw");
         expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(2);
     });
 
+    // Mocked behavior: client db/collection throws an error
+    // Input: none
+    // Expected status code: N/A
+    // Expected behavior: should return error response due to db/collection failure on the third time database gets called
+    // Expected output: database call should error
     test("Throw error on third database call", () => {
         jest.spyOn(global.Date.prototype, 'getDay').mockReturnValueOnce(1);
 
@@ -268,6 +285,7 @@ describe("Mocked: Test deduct attendance karma logic", () => {
 
         cronDeductKarma.now();
 
+        expect(dbSpy.mock.results[0].type).toBe("throw");
         expect(dbSpy).toHaveBeenCalledWith('get2class');
         expect(dbSpy).toHaveBeenCalledTimes(4);
     });
