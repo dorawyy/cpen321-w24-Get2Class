@@ -43,20 +43,8 @@ class AttendanceTest {
     val activityRule = ActivityScenarioRule(LoginActivity::class.java)
 
     @Test
-    fun t2_attendanceTest() {
-        // Log in and navigate to winter schedule
-        onView(withId(R.id.login_button)).perform(click())
-        waitForUIClick(NAME)
-        try{
-            waitForUIClick("Agree and share", 2000)
-        }catch (_: AssertionError){}
-        Thread.sleep(1000)
-        waitForUIClick("Schedules")
-        onView(withId(R.id.winter_schedule)).perform(click())
-
-        // Upload the schedule
-        onView(withId(R.id.upload_schedule_button)).perform(click())
-        waitForUIClick(FILENAME)
+    fun attendanceTest() {
+        logInAndLoadWinterSchedule()
 
         // Select CPSC 320
         onView(withIndex(withText("CPSC 320"), 0)).perform(click())
@@ -311,4 +299,20 @@ private fun grantLocationPermissions() {
     } catch (e: AssertionError) {
         // Pass
     }
+}
+
+private fun logInAndLoadWinterSchedule() {
+    // log in
+    onView(withId(R.id.login_button)).perform(click())
+    waitForUIClick(NAME)
+    try {
+        waitForUIClick("Agree and share", 2000)
+    } catch (_: AssertionError) {}
+    Thread.sleep(1000)
+    waitForUIClick("Schedules")
+
+    // upload schedule
+    onView(withId(R.id.winter_schedule)).perform(click())
+    onView(withId(R.id.upload_schedule_button)).perform(click())
+    waitForUIClick(FILENAME)
 }
