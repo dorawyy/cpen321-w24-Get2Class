@@ -33,7 +33,7 @@ private const val FILENAME = "View_My_Courses.xlsx"
 private const val LAG: Long = 8000
 private const val TAG = "AttendanceTest"
 
-// Instrumented test, which will execute on the emulated Pixel 9
+// Instrumented test, which will execute on the emulated Pixel 9.
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
