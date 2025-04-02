@@ -54,9 +54,10 @@ class E2EEspressoTest {
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
         waitForUIClick(NAME)
-        try{
+        try {
             waitForUIClick("Agree and share", 2000)
-        }catch (_: AssertionError){}
+        } catch (_: AssertionError) {}
+        Thread.sleep(1000)
         waitForUIClick("Schedules")
         Log.d(TAG, "Test 1: Successfully log in and navigate to the schedule list!")
 
@@ -105,6 +106,7 @@ class E2EEspressoTest {
         try{
             waitForUIClick("Agree and share", 2000)
         }catch (_: AssertionError){}
+        Thread.sleep(1000)
         waitForUIClick("Schedules")
         onView(withId(R.id.winter_schedule)).perform(click())
 
@@ -116,7 +118,7 @@ class E2EEspressoTest {
         onView(withIndex(withText("CPSC 320"), 0)).perform(click())
 
         // Case where year is wrong
-        incrementMonth(-3, 1)
+        incrementMonth(-4, 1)
         onView(withId(R.id.check_attendance_button)).perform(click())
         onView(withText("You don't have this class this year")).check(matches(isDisplayed()))
         Log.d(TAG, "Test 2: Successfully detect that the user tries to check in in a wrong year!")
@@ -293,6 +295,7 @@ private fun logInAndLoadWinterSchedule(){
     try{
         waitForUIClick("Agree and share", 2000)
     }catch (_: AssertionError){}
+    Thread.sleep(1000)
     waitForUIClick("Schedules")
 
     // upload schedule

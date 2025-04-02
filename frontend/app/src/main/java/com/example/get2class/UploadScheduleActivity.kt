@@ -272,8 +272,6 @@ class UploadScheduleActivity : AppCompatActivity() {
     }
 }
 
-
-
 private fun extractLocation(patternList: List<String>): String {
     val locationList = patternList.getOrNull(3)?.split("[-\n]".toRegex()) ?: return "Unknown"
     return "${locationList.getOrNull(0)?.trim()} - ${locationList.getOrNull(2)?.trim()}"
