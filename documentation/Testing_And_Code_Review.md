@@ -10,6 +10,7 @@
 | March 31, 2025 | 5.2 | Fixed codacy issues so updated the issues overview screenshot |
 | March 31, 2025 | 5.3 | Fixed codacy issues so updated the issues breakdown screenshot |
 | March 31, 2025 | 5.4 | Updated to be N/A because there are no more issues |
+| March 31, 2025 | 2.1.1 | Update Mocked Components to be more specific |
 | April 2, 2025 | 3.1 | NFR locations changed due to frontend tests being split into 3 files |
 | April 2, 2025 | 3.2 | Clarified how NFR tests check requirement |
 | April 2, 2025 | 4.1 | Updated test instructions to reflect split into 3 files |
@@ -24,19 +25,19 @@
 
 | **Interface**               | **Describe Group Location, No Mocks**                | **Describe Group Location, With Mocks**            | **Mocked Components**              |
 | ----------------------------- | ---------------------------------------------------- | -------------------------------------------------- | ---------------------------------- |
-| **POST /user** | [`backend/tests/unmocked_tests/CreateUser.test.ts#L25`](#) | [`backend/tests/mocked_tests/CreateUser.test.ts#L26`](#) | Database client |
-| **GET /user** | [`backend/tests/unmocked_tests/GetUser.test.ts#L31`](#) | [`backend/tests/mocked_tests/GetUser.test.ts#L33`](#) | Database client |
+| **POST /user** | [`backend/tests/unmocked_tests/CreateUser.test.ts#L25`](#) | [`backend/tests/mocked_tests/CreateUser.test.ts#L26`](#) | User Database client |
+| **GET /user** | [`backend/tests/unmocked_tests/GetUser.test.ts#L31`](#) | [`backend/tests/mocked_tests/GetUser.test.ts#L33`](#) | User Database client |
 | **POST /tokensignin** | [`N/A`](#) | [`backend/tests/unmocked_tests/GoogleSignIn.test.ts#L27`](#) | Google-Authenticator |
-| **PUT /karma** | [`backend/tests/unmocked_tests/UpdateKarma.test.ts#L31`](#) | [`backend/tests/mocked_tests/UpdateKarma.test.ts#L32`](#) | Database client |
-| **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L31`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L32`](#) | Database client |
-| **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L80`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L84`](#) | Database client |
-| **DELETE /schedule** | [`backend/tests/unmocked_tests/DeleteSchedule.test.ts#L27`](#) | [`backend/tests/mocked_tests/DeleteSchedule.test.ts#L29`](#) | Database client |
-| **GET /schedule** | [`backend/tests/unmocked_tests/GetSchedule.test.ts#L29`](#) | [`backend/tests/mocked_tests/GetSchedule.test.ts#L28`](#) | Database client |
-| **PUT /schedule** | [`backend/tests/unmocked_tests/PutSchedule.test.ts#L25`](#) | [`backend/tests/mocked_tests/PutSchedule.test.ts#L25`](#) | Database client |
-| **GET /attendance** | [`backend/tests/unmocked_tests/GetAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetAttendance.test.ts#L28`](#) | Database client |
-| **PUT /attendance** | [`backend/tests/unmocked_tests/PutAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/PutAttendance.test.ts#L28`](#) | Database client |
-| **Reset Attendance** | [`backend/tests/unmocked_tests/ResetAttendance.test.ts#L70`](#) | [`backend/tests/mocked_tests/ResetAttendance.test.ts#L70`](#) | Cron scheduler |
-| **Deduct Karma** | [`backend/tests/unmocked_tests/DeductKarma.test.ts#L88`](#) | [`backend/tests/mocked_tests/DeductKarma.test.ts#L71`](#) | Cron scheduler |
+| **PUT /karma** | [`backend/tests/unmocked_tests/UpdateKarma.test.ts#L31`](#) | [`backend/tests/mocked_tests/UpdateKarma.test.ts#L32`](#) | User Database client |
+| **GET /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L31`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L32`](#) | User Database client |
+| **PUT /notification_settings** | [`backend/tests/unmocked_tests/UserNotification.test.ts#L80`](#) | [`backend/tests/mocked_tests/UserNotification.test.ts#L84`](#) | User Database client |
+| **DELETE /schedule** | [`backend/tests/unmocked_tests/DeleteSchedule.test.ts#L27`](#) | [`backend/tests/mocked_tests/DeleteSchedule.test.ts#L29`](#) | Schedule Database client |
+| **GET /schedule** | [`backend/tests/unmocked_tests/GetSchedule.test.ts#L29`](#) | [`backend/tests/mocked_tests/GetSchedule.test.ts#L28`](#) | Schedule Database client |
+| **PUT /schedule** | [`backend/tests/unmocked_tests/PutSchedule.test.ts#L25`](#) | [`backend/tests/mocked_tests/PutSchedule.test.ts#L25`](#) | Schedule Database client |
+| **GET /attendance** | [`backend/tests/unmocked_tests/GetAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/GetAttendance.test.ts#L28`](#) | Schedule Database client |
+| **PUT /attendance** | [`backend/tests/unmocked_tests/PutAttendance.test.ts#L27`](#) | [`backend/tests/mocked_tests/PutAttendance.test.ts#L28`](#) | Schedule Database client |
+| **Reset Attendance** | [`backend/tests/unmocked_tests/ResetAttendance.test.ts#L70`](#) | [`backend/tests/mocked_tests/ResetAttendance.test.ts#L70`](#) | Cron scheduler & Schedule Database client |
+| **Deduct Karma** | [`backend/tests/unmocked_tests/DeductKarma.test.ts#L88`](#) | [`backend/tests/mocked_tests/DeductKarma.test.ts#L71`](#) | Cron scheduler & Schedule Database client & User Database client |
 
 #### 2.1.2. Commit Hash Where Tests Run
 
