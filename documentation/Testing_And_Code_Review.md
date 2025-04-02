@@ -11,6 +11,9 @@
 | March 31, 2025 | 5.3 | Fixed codacy issues so updated the issues breakdown screenshot |
 | March 31, 2025 | 5.4 | Updated to be N/A because there are no more issues |
 | March 31, 2025 | 2.1.1 | Update Mocked Components to be more specific |
+| April 2, 2025 | 3.1 | NFR locations changed due to frontend tests being split into 3 files |
+| April 2, 2025 | 3.2 | Clarified how NFR tests check requirement |
+| April 2, 2025 | 4.1 | Updated test instructions to reflect split into 3 files |
 
 ---
 
@@ -136,8 +139,8 @@
 
 | **Non-Functional Requirement**  | **Location in Git**                              |
 | ------------------------------- | ----------------------------- |
-| **Schedule Upload Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt#L84`](#) |
-| **Attendance Check Time** | [`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt#L172`](#) |
+| **Schedule Upload Time** | [`frontend/app/src/androidTest/java/com/example/get2class/UploadScheduleTest.kt#L77`](#) |
+| **Attendance Check Time** | [`frontend/app/src/androidTest/java/com/example/get2class/AttendanceTest.kt#L124`](#) |
 
 We directly integrated these tests into our frontend tests.<br>Instructions for running them can be found in section 4.1.
 
@@ -145,14 +148,14 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 - **Schedule Usability**
 
-  - **Verification:** This test simulates a user uploading their schedule from an xlsx file in their phone's downloads. The focus is on ensuring that the process of uploading the file, parsing it, storing it on the database, and rendering it for the user completes within the target response time of 4 seconds under normal load. We use Espresso's onView().check() to ensure the timer does not stop until the component is displayed for the user. We use Espresso's onView().perform(click()) to ensure the timer does not stop until the component is displayed for the user. The test logs let us know if the system meets our requirement. 
+  - **Verification:** This test simulates a user uploading their schedule from an xlsx file in their phone's downloads. The focus is on ensuring that the process of uploading the file, parsing it, storing it on the database, and rendering it for the user completes within the target response time of 4 seconds under normal load. The test flow is: note the current time, tap on the file to upload it, wait for the UI to finish loading, check the time again, and assert that the difference in the times was less than 4 seconds, thus failing the test if it does not meet the requirement.
   - **Log Output**
     ```
     Test 1: Successfully upload a winter schedule in 1762ms!
     ```
 
 - **Check-in Usability**
-  - **Verification:** This test simulates a user clicking on the "Check in to class" button with the help of Espresso. The focus is to ensure that the process of checking the time and location of the user, checking the starting time and location of the next class, calculating, updating and showing the Karma points the user gains completes within the target response time of 4 seconds under normal load. We use Espresso's onView().perform(click()) and onView().check() to perform the click action and check if the user receives the response from the app. The test logs capture the processing time and let us know if the system meets our requirement.
+  - **Verification:** This test simulates a user clicking on the "Check in to class" button with the help of Espresso. The focus is to ensure that the process of checking the time and location of the user, checking the starting time and location of the next class, calculating, updating and showing the Karma points the user gains completes within the target response time of 4 seconds under normal load. The test flow is: note the current time, tap on the check in to class button, wait for the success message, check the time again, and assert that the difference in the times was less than 4 seconds, thus failing the test if it does not meet the requirement.
   - **Log Output**
     ```
     Test 2: Successfully check the user in when they are late and award appropriate amount of points in 481ms!
@@ -164,7 +167,9 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 
 ### 4.1. Location in Git of Front-end Test Suite:
 
-`frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt`
+`frontend/app/src/androidTest/java/com/example/get2class/AttendanceTest.kt`
+`frontend/app/src/androidTest/java/com/example/get2class/UploadScheduleTest.kt`
+`frontend/app/src/androidTest/java/com/example/get2class/ViewRouteTest.kt`
 
 #### Explanation on How to Run the Tests
 
@@ -172,13 +177,13 @@ We directly integrated these tests into our frontend tests.<br>Instructions for 
 2. Next, set up the back end and run it, to do this read get2class/backend/README.md
 3. Additionally, on the Android Studio frontend, visit the frontend/app/src/main/AndroidManifest.xml and ensure that `android:usesCleartextTraffic="true"`
 4. Make sure the settings app is on your emulated device's home screen.
-5. In the device's settings, disable "Set time automatically" and if needed set to the date to March 2025.
+5. In the device's settings, disable "Set time automatically" and, if needed, set to the date to April 2025.
 6. Turn off Window animation scale, Transition animation scale, and Animator duration scale in the device's developer settings.
 7. Copy the file get2class/documentation/View_My_Courses.xlsx to the device's downloads folder without changing its name.
 8. Make sure when tapping upload in the app, it opens to the folder containing the file.
-9. Open the test in frontend/app/src/androidTest/java/com/example/get2class/ExampleInstrumentedTest.kt.
+9. Open the test file.
 10. Change the NAME variable to the name that shows up when you sign in with Google
-11. Run the test. If it fails due to emulator lag, manually upload and clear a schedule the rerun the test. 
+11. Run the test. If it fails due to emulator lag, manually upload and clear a schedule then rerun the test. 
 
 
 ### 4.2. Tests
