@@ -2,6 +2,12 @@ import { Request, Response } from "express";
 import { client } from "../services";
 
 export class ScheduleController {
+    /**
+     * getSchedule returns back a specific schedule (fallCourseList, winterCourseList, summerCourseList) back to the user
+     * 
+     * @param req the request made by the client
+     * @param res the response that will be returned back to the client
+     */
     async getSchedule(req: Request, res: Response) {
         const sub = req.query.sub;
         const term = req.query.term;
@@ -17,6 +23,12 @@ export class ScheduleController {
         }
     }
 
+    /**
+     * saveSchedule puts a schedule into the database (could be fallCourseList, winterCourseList, or summerCourseList) and returns a success response back to the user
+     * 
+     * @param req the request made by the client
+     * @param res the response that will be returned back to the client
+     */
     async saveSchedule(req: Request, res: Response) {
         const sub = req.body.sub;
         let document;
@@ -58,6 +70,12 @@ export class ScheduleController {
         }
     }
 
+    /**
+     * clearSchedule deletes the schedule for a specific term (fallCourseList, winterCourseList, or summerCourseList)
+     * 
+     * @param req the request made by the client
+     * @param res the response that will be returned back to the client
+     */
     async clearSchedule(req: Request, res: Response) {
         const sub = req.body.sub;
         let document;
@@ -101,6 +119,13 @@ export class ScheduleController {
         }
     }
 
+    /**
+     * getAttendance retrieves the attendance value for a specific course within a specific schedule
+     * this occurs whenever the user clicks on a specific class they want to view the route for or check into
+     * 
+     * @param req the request made by the client
+     * @param res the response that will be returned back to the client
+     */
     async getAttendance(req: Request, res: Response) {
         const sub = req.query.sub;
         const className = req.query.className;
@@ -131,6 +156,13 @@ export class ScheduleController {
         }
     }
 
+    /**
+     * updateAttendance updates the attendance value for a specific course within a specific schedule
+     * this happens when the user successfully checks into a class
+     * 
+     * @param req the request made by the client
+     * @param res the response that will be returned back to the client
+     */
     async updateAttendance(req: Request, res: Response) {
         const sub = req.body.sub;
         const className = req.body.className;

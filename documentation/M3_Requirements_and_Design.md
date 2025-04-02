@@ -328,7 +328,7 @@ N/A
     - **Reason**: We can use this as a part of our attendance checker to compute the distance between the class and the user location to determine if the student can check in or not
 
 ### **4.5. Dependencies Diagram**
-![Get2Class Dependency Diagram](./images/CPEN321_Dependency_Diagram_Image_v2.png)
+![Get2Class Dependency Diagram](./images/CPEN321_Dependency_Diagram_Image_v3.png)
 
 ### **4.6. Functional Requirements Sequence Diagram**
 1. [**Sign In to Account**](#fr1_1)\
