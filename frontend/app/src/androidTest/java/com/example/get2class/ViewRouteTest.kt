@@ -147,6 +147,21 @@ private fun uiExistWithText(expectedText: String): Boolean {
     return e.exists()
 }
 
+// Use UIAutomator to click on the file in the system file picker
+private fun ui_click(elementText: String) {
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    val element = device.findObject(UiSelector().text(elementText))
+    Log.d(
+        "ui_click on $elementText",
+        "ui_click: exist - ${element.exists()}; enable - ${element.isEnabled}"
+    )
+    if (element.exists() && element.isEnabled) {
+        element.click()
+    } else {
+        throw AssertionError("Element $elementText not found in file picker")
+    }
+}
+
 private fun logInAndLoadWinterSchedule() {
     // log in
     onView(withId(R.id.login_button)).perform(click())
@@ -161,19 +176,4 @@ private fun logInAndLoadWinterSchedule() {
     onView(withId(R.id.winter_schedule)).perform(click())
     onView(withId(R.id.upload_schedule_button)).perform(click())
     waitForUIClick(FILENAME)
-}
-
-// Use UIAutomator to click on the file in the system file picker
-private fun ui_click(elementText: String) {
-    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-    val element = device.findObject(UiSelector().text(elementText))
-    Log.d(
-        "ui_click on $elementText",
-        "ui_click: exist - ${element.exists()}; enable - ${element.isEnabled}"
-    )
-    if (element.exists() && element.isEnabled) {
-        element.click()
-    } else {
-        throw AssertionError("Element $elementText not found in file picker")
-    }
 }

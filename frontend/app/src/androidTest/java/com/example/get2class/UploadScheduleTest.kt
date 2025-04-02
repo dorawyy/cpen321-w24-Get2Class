@@ -43,7 +43,7 @@ class UploadScheduleTest {
     val activityRule = ActivityScenarioRule(LoginActivity::class.java)
 
     @Test
-    fun t1_uploadScheduleTest() {
+    fun uploadScheduleTest() {
         // Log in and navigate to schedules
         onView(withId(R.id.login_button)).perform(click())
         waitForUIClick(NAME)
