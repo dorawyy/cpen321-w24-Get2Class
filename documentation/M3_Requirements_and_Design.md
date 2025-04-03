@@ -42,6 +42,8 @@
     - Updated the functional requirements to match the changes in Change 13.
 15. Updated sections 4.3 & 4.4, on March 29.
     - Added Google Places API and Navigation API and removed Firebase Cloud Messaging API
+16. Updated section 4.1, on April 2.
+    - Removed notifications and added Attendance controller
 
 
 ## 2. Project Description
@@ -262,15 +264,13 @@ N/A
             - **Purpose**: Updates the settings of a particular user (e.g. turning "On"/"Off" notifications and setting how much time before a class a user wants to be notified)
         7. void tokenSignIn(String idToken, String audience)
             - **Purpose**: Generates a subject for a specific user so users can be uniquely identified on the back end database
-3. **Notifications**
-    - **Purpose**: Schedules push notifications based of the schedules according to the users settings to remind them to leave for class
+3. **Attendance**
+    - **Purpose**: Resets the attendance of all the classes users have checked into. Additionally, a system of deducting karma for classes not attended is included.
     - **Interfaces**:
-        1. void rescheduleAllNotifications(String sub)
-            - **Purpose**: Allows all notifications to rescheduled based on an update to the pre-class notification time buffer from user settings.
-        2. void rescheduleNotificationsByTerm(String sub, String term)
-            - **Purpose**: Clears all existing notifications associated with a specified calendar and schedules new ones base don the stored class info.
-        3. void clearNotificationsByTerm(String sub, String term)
-            - **Purpose**: Clears all existing notifications associated with a specified calendar.
+        1. void resetAttendance()
+            - **Purpose**: Resets the attendance of all the classes that have been checked into for all users in the database.
+        2. void deductKarma()
+            - **Purpose**: Deducts the karma for all users per class that was not attended
 4. **Additional Component (not back end related) For Reference: Front End**
     - **Purpose**: Manages front end interactions with all other back end components of the app
     - **Interfaces**:
