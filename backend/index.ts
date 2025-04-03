@@ -92,51 +92,8 @@ ScheduleRoutes.forEach((route) => {
 });
 
 /**
- * Test routes to confirm back end is working as expected
- */
-// app.get('/get2class', (req: Request, res: Response) => {
-//     res.json({ "data": "Get2Class GET" });
-// });
-
-// app.post('/get2class', (req: Request, res: Response) => {
-//     res.json({ "data": `Client sent: ${req.body.text}` });
-// });
-
-// app.delete('/reset_db', async (req: Request, res: Response) => {
-//     try {
-//         const deleteUsers = await client.db("get2class").collection("users").deleteMany({});
-//         const deleteSchedules = await client.db("get2class").collection("schedules").deleteMany({});
-//         res.status(200).send("DB Reset");
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send(err);
-//     }
-// });
-
-// app.get('/test', async (req: Request, res: Response) => {
-//     try {
-//         resetAttendanceController.deductKarma();
-//         res.status(200).send("deducted karma");
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send(err);
-//     }
-// });
-
-/**
  * Mongo and Express connection setup
  */
-// client.connect().then(() => {
-//     console.log("MongoDB Client Connected");
-
-//     app.listen(process.env.PORT, () => {
-//         console.log("Listening on port: " + process.env.PORT);
-//     });
-// }).catch(err => {
-//     console.error(err);
-//     client.close();
-// });
-
 const serverReady: Promise<Server> = client.connect().then(() => {
     console.log("MongoDB Client Connected");
 
