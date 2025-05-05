@@ -1,4 +1,5 @@
 # Back End (TypeScript)
+Please ensure NodeJS and Docker are installed on your machine. Additionally, you can use any IDE of your choice (i.e. VSCode)
 
 ## Database Setup (Local)
 1. Run `mongodb` then connect to the `localhost` database using MongoDB Compass

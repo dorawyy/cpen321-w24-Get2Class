@@ -1,4 +1,5 @@
 # Front End (Kotlin)
+Please ensure that Android Studio is installed on your machine to access and view the front end code
 
 ## Front End Setup (Local)
 1. Visit the `local.properties` file in the root directory of the application and add `BASE_API_URL=http://10.0.2.2:3000`
